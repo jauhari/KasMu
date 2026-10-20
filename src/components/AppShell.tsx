@@ -5,10 +5,10 @@ import Sidebar from "@/components/Sidebar";
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const isLoginPage = pathname === "/login";
+  const isLoginPage = !pathname || pathname === "/login" || pathname.startsWith("/login");
 
   if (isLoginPage) {
-    return <div className="min-h-screen w-full">{children}</div>;
+    return <>{children}</>;
   }
 
   return (
