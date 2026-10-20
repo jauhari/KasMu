@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { Lock, Delete, ShieldAlert, WifiOff } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { Delete, ShieldAlert, WifiOff } from "lucide-react";
 import { toast } from "sonner";
 
 interface UserProfile {
@@ -12,16 +12,31 @@ interface UserProfile {
   role: string;
 }
 
-function LoginForm() {
+export default function LoginPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const fromUrl = searchParams.get("from") || "/";
+  const [fromUrl, setFromUrl] = useState<string>("/");
 
-  const [users, setUsers] = useState<UserProfile[]>([]);
-  const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
+  const [users, setUsers] = useState<UserProfile[]>([
+    { id: "cmvhaxa6a0000q14a0gljr5md", username: "owner", name: "Owner Agen", role: "OWNER" },
+    { id: "cmvhaxa6a0001q14ak5r00001", username: "kasir1", name: "Kasir", role: "STAFF" },
+  ]);
+  const [selectedUser, setSelectedUser] = useState<UserProfile | null>({
+    id: "cmvhaxa6a0000q14a0gljr5md",
+    username: "owner",
+    name: "Owner Agen",
+    role: "OWNER",
+  });
   const [pin, setPin] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Read query params safely on client without de-opting SSR
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      setFromUrl(params.get("from") || "/");
+    }
+  }, []);
 
   // Fetch available active users for profile selection
   useEffect(() => {
@@ -108,7 +123,8 @@ function LoginForm() {
   };
 
   return (
-    <div className="w-full max-w-sm space-y-6">
+    <div className="min-h-screen w-full bg-slate-50 dark:bg-[#070b14] flex flex-col justify-center items-center p-4 select-none transition-colors">
+      <div className="w-full max-w-sm space-y-6">
       {/* Brand Header */}
       <div className="text-center space-y-1.5">
         <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-blue-600 text-white font-bold text-xl shadow-md shadow-blue-600/20 mb-2">
@@ -227,16 +243,7 @@ function LoginForm() {
         <WifiOff className="w-3 h-3 text-emerald-500" />
         <span>Autentikasi terenkripsi lokal 100% offline</span>
       </div>
-    </div>
-  );
-}
-
-export default function LoginPage() {
-  return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#070b14] flex flex-col justify-center items-center p-4 select-none transition-colors">
-      <Suspense fallback={<div className="text-xs text-slate-400">Memuat layar kunci...</div>}>
-        <LoginForm />
-      </Suspense>
+      </div>
     </div>
   );
 }
