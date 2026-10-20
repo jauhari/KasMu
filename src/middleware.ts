@@ -29,6 +29,14 @@ export async function middleware(req: NextRequest) {
   // 2. Baca cookie sesi
   const token = req.cookies.get(SESSION_COOKIE_NAME)?.value;
 
+  // Helper untuk redirect aman di balik reverse proxy (Caddy / Cloudflare)
+  const getLoginRedirect = () => {
+    const proto = req.headers.get("x-forwarded-proto") || (req.url.startsWith("https") ? "https" : "http");
+    const host = req.headers.get("x-forwarded-host") || req.headers.get("host") || "kasmu.jauhari.net";
+    const loginUrl = new URL(`/login?from=${encodeURIComponent(pathname)}`, `${proto}://${host}`);
+    return NextResponse.redirect(loginUrl);
+  };
+
   if (!token) {
     if (pathname.startsWith("/api/")) {
       return NextResponse.json(
@@ -36,9 +44,7 @@ export async function middleware(req: NextRequest) {
         { status: 401 }
       );
     }
-    const loginUrl = new URL("/login", req.url);
-    loginUrl.searchParams.set("from", pathname);
-    return NextResponse.redirect(loginUrl);
+    return getLoginRedirect();
   }
 
   // 3. Verifikasi keabsahan tanda tangan token
@@ -51,9 +57,7 @@ export async function middleware(req: NextRequest) {
         { status: 401 }
       );
     }
-    const loginUrl = new URL("/login", req.url);
-    loginUrl.searchParams.set("from", pathname);
-    return NextResponse.redirect(loginUrl);
+    return getLoginRedirect();
   }
 
   // Sesi valid, teruskan request
