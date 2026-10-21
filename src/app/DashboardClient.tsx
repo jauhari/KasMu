@@ -131,6 +131,8 @@ export default function DashboardClient({ initialData, currentUser }: DashboardC
   };
 
   const accounts = data?.accounts || [];
+  // Pie tak bisa menggambar nilai negatif — tampilkan hanya saldo positif
+  const pieAccounts = accounts.filter((a: any) => Number(a.balance) > 0);
   const totalBalance = data?.totalBalance || 0;
   const latestTxs = data?.latestTransactions || [];
   const chartData = data?.chartData || [];
@@ -321,7 +323,7 @@ export default function DashboardClient({ initialData, currentUser }: DashboardC
                   className="flex items-center justify-between p-2.5 rounded-none border border-slate-700/60 hover:bg-[#15151a]/50 transition-colors group text-xs"
                 >
                   <div className="min-w-0 pr-2">
-                    <div className="font-semibold text-slate-900 text-slate-300 flex items-center gap-1.5 truncate">
+                    <div className="font-semibold text-slate-200 flex items-center gap-1.5 truncate">
                       <span className="truncate">{tx.category.replace(/_/g, " ")}</span>
                       <span className="text-[10px] text-slate-600 font-mono shrink-0">
                         ({tx.account?.name || "Provider"})
@@ -342,7 +344,7 @@ export default function DashboardClient({ initialData, currentUser }: DashboardC
                       <div className="font-bold font-mono text-emerald-600 dark:text-emerald-400 text-xs sm:text-sm">
                         +{formatRupiah(isOwner ? tx.netProfit : tx.customerFee || 0)}
                       </div>
-                      <span className="inline-block text-[8px] sm:text-[9px] font-medium text-emerald-700 dark:text-emerald-400 bg-emerald-50 bg-emerald-900/20 px-1 rounded border border-emerald-200 border-emerald-700/50">
+                      <span className="inline-block text-[8px] sm:text-[9px] font-medium text-emerald-400 bg-emerald-900/20 px-1 rounded border border-emerald-700/50">
                         {isOwner ? "SUKSES" : "FEE JASA"}
                       </span>
                     </div>
@@ -377,13 +379,17 @@ export default function DashboardClient({ initialData, currentUser }: DashboardC
             </div>
 
             <div className="h-40 sm:h-44 w-full flex items-center justify-center my-2">
-              {accounts.length === 0 ? (
-                <p className="text-slate-400 text-xs">Belum ada akun saldo</p>
+              {pieAccounts.length === 0 ? (
+                <p className="text-slate-400 text-xs">
+                  {accounts.length === 0
+                    ? "Belum ada akun saldo"
+                    : "Belum ada saldo positif untuk ditampilkan"}
+                </p>
               ) : mounted ? (
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
-                      data={accounts}
+                      data={pieAccounts}
                       dataKey="balance"
                       nameKey="name"
                       cx="50%"
@@ -392,7 +398,7 @@ export default function DashboardClient({ initialData, currentUser }: DashboardC
                       outerRadius={68}
                       paddingAngle={3}
                     >
-                      {accounts.map((acc: any, index: number) => (
+                      {pieAccounts.map((acc: any, index: number) => (
                         <Cell
                           key={`cell-${index}`}
                           fill={acc.color || PIE_COLORS[index % PIE_COLORS.length]}
@@ -426,7 +432,7 @@ export default function DashboardClient({ initialData, currentUser }: DashboardC
                     className="w-2.5 h-2.5 rounded-full shrink-0"
                     style={{ backgroundColor: acc.color || PIE_COLORS[index % PIE_COLORS.length] }}
                   ></span>
-                  <span className="text-slate-700 text-slate-400 truncate text-[11px]">{acc.name}</span>
+                  <span className="text-slate-400 truncate text-[11px]">{acc.name}</span>
                   <span className="text-slate-600 font-mono text-[10px] ml-auto shrink-0">
                     {formatRupiah(acc.balance)}
                   </span>
@@ -523,7 +529,7 @@ export default function DashboardClient({ initialData, currentUser }: DashboardC
       {!isOwner && (
         <div className="bg-blue-50/50 dark:bg-blue-950/20 border border-blue-200/50 dark:border-blue-900/40 rounded-none p-4 flex items-start gap-3">
           <HelpCircle className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
-          <div className="text-xs text-slate-600 text-slate-400 space-y-1">
+          <div className="text-xs text-slate-400 space-y-1">
             <p className="font-semibold text-white">Panduan Shift Kasir:</p>
             <p>1. Selalu catat transaksi segera setelah nasabah menyetorkan atau menarik uang tunai.</p>
             <p>2. Tekan tombol <strong>F2</strong> di keyboard atau tombol <strong>+</strong> di navigasi bawah untuk membuka form transaksi kilat.</p>
