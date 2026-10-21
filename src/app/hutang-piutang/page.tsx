@@ -6,6 +6,7 @@ import QuickTransactionModal from "@/components/QuickTransactionModal";
 import { formatRupiah } from "@/lib/utils";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
+import { Input, Button } from "@/components/ui";
 
 export default function HutangPiutangPage() {
   const [records, setRecords] = useState<any[]>([]);
@@ -34,8 +35,7 @@ export default function HutangPiutangPage() {
     loadRecords();
   }, []);
 
-  const handleCreate = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleCreate = async () => {
     try {
       const res = await fetch("/api/debt-loans", {
         method: "POST",
@@ -93,21 +93,18 @@ export default function HutangPiutangPage() {
 
       <div className="flex justify-between items-center">
         <div>
-          <h3 className="text-sm font-bold text-slate-900 dark:text-white">Daftar Hutang / Piutang</h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400">Monitoring kasbon talangan nasabah counter</p>
+          <h3 className="text-sm font-bold text-white">Daftar Hutang / Piutang</h3>
+          <p className="text-xs text-slate-500">Monitoring kasbon talangan nasabah counter</p>
         </div>
-        <button
-          onClick={() => setShowAddModal(true)}
-          className="px-3.5 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
-        >
-          <Plus className="w-4 h-4" />
+        <Button onClick={() => setShowAddModal(true)} variant="solid" size="sm">
+          <Plus className="w-3.5 h-3.5" />
           <span>Tambah Catatan</span>
-        </button>
+        </Button>
       </div>
 
-      <div className="bg-white dark:bg-[#0f1626] border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden transition-colors">
+      <div className="bg-[#0d0d11] border border-slate-700 rounded-none shadow-sm overflow-hidden transition-colors">
         <table className="w-full text-left text-xs">
-          <thead className="bg-slate-100 dark:bg-slate-900/80 text-slate-600 dark:text-slate-400 uppercase tracking-wider font-semibold border-b border-slate-200 dark:border-slate-800 text-[10px]">
+          <thead className="bg-[#15151a] text-slate-500 uppercase tracking-wider font-semibold border-b border-slate-700 text-[10px]">
             <tr>
               <th className="px-4 py-3">Tanggal</th>
               <th className="px-4 py-3">Tipe</th>
@@ -118,48 +115,48 @@ export default function HutangPiutangPage() {
               <th className="px-4 py-3 text-center">Aksi</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80 text-slate-700 dark:text-slate-300">
+          <tbody className="divide-y divide-slate-800/50 text-slate-400">
             {loading ? (
               <tr>
-                <td colSpan={7} className="text-center py-8 text-slate-400">Memuat catatan...</td>
+                <td colSpan={7} className="text-center py-8 text-slate-600">Memuat catatan...</td>
               </tr>
             ) : records.length === 0 ? (
               <tr>
-                <td colSpan={7} className="text-center py-8 text-slate-400">Belum ada catatan hutang / piutang</td>
+                <td colSpan={7} className="text-center py-8 text-slate-600">Belum ada catatan hutang / piutang</td>
               </tr>
             ) : (
               records.map((r) => (
-                <tr key={r.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40">
-                  <td className="px-4 py-3 text-slate-500 dark:text-slate-400">
+                <tr key={r.id} className="hover:bg-[#15151a]/50">
+                  <td className="px-4 py-3 text-slate-600">
                     {new Date(r.createdAt).toLocaleDateString("id-ID")}
                   </td>
                   <td className="px-4 py-3">
                     <span
-                      className={`px-1.5 py-0.5 rounded text-[9px] font-semibold border ${
+                      className={`px-1.5 py-0.5 rounded-none text-[9px] font-semibold border ${
                         r.type === "PIUTANG"
-                          ? "bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400 border-rose-200 dark:border-rose-900"
-                          : "bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-900"
+                          ? "border-rose-700/50 bg-rose-900/20 text-rose-400"
+                          : "border-amber-700/50 bg-amber-900/20 text-amber-400"
                       }`}
                     >
                       {r.type === "PIUTANG" ? "PIUTANG (KASBON)" : "HUTANG TOKO"}
                     </span>
                   </td>
                   <td className="px-4 py-3">
-                    <div className="font-semibold text-slate-900 dark:text-white">{r.partyName}</div>
-                    <div className="text-[10px] text-slate-400 font-mono">{r.phone || "-"}</div>
+                    <div className="font-semibold text-white">{r.partyName}</div>
+                    <div className="text-[10px] text-slate-600 font-mono">{r.phone || "-"}</div>
                   </td>
-                  <td className="px-4 py-3 text-right font-mono font-medium text-slate-900 dark:text-white">
+                  <td className="px-4 py-3 text-right font-mono font-medium text-white">
                     {formatRupiah(r.amount)}
                   </td>
-                  <td className="px-4 py-3 text-right font-mono font-bold text-rose-600 dark:text-rose-400">
+                  <td className="px-4 py-3 text-right font-mono font-bold text-rose-400">
                     {formatRupiah(r.remaining)}
                   </td>
                   <td className="px-4 py-3 text-center">
                     <span
-                      className={`px-1.5 py-0.5 rounded text-[9px] font-semibold border ${
+                      className={`px-1.5 py-0.5 rounded-none text-[9px] font-semibold border ${
                         r.status === "PAID"
-                          ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900"
-                          : "bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-900"
+                          ? "border-emerald-700/50 bg-emerald-900/20 text-emerald-400"
+                          : "border-amber-700/50 bg-amber-900/20 text-amber-400"
                       }`}
                     >
                       {r.status === "PAID" ? "LUNAS" : "BELUM LUNAS"}
@@ -169,7 +166,7 @@ export default function HutangPiutangPage() {
                     {r.status !== "PAID" && (
                       <button
                         onClick={() => handlePay(r.id, r.remaining)}
-                        className="px-2 py-1 rounded bg-blue-50 dark:bg-blue-950/60 hover:bg-blue-600 hover:text-white text-blue-700 dark:text-blue-400 font-semibold text-[10px] transition-colors border border-blue-200 dark:border-blue-900"
+                        className="px-2 py-1 rounded-none bg-blue-900/20 hover:bg-blue-600 hover:text-white text-blue-500 font-semibold text-[10px] transition-colors border border-blue-700/50"
                       >
                         Lunasi
                       </button>
@@ -183,18 +180,20 @@ export default function HutangPiutangPage() {
       </div>
 
       {showAddModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 dark:bg-black/75 backdrop-blur-sm">
-          <div className="bg-white dark:bg-[#0f1626] border border-slate-200 dark:border-slate-800 rounded-xl w-full max-w-sm p-5 text-slate-900 dark:text-slate-100 shadow-xl space-y-4">
-            <h3 className="text-sm font-bold text-slate-900 dark:text-white">Tambah Catatan Hutang / Piutang</h3>
-            <form onSubmit={handleCreate} className="space-y-3 text-xs">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+          <div className="bg-[#0c1220] border border-slate-700 rounded-none w-full max-w-sm p-5 text-white shadow-xl space-y-4">
+            <h3 className="text-sm font-bold text-white uppercase tracking-tighter text-[10px] letter-spacing-[0.05em]">
+              Tambah Catatan Hutang / Piutang
+            </h3>
+            <div className="space-y-4 text-xs">
               <div className="grid grid-cols-2 gap-2">
                 <button
                   type="button"
                   onClick={() => setType("PIUTANG")}
-                  className={`py-1.5 rounded-lg font-medium border text-xs transition-all ${
+                  className={`py-1.5 rounded-none font-medium border text-xs transition-all ${
                     type === "PIUTANG"
-                      ? "bg-rose-50 dark:bg-rose-950/40 border-rose-300 dark:border-rose-800 text-rose-700 dark:text-rose-400 font-bold"
-                      : "bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400"
+                      ? "border-rose-600 bg-rose-900/20 text-rose-400 font-bold"
+                      : "border-slate-700 bg-transparent text-slate-500"
                   }`}
                 >
                   Piutang (Kasbon Nasabah)
@@ -202,67 +201,57 @@ export default function HutangPiutangPage() {
                 <button
                   type="button"
                   onClick={() => setType("HUTANG")}
-                  className={`py-1.5 rounded-lg font-medium border text-xs transition-all ${
+                  className={`py-1.5 rounded-none font-medium border text-xs transition-all ${
                     type === "HUTANG"
-                      ? "bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-800 text-amber-700 dark:text-amber-400 font-bold"
-                      : "bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400"
+                      ? "border-amber-600 bg-amber-900/20 text-amber-400 font-bold"
+                      : "border-slate-700 bg-transparent text-slate-500"
                   }`}
                 >
                   Hutang Toko
                 </button>
               </div>
 
-              <div>
-                <label className="block text-slate-700 dark:text-slate-300 mb-1 font-semibold">Nama Pihak / Nasabah</label>
-                <input
-                  type="text"
-                  placeholder="Contoh: Pak Joko"
-                  value={partyName}
-                  onChange={(e) => setPartyName(e.target.value)}
-                  className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2 text-slate-900 dark:text-white focus:outline-none"
-                  required
-                />
-              </div>
+              <Input
+                label="Nama Pihak / Nasabah"
+                value={partyName}
+                onValueChange={setPartyName}
+                placeholder="Contoh: Pak Joko"
+                required
+              />
 
-              <div>
-                <label className="block text-slate-700 dark:text-slate-300 mb-1 font-semibold">No HP / WhatsApp</label>
-                <input
-                  type="text"
-                  placeholder="Contoh: 08123456789"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2 font-mono text-slate-900 dark:text-white focus:outline-none"
-                />
-              </div>
+              <Input
+                label="No HP / WhatsApp"
+                value={phone}
+                onValueChange={setPhone}
+                placeholder="Contoh: 08123456789"
+              />
 
-              <div>
-                <label className="block text-slate-700 dark:text-slate-300 mb-1 font-semibold">Nominal (Rp)</label>
-                <input
-                  type="number"
-                  placeholder="0"
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                  className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2 font-mono font-bold text-slate-900 dark:text-white focus:outline-none"
-                  required
-                />
-              </div>
+              <Input
+                label="Nominal (Rp)"
+                value={amount}
+                onValueChange={setAmount}
+                type="number"
+                placeholder="0"
+                required
+              />
 
-              <div className="flex justify-end gap-2 pt-2">
+              <div className="flex justify-end gap-3 pt-2">
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
-                  className="px-3.5 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-medium"
+                  className="px-3.5 py-1.5 rounded-none bg-slate-800 hover:bg-slate-700 text-slate-400 font-medium text-xs transition-colors"
                 >
                   Batal
                 </button>
                 <button
-                  type="submit"
-                  className="px-4 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold"
+                  type="button"
+                  onClick={handleCreate}
+                  className="px-4 py-1.5 rounded-none bg-amber-600 hover:bg-amber-500 text-white font-semibold text-xs transition-colors shadow-amber-600/20"
                 >
                   Simpan
                 </button>
               </div>
-            </form>
+            </div>
           </div>
         </div>
       )}

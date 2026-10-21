@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Delete, Lock, Loader2, ArrowRight, Sun, Moon, ShieldCheck } from "lucide-react";
 import { useTheme } from "@/components/ThemeProvider";
+import { Button, Badge } from "@/components/ui";
 
 export interface UserProfile {
   id: string;
@@ -33,11 +34,12 @@ export default function LoginForm({ initialUsers }: LoginFormProps) {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Zero-hydration DOM refs for instant pre-hydration response
   const pinInputRef = useRef<HTMLInputElement>(null);
+  const userIdInputRef = useRef<HTMLInputElement>(null);
 
   // Initialize client setup
   useEffect(() => {
-    // Notify window that React has hydrated
     (window as any).__kmReactReady = true;
 
     try {
@@ -49,11 +51,8 @@ export default function LoginForm({ initialUsers }: LoginFormProps) {
       if (errorParam === "pin_required") setError("PIN wajib dimasukkan");
     } catch {}
 
-    // Enable CSS :active pseudo-class on iOS Safari
-    const enableActiveTouch = () => {};
-    window.addEventListener("touchstart", enableActiveTouch, { passive: true });
+    window.addEventListener("touchstart", () => {}, { passive: true });
     return () => {
-      window.removeEventListener("touchstart", enableActiveTouch);
       (window as any).__kmReactReady = false;
     };
   }, []);
@@ -62,6 +61,7 @@ export default function LoginForm({ initialUsers }: LoginFormProps) {
     setSelectedUser(u);
     setPin("");
     setError(null);
+    if (userIdInputRef.current) userIdInputRef.current.value = u.id;
     if (pinInputRef.current) pinInputRef.current.value = "";
   };
 
@@ -97,7 +97,6 @@ export default function LoginForm({ initialUsers }: LoginFormProps) {
     if (pinInputRef.current) pinInputRef.current.value = "";
   };
 
-  // Keyboard listener
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (loading) return;
@@ -155,39 +154,36 @@ export default function LoginForm({ initialUsers }: LoginFormProps) {
   };
 
   return (
-    <div className="min-h-screen w-full bg-slate-50 dark:bg-[#070b14] flex flex-col justify-center items-center p-4 transition-colors relative selection:bg-blue-500 selection:text-white">
-      {/* Top Bar: Theme Toggle */}
+    <div className="min-h-screen w-full bg-[#050507] flex flex-col justify-center items-center p-4 transition-colors relative selection:bg-amber-600 selection:text-white">
       <div className="absolute top-4 right-4 z-10">
         <button
           type="button"
           onClick={toggleTheme}
           aria-label="Ganti Tema Tampilan"
-          className="p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 shadow-sm hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer active:scale-95"
+          className="p-2 border border-slate-700 text-slate-400 hover:text-white hover:border-slate-500 transition-colors bg-[#0d0d11] active:scale-95"
         >
-          {theme === "dark" ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-blue-600" />}
+          {theme === "dark" ? <Sun className="w-4 h-4 text-amber-500" /> : <Moon className="w-4 h-4 text-blue-500" />}
         </button>
       </div>
 
-      <div className="w-full max-w-sm space-y-4">
-        {/* Brand Header */}
-        <div className="text-center space-y-1">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-blue-600 text-white font-bold text-xl shadow-md shadow-blue-600/20 mb-1">
+      <div className="w-full max-w-sm space-y-5">
+        <div className="text-center space-y-2">
+          <div className="inline-flex items-center justify-center w-12 h-12 border border-slate-700 text-white font-bold text-xl bg-[#0d0d11] shadow-lg shadow-amber-500/10">
             KM
           </div>
-          <h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center justify-center gap-2">
+          <h1 className="text-xl font-bold tracking-tight text-white flex items-center justify-center gap-2">
             KasMu
-            <span className="text-[10px] font-semibold bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-400 px-2 py-0.5 rounded border border-blue-200 dark:border-blue-900">
+            <Badge variant="default" className="text-[10px] bg-slate-800 border-slate-700 text-slate-400 px-2 py-0.5">
               Layar Kunci
-            </span>
+            </Badge>
           </h1>
-          <p className="text-xs text-slate-500 dark:text-slate-400">
+          <p className="text-xs text-slate-500">
             Aplikasi Pembukuan Mini-ATM & Keagenan Bank
           </p>
         </div>
 
-        {/* User Role Selection Tabs */}
         {users.length > 0 && (
-          <div className="flex bg-slate-200/80 dark:bg-slate-900 p-1 rounded-xl border border-slate-300 dark:border-slate-800 text-xs">
+          <div className="flex bg-[#0d0d11] p-0.5 rounded-none border border-slate-700 text-xs">
             {users.map((u) => {
               const isSelected = selectedUser?.id === u.id;
               return (
@@ -196,15 +192,15 @@ export default function LoginForm({ initialUsers }: LoginFormProps) {
                   type="button"
                   data-user-id={u.id}
                   onClick={() => handleSelectUser(u)}
-                  className={`km-user-btn flex-1 py-2 px-2 rounded-lg font-medium transition-all text-center truncate cursor-pointer select-none active:scale-95 ${
+                  className={`km-user-btn flex-1 py-2 px-2 rounded-none font-medium transition-all text-center truncate cursor-pointer select-none active:scale-95 border-t border-b border-l ${
                     isSelected
-                      ? "bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm font-semibold"
-                      : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
-                  }`}
+                      ? "border-amber-600 bg-[#15151a] text-white shadow-sm font-bold border-r-0"
+                      : "text-slate-500 hover:text-white hover:border-slate-600"
+                  } ${u.id === users[users.length - 1].id ? "border-r" : "border-r-0"}`}
                 >
                   <span className="block truncate">{u.name}</span>
-                  <span className="text-[9px] text-slate-400 uppercase font-mono block">
-                    {u.role === "OWNER" ? "PEMILIK (OWNER)" : "KASIR (STAFF)"}
+                  <span className="text-[9px] text-slate-600 uppercase font-mono block">
+                    {u.role === "OWNER" ? "PEMILIK" : "KASIR"}
                   </span>
                 </button>
               );
@@ -212,53 +208,27 @@ export default function LoginForm({ initialUsers }: LoginFormProps) {
           </div>
         )}
 
-        {/* Main PIN Container Form */}
-        <form
-          id="km-auth-form"
-          action="/api/auth/login"
-          method="POST"
-          onSubmit={(e) => {
-            e.preventDefault();
-            executeLogin(pin, selectedUser?.id);
-          }}
-          className="bg-white dark:bg-[#0f1626] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-4"
-        >
+        <div className="bg-[#0d0d11] border border-slate-700 rounded-none p-5 shadow-xl space-y-5">
+          {/* Hidden inputs for form submission */}
           <input
             id="km-user-id-input"
             type="hidden"
-            name="userId"
+            ref={userIdInputRef}
             value={selectedUser?.id || ""}
+            name="userId"
           />
           <input type="hidden" name="from" value={fromUrl} />
-
-          {/* Hidden input for direct typing */}
           <input
             id="km-pin-input"
             ref={pinInputRef}
-            type="password"
+            type="hidden"
             name="pin"
-            inputMode="numeric"
-            pattern="[0-9]*"
-            maxLength={6}
-            autoComplete="current-password"
             value={pin}
-            onChange={(e) => {
-              const val = e.target.value.replace(/\D/g, "").slice(0, 6);
-              setPin(val);
-              setError(null);
-              if (val.length === 6) {
-                setTimeout(() => executeLogin(val, selectedUser?.id), 50);
-              }
-            }}
-            className="sr-only"
-            tabIndex={-1}
-            aria-hidden="true"
           />
 
-          {/* 6-Digit PIN Display Indicator */}
+          {/* 6-Digit PIN Display */}
           <div
-            onClick={() => pinInputRef.current?.focus()}
-            className="flex justify-center items-center gap-2 sm:gap-2.5 py-1 cursor-pointer select-none"
+            className="flex justify-center items-center gap-3 py-2 cursor-pointer select-none"
             title="Klik untuk memasukkan PIN"
           >
             {[0, 1, 2, 3, 4, 5].map((index) => {
@@ -268,12 +238,12 @@ export default function LoginForm({ initialUsers }: LoginFormProps) {
                 <div
                   key={index}
                   data-idx={index}
-                  className={`km-pin-dot w-10 h-12 sm:w-11 sm:h-13 rounded-xl border-2 flex items-center justify-center font-mono text-2xl font-bold transition-all duration-150 select-none ${
+                  className={`km-pin-dot w-10 h-12 rounded-none border-2 flex items-center justify-center font-mono text-2xl font-bold transition-all duration-150 select-none ${
                     isFilled
-                      ? "border-blue-600 dark:border-blue-500 bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 scale-105 shadow-sm"
+                      ? "border-amber-600 bg-[#15151a] text-amber-400 scale-105 shadow-sm"
                       : isCurrent
-                      ? "border-blue-500 dark:border-blue-400 ring-2 ring-blue-500/20 bg-white dark:bg-slate-900"
-                      : "border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40 text-transparent"
+                      ? "border-amber-500 ring-1 ring-amber-500/30 bg-[#050507]"
+                      : "border-slate-700 bg-[#0d0d11] text-transparent"
                   }`}
                 >
                   {isFilled ? "•" : ""}
@@ -285,66 +255,63 @@ export default function LoginForm({ initialUsers }: LoginFormProps) {
           {/* Status / Error Message */}
           <div className="min-h-[22px] flex items-center justify-center text-center">
             {loading ? (
-              <div className="text-xs text-blue-600 dark:text-blue-400 flex items-center gap-1.5 font-medium animate-pulse">
+              <div className="text-xs text-amber-500 flex items-center gap-2 font-medium animate-pulse">
                 <Loader2 className="w-3.5 h-3.5 animate-spin" />
                 <span>Memverifikasi PIN...</span>
               </div>
             ) : error ? (
-              <div className="text-xs text-rose-600 dark:text-rose-400 flex items-center gap-1.5 font-medium">
+              <div className="text-xs text-rose-400 flex items-center gap-2 font-medium">
                 <Lock className="w-3.5 h-3.5 shrink-0" />
                 <span className="km-error-msg">{error}</span>
               </div>
             ) : (
-              <span className="km-pin-status text-[11px] text-slate-400">
-                {pin.length > 0 ? `${pin.length} / 6 digit dimasukkan` : "Tekan tombol angka atau gunakan keyboard"}
+              <span className="km-pin-status text-[11px] text-slate-500">
+                {pin.length > 0 ? `${pin.length} / 6 digit` : "Tekan tombol angka atau keyboard"}
               </span>
             )}
           </div>
 
           {/* Touch-optimized Keypad Grid */}
-          <div className="grid grid-cols-3 gap-2 sm:gap-2.5 pt-0.5">
-            {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((num) => (
+          <div className="grid grid-cols-3 gap-3 pt-1">
+{["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((num) => (
               <button
                 key={num}
                 type="button"
                 data-digit={num}
                 onClick={() => handleDigit(num)}
                 disabled={loading}
-                className="h-13 sm:h-15 rounded-xl bg-slate-50 dark:bg-slate-800/80 hover:bg-slate-100 dark:hover:bg-slate-700/80 active:bg-blue-600 active:text-white dark:active:bg-blue-600 text-slate-900 dark:text-white font-mono text-2xl font-bold border border-slate-200 dark:border-slate-700 active:scale-90 transition-all flex items-center justify-center cursor-pointer shadow-sm select-none"
+                className="h-14 rounded-none bg-[#0d0d11] hover:bg-[#15151a] active:bg-amber-600 active:text-white text-white font-mono text-2xl font-bold border border-slate-700 active:scale-95 transition-all flex items-center justify-center cursor-pointer select-none shadow-sm"
               >
                 {num}
               </button>
             ))}
 
-            {/* Clear Button */}
             <button
               type="button"
               data-action="clear"
               onClick={handleClear}
               disabled={loading}
-              className="h-13 sm:h-15 rounded-xl bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 active:bg-slate-300 dark:active:bg-slate-700 text-slate-600 dark:text-slate-400 text-xs font-bold border border-slate-200 dark:border-slate-800 active:scale-90 transition-all flex items-center justify-center cursor-pointer select-none"
+              className="h-14 rounded-none bg-[#0d0d11] hover:bg-[#15151a] active:bg-slate-700 text-slate-500 font-bold border border-slate-700 active:scale-95 transition-all flex items-center justify-center cursor-pointer select-none"
             >
               HAPUS
             </button>
 
-            {/* Zero Digit */}
             <button
               type="button"
               data-digit="0"
               onClick={() => handleDigit("0")}
               disabled={loading}
-              className="h-13 sm:h-15 rounded-xl bg-slate-50 dark:bg-slate-800/80 hover:bg-slate-100 dark:hover:bg-slate-700/80 active:bg-blue-600 active:text-white dark:active:bg-blue-600 text-slate-900 dark:text-white font-mono text-2xl font-bold border border-slate-200 dark:border-slate-700 active:scale-90 transition-all flex items-center justify-center cursor-pointer shadow-sm select-none"
+              className="h-14 rounded-none bg-[#0d0d11] hover:bg-[#15151a] active:bg-amber-600 active:text-white text-white font-mono text-2xl font-bold border border-slate-700 active:scale-95 transition-all flex items-center justify-center cursor-pointer select-none shadow-sm"
             >
               0
             </button>
 
-            {/* Backspace Button */}
             <button
               type="button"
               data-action="backspace"
               onClick={handleBackspace}
               disabled={loading}
-              className="h-13 sm:h-15 rounded-xl bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 active:bg-slate-300 dark:active:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-800 active:scale-90 transition-all flex items-center justify-center cursor-pointer select-none"
+              className="h-14 rounded-none bg-[#0d0d11] hover:bg-[#15151a] active:bg-slate-700 text-slate-400 border border-slate-700 active:scale-95 transition-all flex items-center justify-center cursor-pointer select-none"
             >
               <Delete className="w-5 h-5" />
             </button>
@@ -352,12 +319,13 @@ export default function LoginForm({ initialUsers }: LoginFormProps) {
 
           {/* Submit Action Button */}
           <button
-            type="submit"
+            type="button"
             disabled={pin.length < 6 || loading}
-            className={`w-full py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 shadow-sm transition-all ${
+            onClick={() => executeLogin(pin, selectedUser?.id)}
+            className={`w-full py-3.5 rounded-none font-bold text-sm flex items-center justify-center gap-2 shadow-sm transition-all border border-transparent ${
               pin.length === 6 && !loading
-                ? "bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white shadow-blue-600/30 cursor-pointer active:scale-95"
-                : "bg-slate-100 dark:bg-slate-800/50 text-slate-400 dark:text-slate-600 cursor-not-allowed border border-slate-200 dark:border-slate-800"
+                ? "bg-amber-600 hover:bg-amber-500 active:bg-amber-700 text-white shadow-amber-600/20 cursor-pointer active:scale-95"
+                : "bg-[#0d0d11] text-slate-600 border-slate-700 cursor-not-allowed"
             }`}
           >
             {loading ? (
@@ -372,78 +340,77 @@ export default function LoginForm({ initialUsers }: LoginFormProps) {
               </>
             )}
           </button>
-        </form>
+        </div>
 
-        {/* Security Note */}
-        <div className="text-center text-[11px] text-slate-400 flex items-center justify-center gap-1.5 pt-1 select-none">
+        <div className="text-center text-[11px] text-slate-600 flex items-center justify-center gap-2 pt-1 select-none">
           <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
-          <span>Autentikasi offline terenkripsi HMAC-SHA256</span>
+          <span>Autentikasi offline HMAC-SHA256</span>
         </div>
       </div>
 
-      {/* Zero-Hydration Standalone DOM Controller (Enables instant response before React hydrates) */}
       <script
         dangerouslySetInnerHTML={{
           __html: `
 (function() {
-  // Enable active pseudo-class on iOS Safari
   document.addEventListener('touchstart', function() {}, { passive: true });
 
   function initKeypad() {
     var form = document.getElementById('km-auth-form');
-    if (!form || form.dataset.initDone) return;
-    form.dataset.initDone = '1';
-
     var pinInput = document.getElementById('km-pin-input');
     var userIdInput = document.getElementById('km-user-id-input');
-    var dots = form.querySelectorAll('.km-pin-dot');
-    var statusText = form.querySelector('.km-pin-status');
-    var submitBtn = form.querySelector('button[type="submit"]');
+    if (!pinInput || !userIdInput) return;
+
+    var dots = document.querySelectorAll('.km-pin-dot');
+    var statusText = document.querySelector('.km-pin-status');
+    var submitBtn = document.querySelector('button[type="button"]:last-of-type');
 
     function syncDots(val) {
-      if (pinInput) pinInput.value = val;
+      pinInput.value = val;
       dots.forEach(function(dot, idx) {
         if (idx < val.length) {
           dot.textContent = '•';
-          dot.className = 'km-pin-dot w-10 h-12 sm:w-11 sm:h-13 rounded-xl border-2 flex items-center justify-center font-mono text-2xl font-bold transition-all duration-150 select-none border-blue-600 dark:border-blue-500 bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 scale-105 shadow-sm';
+          dot.className = 'km-pin-dot w-10 h-12 rounded-none border-2 flex items-center justify-center font-mono text-2xl font-bold transition-all duration-150 select-none border-amber-600 bg-[#15151a] text-amber-400 scale-105 shadow-sm';
         } else if (idx === val.length) {
           dot.textContent = '';
-          dot.className = 'km-pin-dot w-10 h-12 sm:w-11 sm:h-13 rounded-xl border-2 flex items-center justify-center font-mono text-2xl font-bold transition-all duration-150 select-none border-blue-500 dark:border-blue-400 ring-2 ring-blue-500/20 bg-white dark:bg-slate-900';
+          dot.className = 'km-pin-dot w-10 h-12 rounded-none border-2 flex items-center justify-center font-mono text-2xl font-bold transition-all duration-150 select-none border-amber-500 ring-1 ring-amber-500/30 bg-[#050507]';
         } else {
           dot.textContent = '';
-          dot.className = 'km-pin-dot w-10 h-12 sm:w-11 sm:h-13 rounded-xl border-2 flex items-center justify-center font-mono text-2xl font-bold transition-all duration-150 select-none border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40 text-transparent';
+          dot.className = 'km-pin-dot w-10 h-12 rounded-none border-2 flex items-center justify-center font-mono text-2xl font-bold transition-all duration-150 select-none border-slate-700 bg-[#0d0d11] text-transparent';
         }
       });
       if (statusText) {
-        statusText.textContent = val.length > 0 ? (val.length + ' / 6 digit dimasukkan') : 'Tekan tombol angka atau gunakan keyboard';
+        statusText.textContent = val.length > 0 ? (val.length + ' / 6 digit') : 'Tekan tombol angka atau keyboard';
       }
       if (submitBtn) {
         if (val.length === 6) {
-          submitBtn.removeAttribute('disabled');
-          submitBtn.className = 'w-full py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 shadow-sm transition-all bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white shadow-blue-600/30 cursor-pointer active:scale-95';
+          submitBtn.className = 'w-full py-3.5 rounded-none font-bold text-sm flex items-center justify-center gap-2 shadow-sm transition-all border border-transparent bg-amber-600 hover:bg-amber-500 active:bg-amber-700 text-white shadow-amber-600/20 cursor-pointer active:scale-95';
+          submitBtn.disabled = false;
         } else {
-          submitBtn.setAttribute('disabled', 'true');
-          submitBtn.className = 'w-full py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 shadow-sm transition-all bg-slate-100 dark:bg-slate-800/50 text-slate-400 dark:text-slate-600 cursor-not-allowed border border-slate-200 dark:border-slate-800';
+          submitBtn.className = 'w-full py-3.5 rounded-none font-bold text-sm flex items-center justify-center gap-2 shadow-sm transition-all border border-transparent bg-[#0d0d11] text-slate-600 border-slate-700 cursor-not-allowed';
+          submitBtn.disabled = true;
         }
       }
     }
 
-    form.querySelectorAll('button[data-digit]').forEach(function(btn) {
+    document.querySelectorAll('button[data-digit]').forEach(function(btn) {
       btn.addEventListener('click', function() {
         if (window.__kmReactReady) return;
         var digit = btn.getAttribute('data-digit');
-        var curr = (pinInput ? pinInput.value : '') || '';
+        var curr = pinInput.value || '';
         if (curr.length < 6) {
           var next = curr + digit;
           syncDots(next);
           if (next.length === 6) {
-            setTimeout(function() { form.requestSubmit ? form.requestSubmit() : form.submit(); }, 60);
+            setTimeout(function() {
+              var evt = new Event('submit', { bubbles: true, cancelable: true });
+              document.dispatchEvent(evt);
+            }, 60);
           }
         }
       });
     });
 
-    var clearBtn = form.querySelector('button[data-action="clear"]');
+    var clearBtn = document.querySelector('button[data-action="clear"]');
     if (clearBtn) {
       clearBtn.addEventListener('click', function() {
         if (window.__kmReactReady) return;
@@ -451,11 +418,11 @@ export default function LoginForm({ initialUsers }: LoginFormProps) {
       });
     }
 
-    var backBtn = form.querySelector('button[data-action="backspace"]');
+    var backBtn = document.querySelector('button[data-action="backspace"]');
     if (backBtn) {
       backBtn.addEventListener('click', function() {
         if (window.__kmReactReady) return;
-        var curr = (pinInput ? pinInput.value : '') || '';
+        var curr = pinInput.value || '';
         syncDots(curr.slice(0, -1));
       });
     }
@@ -468,9 +435,9 @@ export default function LoginForm({ initialUsers }: LoginFormProps) {
         syncDots('');
         document.querySelectorAll('.km-user-btn').forEach(function(b) {
           if (b === uBtn) {
-            b.className = 'km-user-btn flex-1 py-2 px-2 rounded-lg font-medium transition-all text-center truncate cursor-pointer select-none active:scale-95 bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm font-semibold';
+            b.className = 'km-user-btn flex-1 py-2 px-2 rounded-none font-medium transition-all text-center truncate cursor-pointer select-none active:scale-95 border-t border-b border-l border-amber-600 bg-[#15151a] text-white shadow-sm font-bold border-r-0';
           } else {
-            b.className = 'km-user-btn flex-1 py-2 px-2 rounded-lg font-medium transition-all text-center truncate cursor-pointer select-none active:scale-95 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200';
+            b.className = 'km-user-btn flex-1 py-2 px-2 rounded-none font-medium transition-all text-center truncate cursor-pointer select-none active:scale-95 border-t border-b border-l text-slate-500 hover:text-white hover:border-slate-600 border-r-0';
           }
         });
       });
@@ -483,7 +450,7 @@ export default function LoginForm({ initialUsers }: LoginFormProps) {
     initKeypad();
   }
 })();
-`,
+          `,
         }}
       />
     </div>

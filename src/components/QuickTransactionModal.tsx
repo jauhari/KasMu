@@ -3,6 +3,14 @@
 import { useState, useEffect } from "react";
 import { X, Check, AlertCircle } from "lucide-react";
 import { formatRupiah } from "@/lib/utils";
+import {
+  Button,
+  Input,
+  Select,
+  Modal,
+  Badge,
+  Separator,
+} from "@/components/ui";
 
 interface Account {
   id: string;
@@ -21,12 +29,18 @@ export const CATEGORIES = [
   { value: "SETOR_TUNAI", label: "Setor Tunai" },
   { value: "TARIK_TUNAI", label: "Tarik Tunai" },
   { value: "TRANSFER_BANK", label: "Transfer Antar Bank" },
-  { value: "TOPUP_EWALLET", label: "Topup E-Wallet (Dana, Ovo, Gopay)" },
+  { value: "TOPUP_EWALLET", label: "Topup E-Wallet" },
   { value: "TOKEN_PLN", label: "Token Listrik PLN" },
-  { value: "PULSA_DATA", label: "Pulsa & Paket Data" },
-  { value: "TAGIHAN_BPJS", label: "Tagihan BPJS Kesehatan" },
+  { value: "PULSA_DATA", label: "Pulsa & Data" },
+  { value: "TAGIHAN_BPJS", label: "Tagihan BPJS" },
   { value: "TAGIHAN_PDAM", label: "Tagihan Air PDAM" },
-  { value: "LAINNYA", label: "Transaksi Lainnya" },
+  { value: "LAINNYA", label: "Lainnya" },
+];
+
+const PAYMENT_METHODS = [
+  { value: "CASH", label: "Cash / Tunai" },
+  { value: "TRANSFER", label: "Transfer" },
+  { value: "QRIS", label: "QRIS" },
 ];
 
 export default function QuickTransactionModal({
@@ -76,7 +90,7 @@ export default function QuickTransactionModal({
         }
       })
       .catch(console.error);
-  }, [isOpen]);
+  }, [isOpen, accountId]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -93,8 +107,7 @@ export default function QuickTransactionModal({
   const numFee = parseFloat(storeFee) || 0;
   const profit = numFee - numAdmin;
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     setError(null);
     if (!accountId || numAmount <= 0) {
       setError("Silakan pilih akun provider dan isi nominal transaksi");
@@ -138,194 +151,126 @@ export default function QuickTransactionModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 dark:bg-black/75 backdrop-blur-sm animate-in fade-in duration-150">
-      <div className="bg-white dark:bg-[#0f1626] border border-slate-200 dark:border-slate-800 rounded-xl w-full max-w-xl shadow-xl overflow-hidden text-slate-900 dark:text-slate-100">
-        {/* Modal Header */}
-        <div className="px-5 py-3.5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-900/40">
-          <div>
-            <h3 className="text-sm font-bold text-slate-900 dark:text-white">
-              Input Transaksi Kasir (F2)
-            </h3>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400">
-              Catat transaksi perbankan & digital agen dalam 3 detik
-            </p>
-          </div>
-          <button
-            onClick={onClose}
-            className="w-7 h-7 rounded-md bg-slate-200/60 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 flex items-center justify-center transition-colors"
-          >
-            <X className="w-3.5 h-3.5" />
-          </button>
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Input Transaksi Kasir"
+      size="lg"
+    >
+      {error && (
+        <div className="mb-4 p-3 rounded-none bg-rose-900/20 border border-rose-700/50 text-rose-400 text-xs flex items-center gap-2">
+          <AlertCircle className="w-4 h-4 shrink-0" />
+          <span>{error}</span>
+        </div>
+      )}
+
+      <div className="space-y-4 overflow-y-auto max-h-[70vh] pr-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Select
+            label="Kategori Layanan"
+            value={category}
+            onValueChange={setCategory}
+            options={CATEGORIES}
+            required
+          />
+          <Select
+            label="Aplikasi Provider / Rekening"
+            value={accountId}
+            onValueChange={setAccountId}
+            options={accounts.map((acc) => ({
+              value: acc.id,
+              label: `${acc.name} — Saldo: ${formatRupiah(acc.balance)}`,
+            }))}
+            placeholder="Pilih provider..."
+            required
+          />
         </div>
 
-        {error && (
-          <div className="mx-5 mt-4 p-3 rounded-lg bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900 text-rose-700 dark:text-rose-300 text-xs flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
-            <span>{error}</span>
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="p-5 space-y-4 text-xs">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-            {/* Kategori */}
-            <div>
-              <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                Kategori Layanan
-              </label>
-              <select
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-              >
-                {CATEGORIES.map((cat) => (
-                  <option key={cat.value} value={cat.value}>
-                    {cat.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Provider */}
-            <div>
-              <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                Aplikasi Provider / Rekening
-              </label>
-              <select
-                value={accountId}
-                onChange={(e) => setAccountId(e.target.value)}
-                className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-              >
-                {accounts.map((acc) => (
-                  <option key={acc.id} value={acc.id}>
-                    {acc.name} — Saldo: {formatRupiah(acc.balance)}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          {/* Nominal */}
-          <div className="bg-slate-50 dark:bg-slate-900/50 p-3.5 rounded-lg border border-slate-200 dark:border-slate-800/80 space-y-3">
-            <div>
-              <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                Nominal Transaksi (Rp)
-              </label>
-              <input
-                type="number"
-                autoFocus
-                placeholder="0"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-3.5 py-2 font-mono text-lg font-bold text-slate-900 dark:text-emerald-400 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-[11px] font-medium text-slate-500 dark:text-slate-400 mb-1">
-                  Biaya Admin Bank
-                </label>
-                <input
-                  type="number"
-                  placeholder="0"
-                  value={adminBank}
-                  onChange={(e) => setAdminBank(e.target.value)}
-                  className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md px-2.5 py-1.5 font-mono text-xs text-slate-800 dark:text-slate-200 focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-medium text-slate-500 dark:text-slate-400 mb-1">
-                  Fee Toko (Tarif Jasa Agen)
-                </label>
-                <input
-                  type="number"
-                  placeholder="0"
-                  value={storeFee}
-                  onChange={(e) => setStoreFee(e.target.value)}
-                  className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md px-2.5 py-1.5 font-mono text-xs font-semibold text-amber-700 dark:text-amber-400 focus:outline-none"
-                />
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between pt-1 border-t border-slate-200 dark:border-slate-800 text-xs">
-              <span className="text-slate-500 dark:text-slate-400">Estimasi Laba Bersih Transaksi:</span>
-              <span className="font-bold font-mono text-emerald-600 dark:text-emerald-400">
-                +{formatRupiah(profit)}
-              </span>
-            </div>
-          </div>
-
-          {/* Customer info */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label className="block font-medium text-slate-600 dark:text-slate-400 mb-1">
-                Metode Pembayaran
-              </label>
-              <select
-                value={paymentMethod}
-                onChange={(e) => setPaymentMethod(e.target.value)}
-                className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md px-2.5 py-1.5 text-slate-800 dark:text-slate-200 focus:outline-none"
-              >
-                <option value="CASH">Cash / Uang Tunai</option>
-                <option value="TRANSFER">Transfer</option>
-                <option value="QRIS">QRIS</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block font-medium text-slate-600 dark:text-slate-400 mb-1">
-                Nama Nasabah (Opsional)
-              </label>
-              <input
-                type="text"
-                placeholder="Pak Herman"
-                value={customerName}
-                onChange={(e) => setCustomerName(e.target.value)}
-                className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md px-2.5 py-1.5 text-slate-800 dark:text-slate-200 focus:outline-none"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block font-medium text-slate-600 dark:text-slate-400 mb-1">
-              No Rekening / No HP / ID Pelanggan
-            </label>
-            <input
-              type="text"
-              placeholder="Contoh: 00120192847250 / 08123456789"
-              value={customerRef}
-              onChange={(e) => setCustomerRef(e.target.value)}
-              className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md px-2.5 py-1.5 font-mono text-slate-800 dark:text-slate-200 focus:outline-none"
+        <div className="bg-[#0a0a0a]/30 border border-slate-700/50 p-4 rounded-none space-y-4">
+          <Input
+            label="Nominal Transaksi (Rp)"
+            value={amount}
+            onValueChange={setAmount}
+            type="number"
+            placeholder="0"
+            required
+          />
+          <div className="grid grid-cols-2 gap-4">
+            <Input
+              label="Biaya Admin Bank"
+              value={adminBank}
+              onValueChange={setAdminBank}
+              type="number"
+              placeholder="0"
+            />
+            <Input
+              label="Fee Toko (Tarif Jasa)"
+              value={storeFee}
+              onValueChange={setStoreFee}
+              type="number"
+              placeholder="0"
             />
           </div>
-
-          {/* Buttons */}
-          <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-100 dark:border-slate-800">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-3.5 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 font-medium"
-            >
-              Batal
-            </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className="px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-semibold flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
-            >
-              {loading ? (
-                "Menyimpan..."
-              ) : (
-                <>
-                  <Check className="w-4 h-4" />
-                  <span>Simpan Transaksi</span>
-                </>
-              )}
-            </button>
+          <div className="flex items-center justify-between pt-2 border-t border-slate-700/30 text-[10px]">
+            <span className="text-slate-500">Estimasi Laba Bersih:</span>
+            <span className="font-bold font-mono text-emerald-400">
+              +{formatRupiah(profit)}
+            </span>
           </div>
-        </form>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Select
+            label="Metode Pembayaran"
+            value={paymentMethod}
+            onValueChange={setPaymentMethod}
+            options={PAYMENT_METHODS}
+          />
+          <Input
+            label="Nama Nasabah (Opsional)"
+            value={customerName}
+            onValueChange={setCustomerName}
+            type="text"
+            placeholder="Pak Herman"
+          />
+        </div>
+
+        <Input
+          label="No Rekening / No HP / ID Pelanggan"
+          value={customerRef}
+          onValueChange={setCustomerRef}
+          type="text"
+          placeholder="Contoh: 00120192847250 / 08123456789"
+          className="mb-4"
+        />
+
+        <Input
+          label="Catatan"
+          value={notes}
+          onValueChange={setNotes}
+          type="text"
+          placeholder="Catatan tambahan..."
+        />
       </div>
-    </div>
+
+      <Separator className="my-4" />
+
+      <div className="flex items-center justify-end gap-3">
+        <Button
+          variant="ghost"
+          onClick={onClose}
+          disabled={loading}
+        >
+          Batal
+        </Button>
+        <Button
+          variant="solid"
+          onClick={handleSubmit}
+          disabled={loading || !accountId || numAmount <= 0}
+        >
+          {loading ? "Menyimpan..." : "Simpan Transaksi"}
+        </Button>
+      </div>
+    </Modal>
   );
 }

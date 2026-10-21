@@ -6,6 +6,7 @@ import QuickTransactionModal from "@/components/QuickTransactionModal";
 import { formatRupiah } from "@/lib/utils";
 import { Plus, ArrowUpRight, ArrowDownLeft } from "lucide-react";
 import { toast } from "sonner";
+import { Input, Button } from "@/components/ui";
 
 export default function MutasiKasPage() {
   const [mutations, setMutations] = useState<any[]>([]);
@@ -33,8 +34,7 @@ export default function MutasiKasPage() {
     loadMutations();
   }, []);
 
-  const handleCreate = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleCreate = async () => {
     try {
       const res = await fetch("/api/cash-mutations", {
         method: "POST",
@@ -68,21 +68,18 @@ export default function MutasiKasPage() {
 
       <div className="flex justify-between items-center">
         <div>
-          <h3 className="text-sm font-bold text-slate-900 dark:text-white">Riwayat Mutasi Operasional</h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400">Pengeluaran kasir otomatis memotong target uang fisik laci</p>
+          <h3 className="text-sm font-bold text-white">Riwayat Mutasi Operasional</h3>
+          <p className="text-xs text-slate-500">Pengeluaran kasir otomatis memotong target uang fisik laci</p>
         </div>
-        <button
-          onClick={() => setShowAddModal(true)}
-          className="px-3.5 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
-        >
-          <Plus className="w-4 h-4" />
+        <Button onClick={() => setShowAddModal(true)} variant="solid" size="sm">
+          <Plus className="w-3.5 h-3.5" />
           <span>Catat Biaya</span>
-        </button>
+        </Button>
       </div>
 
-      <div className="bg-white dark:bg-[#0f1626] border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden transition-colors">
+      <div className="bg-[#0d0d11] border border-slate-700 rounded-none shadow-sm overflow-hidden transition-colors">
         <table className="w-full text-left text-xs">
-          <thead className="bg-slate-100 dark:bg-slate-900/80 text-slate-600 dark:text-slate-400 uppercase tracking-wider font-semibold border-b border-slate-200 dark:border-slate-800 text-[10px]">
+          <thead className="bg-[#15151a] text-slate-500 uppercase tracking-wider font-semibold border-b border-slate-700 text-[10px]">
             <tr>
               <th className="px-4 py-3">Waktu</th>
               <th className="px-4 py-3">Tipe</th>
@@ -91,27 +88,27 @@ export default function MutasiKasPage() {
               <th className="px-4 py-3 text-right">Nominal</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80 text-slate-700 dark:text-slate-300">
+          <tbody className="divide-y divide-slate-800/50 text-slate-400">
             {loading ? (
               <tr>
-                <td colSpan={5} className="text-center py-8 text-slate-400">Memuat mutasi...</td>
+                <td colSpan={5} className="text-center py-8 text-slate-600">Memuat mutasi...</td>
               </tr>
             ) : mutations.length === 0 ? (
               <tr>
-                <td colSpan={5} className="text-center py-8 text-slate-400">Belum ada catatan mutasi</td>
+                <td colSpan={5} className="text-center py-8 text-slate-600">Belum ada catatan mutasi</td>
               </tr>
             ) : (
               mutations.map((m) => (
-                <tr key={m.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40">
-                  <td className="px-4 py-3 text-slate-500 dark:text-slate-400">
+                <tr key={m.id} className="hover:bg-[#15151a]/50">
+                  <td className="px-4 py-3 text-slate-600">
                     {new Date(m.createdAt).toLocaleString("id-ID")}
                   </td>
                   <td className="px-4 py-3">
                     <span
-                      className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-semibold border ${
+                      className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-none text-[9px] font-semibold border ${
                         m.type === "IN"
-                          ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800"
-                          : "bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400 border-rose-200 dark:border-rose-800"
+                          ? "border-emerald-700/50 bg-emerald-900/20 text-emerald-400"
+                          : "border-rose-700/50 bg-rose-900/20 text-rose-400"
                       }`}
                     >
                       {m.type === "IN" ? (
@@ -125,11 +122,11 @@ export default function MutasiKasPage() {
                       )}
                     </span>
                   </td>
-                  <td className="px-4 py-3 font-semibold text-slate-900 dark:text-slate-200">{m.category}</td>
-                  <td className="px-4 py-3 text-slate-500 dark:text-slate-400">{m.notes || "-"}</td>
+                  <td className="px-4 py-3 font-semibold text-white">{m.category}</td>
+                  <td className="px-4 py-3 text-slate-600">{m.notes || "-"}</td>
                   <td
                     className={`px-4 py-3 text-right font-bold font-mono ${
-                      m.type === "IN" ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"
+                      m.type === "IN" ? "text-emerald-400" : "text-rose-400"
                     }`}
                   >
                     {m.type === "IN" ? "+" : "-"}
@@ -143,18 +140,20 @@ export default function MutasiKasPage() {
       </div>
 
       {showAddModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 dark:bg-black/75 backdrop-blur-sm">
-          <div className="bg-white dark:bg-[#0f1626] border border-slate-200 dark:border-slate-800 rounded-xl w-full max-w-sm p-5 text-slate-900 dark:text-slate-100 shadow-xl space-y-4">
-            <h3 className="text-sm font-bold text-slate-900 dark:text-white">Catat Biaya / Kas Masuk</h3>
-            <form onSubmit={handleCreate} className="space-y-3 text-xs">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+          <div className="bg-[#0c1220] border border-slate-700 rounded-none w-full max-w-sm p-5 text-white shadow-xl space-y-4">
+            <h3 className="text-sm font-bold text-white uppercase tracking-tighter text-[10px] letter-spacing-[0.05em]">
+              Catat Biaya / Kas Masuk
+            </h3>
+            <div className="space-y-4 text-xs">
               <div className="grid grid-cols-2 gap-2">
                 <button
                   type="button"
                   onClick={() => setType("OUT")}
-                  className={`py-1.5 rounded-lg font-medium border text-xs transition-all ${
+                  className={`py-1.5 rounded-none font-medium border text-xs transition-all ${
                     type === "OUT"
-                      ? "bg-rose-50 dark:bg-rose-950/40 border-rose-300 dark:border-rose-800 text-rose-700 dark:text-rose-400 font-bold"
-                      : "bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400"
+                      ? "border-rose-600 bg-rose-900/20 text-rose-400 font-bold"
+                      : "border-slate-700 bg-transparent text-slate-500"
                   }`}
                 >
                   Pengeluaran Toko
@@ -162,67 +161,57 @@ export default function MutasiKasPage() {
                 <button
                   type="button"
                   onClick={() => setType("IN")}
-                  className={`py-1.5 rounded-lg font-medium border text-xs transition-all ${
+                  className={`py-1.5 rounded-none font-medium border text-xs transition-all ${
                     type === "IN"
-                      ? "bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800 text-emerald-700 dark:text-emerald-400 font-bold"
-                      : "bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400"
+                      ? "border-emerald-600 bg-emerald-900/20 text-emerald-400 font-bold"
+                      : "border-slate-700 bg-transparent text-slate-500"
                   }`}
                 >
                   Pemasukan Lain
                 </button>
               </div>
 
-              <div>
-                <label className="block text-slate-700 dark:text-slate-300 mb-1 font-semibold">Kategori</label>
-                <input
-                  type="text"
-                  placeholder="Contoh: Kertas Struk Thermal / Makan Kasir"
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                  className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2 text-slate-900 dark:text-white focus:outline-none"
-                  required
-                />
-              </div>
+              <Input
+                label="Kategori"
+                value={category}
+                onValueChange={setCategory}
+                placeholder="Contoh: Kertas Struk Thermal / Makan Kasir"
+                required
+              />
 
-              <div>
-                <label className="block text-slate-700 dark:text-slate-300 mb-1 font-semibold">Nominal (Rp)</label>
-                <input
-                  type="number"
-                  placeholder="0"
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                  className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2 font-mono font-bold text-slate-900 dark:text-white focus:outline-none"
-                  required
-                />
-              </div>
+              <Input
+                label="Nominal (Rp)"
+                value={amount}
+                onValueChange={setAmount}
+                type="number"
+                placeholder="0"
+                required
+              />
 
-              <div>
-                <label className="block text-slate-700 dark:text-slate-300 mb-1 font-semibold">Keterangan Tambahan</label>
-                <input
-                  type="text"
-                  placeholder="Contoh: Beli 5 rol struk thermal"
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2 text-slate-900 dark:text-white focus:outline-none"
-                />
-              </div>
+              <Input
+                label="Keterangan Tambahan"
+                value={notes}
+                onValueChange={setNotes}
+                placeholder="Contoh: Beli 5 rol struk thermal"
+              />
 
-              <div className="flex justify-end gap-2 pt-2">
+              <div className="flex justify-end gap-3 pt-2">
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
-                  className="px-3.5 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-medium"
+                  className="px-3.5 py-1.5 rounded-none bg-slate-800 hover:bg-slate-700 text-slate-400 font-medium text-xs transition-colors"
                 >
                   Batal
                 </button>
                 <button
-                  type="submit"
-                  className="px-4 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold"
+                  type="button"
+                  onClick={handleCreate}
+                  className="px-4 py-1.5 rounded-none bg-amber-600 hover:bg-amber-500 text-white font-semibold text-xs transition-colors shadow-amber-600/20"
                 >
                   Simpan
                 </button>
               </div>
-            </form>
+            </div>
           </div>
         </div>
       )}

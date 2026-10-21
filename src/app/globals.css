@@ -1,43 +1,200 @@
-/* KasMu Production Release v1.0.1 - Cache Buster 20261021 */
+/* KasMu Production Release v2.0.0 - Anti-AI Slop Design System */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
+  --bg-primary: #050507;
+  --bg-secondary: #0d0d11;
+  --bg-tertiary: #15151a;
+  --border: #23232a;
+  --border-focus: #f59e0b;
+  --text-primary: #f5f5f5;
+  --text-secondary: #a1a1a1;
+  --text-muted: #717171;
+  --accent: #f59e0b;
+  --accent-hover: #d97706;
+  --success: #10b981;
+  --danger: #ef4444;
+  --warning: #f59e0b;
+  --info: #3b82f6;
 }
 
 .dark {
-  --background: #090d16;
-  --foreground: #f8fafc;
+  --bg-primary: #050507;
+  --bg-secondary: #0d0d11;
+  --bg-tertiary: #15151a;
+  --border: #23232a;
+  --text-primary: #f5f5f5;
 }
 
 body {
-  color: var(--foreground);
-  background-color: var(--background);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", monospace;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Crisp professional scrollbar */
+/* Scrollbar */
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 4px;
+  height: 4px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 184, 0.4);
-  border-radius: 4px;
+  background: rgba(148, 163, 184, 0.2);
+  border-radius: 0;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(148, 163, 184, 0.6);
+  background: rgba(148, 163, 184, 0.4);
 }
 
-/* Remove default number input spinner arrows */
+/* Custom UI Component Styles */
+.km-input-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.km-input-label {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.km-input-req {
+  color: var(--danger);
+}
+
+.km-input-field {
+  position: relative;
+}
+
+.km-input-inner {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: 0;
+  padding: 8px 10px;
+  transition: border-color 0.1s ease;
+}
+
+.km-input-inner:focus {
+  border-color: var(--border-focus);
+  box-shadow: none;
+}
+
+.km-input-focused .km-input-inner {
+  border-color: var(--border-focus);
+}
+
+.km-input-error .km-input-inner {
+  border-color: var(--danger);
+}
+
+.km-input-error-msg {
+  display: block;
+  margin-top: 2px;
+}
+
+.km-select-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.km-select-label {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.km-select-req {
+  color: var(--danger);
+}
+
+.km-select-field {
+  position: relative;
+}
+
+.km-select-trigger {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: 0;
+  transition: border-color 0.1s ease;
+}
+
+.km-select-trigger:focus {
+  border-color: var(--border-focus);
+  box-shadow: none;
+}
+
+.km-select-open .km-select-trigger {
+  border-color: var(--border-focus);
+}
+
+.km-select-error .km-select-trigger {
+  border-color: var(--danger);
+}
+
+.km-select-list {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 0;
+}
+
+.km-select-option {
+  background: transparent;
+}
+
+.km-select-option:hover {
+  background: var(--bg-tertiary);
+}
+
+.km-select-error-msg {
+  display: block;
+  margin-top: 2px;
+}
+
+.km-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.km-label {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+
+.km-badge {
+  border-radius: 0;
+}
+
+.km-separator {
+  border: none;
+  background: var(--border);
+  height: 1px;
+}
+
+.km-modal-panel {
+  border-radius: 1px;
+}
+
+/* Utility: hide native spinner on number inputs where used as fallback */
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {
   -webkit-appearance: none;
@@ -45,4 +202,13 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 input[type="number"] {
   -moz-appearance: textfield;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.animate-fade-in {
+  animation: fadeIn 0.15s ease-out forwards;
 }

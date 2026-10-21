@@ -13,6 +13,7 @@ import {
   DollarSign,
 } from "lucide-react";
 import { toast } from "sonner";
+import { Input, Button } from "@/components/ui";
 
 const DENOMINATIONS = [100000, 50000, 20000, 10000, 5000, 2000, 1000, 500];
 
@@ -125,113 +126,92 @@ export default function OpnamePage() {
         subtitle="Sesuaikan fisik uang laci dengan catatan sistem"
       />
 
-      {/* Top 2 Cards: Opname Cash vs P&L */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Card Kiri: Status Saldo & Target Cash Fisik */}
-        <div className="bg-white dark:bg-[#0f1626] border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm space-y-4 transition-colors">
-          <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+        <div className="bg-[#0d0d11] border border-slate-700 rounded-none p-5 shadow-sm space-y-4 transition-colors">
+          <div className="flex items-center justify-between pb-3 border-b border-slate-700">
             <div>
-              <h3 className="font-bold text-slate-900 dark:text-white text-sm">Target Saldo & Brankas</h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400">Kasir: {data?.kasirName || "Owner"}</p>
+              <h3 className="font-bold text-white text-sm">Target Saldo & Brankas</h3>
+              <p className="text-xs text-slate-500">Kasir: {data?.kasirName || "Owner"}</p>
             </div>
-            <Calculator className="w-4 h-4 text-slate-400" />
+            <Calculator className="w-4 h-4 text-slate-500" />
           </div>
 
           <div className="space-y-2 text-xs">
-            <div className="flex justify-between py-1 border-b border-slate-100 dark:border-slate-800/60">
-              <span className="text-slate-600 dark:text-slate-400">Modal Awal Brankas:</span>
-              <span className="font-bold font-mono text-slate-900 dark:text-white">
-                {formatRupiah(data?.initialCash || 0)}
-              </span>
+            <div className="flex justify-between py-1 border-b border-slate-700/50">
+              <span className="text-slate-600">Modal Awal Brankas:</span>
+              <span className="font-bold font-mono text-white">{formatRupiah(data?.initialCash || 0)}</span>
             </div>
 
             <div className="space-y-1 pt-1">
-              <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
+              <span className="text-[11px] font-semibold text-slate-600 uppercase tracking-wider block">
                 Saldo Provider Berjalan:
               </span>
               {accounts.map((acc: any) => (
-                <div key={acc.id} className="flex justify-between pl-2 text-xs text-slate-600 dark:text-slate-300">
+                <div key={acc.id} className="flex justify-between pl-2 text-xs text-slate-500">
                   <span>~ {acc.name}</span>
-                  <span className="font-mono text-slate-800 dark:text-slate-200">{formatRupiah(acc.balance)}</span>
+                  <span className="font-mono text-slate-300">{formatRupiah(acc.balance)}</span>
                 </div>
               ))}
             </div>
 
-            <div className="flex justify-between py-1 border-t border-slate-100 dark:border-slate-800/60">
-              <span className="text-slate-600 dark:text-slate-400">Total Hutang:</span>
-              <span className="font-mono font-medium text-amber-600 dark:text-amber-400">
-                +{formatRupiah(data?.totalHutang || 0)}
-              </span>
+            <div className="flex justify-between py-1 border-t border-slate-700/50">
+              <span className="text-slate-600">Total Hutang:</span>
+              <span className="font-mono font-medium text-amber-500">+{formatRupiah(data?.totalHutang || 0)}</span>
             </div>
-            <div className="flex justify-between py-1 border-b border-slate-100 dark:border-slate-800/60">
-              <span className="text-slate-600 dark:text-slate-400">Total Piutang (Kasbon Nasabah):</span>
-              <span className="font-mono font-medium text-rose-600 dark:text-rose-400">
-                -{formatRupiah(data?.totalPiutang || 0)}
-              </span>
+            <div className="flex justify-between py-1 border-b border-slate-700/50">
+              <span className="text-slate-600">Total Piutang (Kasbon Nasabah):</span>
+              <span className="font-mono font-medium text-rose-500">-{formatRupiah(data?.totalPiutang || 0)}</span>
             </div>
           </div>
 
-          {/* TARGET CASH FISIK */}
-          <div className="p-3.5 rounded-lg bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 flex items-center justify-between">
+          <div className="p-3.5 bg-[#0a0a0a]/50 border border-slate-700/50 rounded-none flex items-center justify-between">
             <div>
-              <div className="text-[11px] text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider">
+              <div className="text-[11px] text-slate-600 font-semibold uppercase tracking-wider">
                 Target Cash Fisik Laci
               </div>
-              <div className="text-[11px] text-slate-500 dark:text-slate-400">Uang tunai wajib ada di laci</div>
+              <div className="text-[11px] text-slate-600">Uang tunai wajib ada di laci</div>
             </div>
-            <div className="text-xl font-bold font-mono text-blue-600 dark:text-blue-400">
+            <div className="text-xl font-bold font-mono text-blue-500">
               {formatRupiah(targetCashFisik)}
             </div>
           </div>
         </div>
 
-        {/* Card Kanan: P&L Shift Hari Ini */}
-        <div className="bg-white dark:bg-[#0f1626] border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm space-y-4 transition-colors">
-          <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+        <div className="bg-[#0d0d11] border border-slate-700 rounded-none p-5 shadow-sm space-y-4 transition-colors">
+          <div className="flex items-center justify-between pb-3 border-b border-slate-700">
             <div>
-              <h3 className="font-bold text-slate-900 dark:text-white text-sm">P&L (Shift Berjalan)</h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400">Pendapatan fee jasa vs biaya operasional</p>
+              <h3 className="font-bold text-white text-sm">P&L (Shift Berjalan)</h3>
+              <p className="text-xs text-slate-500">Pendapatan fee jasa vs biaya operasional</p>
             </div>
-            <DollarSign className="w-4 h-4 text-slate-400" />
+            <DollarSign className="w-4 h-4 text-slate-500" />
           </div>
 
           <div className="space-y-2 text-xs">
-            <div className="flex justify-between py-1 border-b border-slate-100 dark:border-slate-800/60">
-              <span className="text-slate-600 dark:text-slate-400">Total Fee Toko (Jasa):</span>
-              <span className="font-bold font-mono text-emerald-600 dark:text-emerald-400">
-                +{formatRupiah(pnl.totalFeeToko)}
-              </span>
+            <div className="flex justify-between py-1 border-b border-slate-700/50">
+              <span className="text-slate-600">Total Fee Toko (Jasa):</span>
+              <span className="font-bold font-mono text-emerald-500">+{formatRupiah(pnl.totalFeeToko)}</span>
             </div>
-            <div className="flex justify-between py-1 border-b border-slate-100 dark:border-slate-800/60">
-              <span className="text-slate-600 dark:text-slate-400">Biaya Admin Bank:</span>
-              <span className="font-bold font-mono text-rose-600 dark:text-rose-400">
-                -{formatRupiah(pnl.totalAdminBank)}
-              </span>
+            <div className="flex justify-between py-1 border-b border-slate-700/50">
+              <span className="text-slate-600">Biaya Admin Bank:</span>
+              <span className="font-bold font-mono text-rose-500">-{formatRupiah(pnl.totalAdminBank)}</span>
             </div>
-            <div className="flex justify-between py-1 border-b border-slate-100 dark:border-slate-800/60">
-              <span className="text-slate-600 dark:text-slate-400">Pemasukan Lain:</span>
-              <span className="font-mono text-emerald-600 dark:text-emerald-400">
-                +{formatRupiah(pnl.otherIncome)}
-              </span>
+            <div className="flex justify-between py-1 border-b border-slate-700/50">
+              <span className="text-slate-600">Pemasukan Lain:</span>
+              <span className="font-mono text-emerald-500">+{formatRupiah(pnl.otherIncome)}</span>
             </div>
-            <div className="flex justify-between py-1 border-b border-slate-100 dark:border-slate-800/60">
-              <span className="text-slate-600 dark:text-slate-400">Beban Operasional:</span>
-              <span className="font-mono text-rose-600 dark:text-rose-400">
-                -{formatRupiah(pnl.operationalExpenses)}
-              </span>
+            <div className="flex justify-between py-1 border-b border-slate-700/50">
+              <span className="text-slate-600">Beban Operasional:</span>
+              <span className="font-mono text-rose-500">-{formatRupiah(pnl.operationalExpenses)}</span>
             </div>
           </div>
 
-          {/* PROFIT / DEFISIT BERSIH */}
-          <div className="p-3.5 rounded-lg bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 flex items-center justify-between">
-            <div className="text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+          <div className="p-3.5 bg-[#0a0a0a]/50 border border-slate-700/50 rounded-none flex items-center justify-between">
+            <div className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
               Profit / Defisit Shift:
             </div>
             <div
               className={`text-xl font-bold font-mono ${
-                pnl.netProfitShift >= 0
-                  ? "text-emerald-600 dark:text-emerald-400"
-                  : "text-rose-600 dark:text-rose-400"
+                pnl.netProfitShift >= 0 ? "text-emerald-500" : "text-rose-500"
               }`}
             >
               {pnl.netProfitShift >= 0 ? "+" : ""}
@@ -241,19 +221,17 @@ export default function OpnamePage() {
         </div>
       </div>
 
-      {/* Kalkulator Uang Fisik Pecahan Lembar */}
-      <div className="bg-white dark:bg-[#0f1626] border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm space-y-5 transition-colors">
-        <div className="pb-3 border-b border-slate-100 dark:border-slate-800">
-          <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+      <div className="bg-[#0d0d11] border border-slate-700 rounded-none p-5 shadow-sm space-y-5 transition-colors">
+        <div className="pb-3 border-b border-slate-700">
+          <h3 className="text-sm font-bold text-white flex items-center gap-2">
             <Lock className="w-4 h-4 text-slate-500" />
             Kalkulator Uang Fisik (Pecahan Lembar)
           </h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400">
+          <p className="text-xs text-slate-500">
             Hitung uang riil per pecahan lembar di laci kasir untuk rekonsiliasi
           </p>
         </div>
 
-        {/* Denomination Inputs Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {DENOMINATIONS.map((denom) => {
             const count = parseInt(sheetCounts[denom]) || 0;
@@ -261,51 +239,47 @@ export default function OpnamePage() {
             return (
               <div
                 key={denom}
-                className="bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 p-3 rounded-lg space-y-1.5"
+                className="bg-[#0a0a0a]/30 border border-slate-700/50 p-3 rounded-none space-y-1.5"
               >
                 <div className="flex justify-between items-center text-xs">
-                  <span className="font-semibold text-slate-800 dark:text-slate-200">{formatRupiah(denom)}</span>
-                  <span className="text-[10px] text-slate-500 font-mono">
-                    ={formatRupiah(subtotal)}
-                  </span>
+                  <span className="font-semibold text-white">{formatRupiah(denom)}</span>
+                  <span className="text-[10px] text-slate-600 font-mono">={formatRupiah(subtotal)}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <input
-                    type="number"
-                    min="0"
-                    placeholder="0"
+                  <Input
                     value={sheetCounts[denom]}
-                    onChange={(e) => handleSheetChange(denom, e.target.value)}
-                    className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md px-2.5 py-1.5 text-xs text-center font-bold font-mono text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    onValueChange={(v) => handleSheetChange(denom, v)}
+                    type="number"
+                    placeholder="0"
+                    className="w-20 text-center"
                   />
-                  <span className="text-xs text-slate-500 shrink-0">lbr</span>
+                  <span className="text-xs text-slate-600 shrink-0">lbr</span>
                 </div>
               </div>
             );
           })}
         </div>
 
-        {/* Rekonsiliasi Comparison Bar */}
-        <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="p-4 bg-[#0a0a0a]/30 border border-slate-700/50 rounded-none flex flex-col md:flex-row items-center justify-between gap-4">
           <div>
-            <div className="text-[11px] text-slate-500 uppercase tracking-wide">
+            <div className="text-[11px] text-slate-600 uppercase tracking-wide">
               Total Fisik Dihitung Kasir
             </div>
-            <div className="text-xl font-bold font-mono text-slate-900 dark:text-white">
+            <div className="text-xl font-bold font-mono text-white">
               {formatRupiah(totalUangFisik)}
             </div>
           </div>
 
-          <div className="flex items-center gap-3 bg-white dark:bg-slate-950 px-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-800">
+          <div className="flex items-center gap-3 bg-[#050507] px-4 py-2.5 rounded-none border border-slate-700">
             <div>
-              <div className="text-[10px] text-slate-500 uppercase">Selisih dengan Target:</div>
+              <div className="text-[10px] text-slate-600 uppercase">Selisih dengan Target:</div>
               <div
                 className={`text-lg font-bold font-mono ${
                   selisih === 0
-                    ? "text-emerald-600 dark:text-emerald-400"
+                    ? "text-emerald-500"
                     : selisih > 0
-                    ? "text-blue-600 dark:text-blue-400"
-                    : "text-rose-600 dark:text-rose-400"
+                    ? "text-blue-500"
+                    : "text-rose-500"
                 }`}
               >
                 {selisih > 0 ? `+${formatRupiah(selisih)}` : formatRupiah(selisih)}
@@ -313,12 +287,12 @@ export default function OpnamePage() {
             </div>
 
             <span
-              className={`px-2.5 py-1 rounded text-[11px] font-semibold border ${
+              className={`px-2.5 py-1 rounded-none text-[11px] font-semibold border ${
                 selisih === 0
-                  ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800"
+                  ? "border-emerald-700/50 bg-emerald-900/20 text-emerald-400"
                   : selisih > 0
-                  ? "bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800"
-                  : "bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400 border-rose-200 dark:border-rose-800"
+                  ? "border-blue-700/50 bg-blue-900/20 text-blue-400"
+                  : "border-rose-700/50 bg-rose-900/20 text-rose-400"
               }`}
             >
               {selisih === 0 ? "COCOK / BALANCE" : selisih > 0 ? "LEBIH / SURPLUS" : "SELISIH KURANG"}
@@ -326,27 +300,21 @@ export default function OpnamePage() {
           </div>
         </div>
 
-        {/* Catatan Rekonsiliasi */}
         <div>
-          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-            Catatan Rekonsiliasi (Opsional)
-          </label>
-          <input
-            type="text"
-            placeholder="Contoh: Kembalian pelanggan kurang Rp500, koin receh tertinggal di laci"
+          <label className="km-label">Catatan Rekonsiliasi (Opsional)</label>
+          <Input
             value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-900 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            onValueChange={setNotes}
+            placeholder="Contoh: Kembalian pelanggan kurang Rp500, koin receh tertinggal di laci"
           />
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex flex-wrap items-center justify-end gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+        <div className="flex flex-wrap items-center justify-end gap-3 pt-3 border-t border-slate-700/50">
           <button
             type="button"
             disabled={submitting}
             onClick={() => handleSubmitReconciliation(false)}
-            className="px-4 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+            className="px-4 py-2 rounded-none bg-slate-800 hover:bg-slate-700 text-slate-400 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
           >
             <Save className="w-3.5 h-3.5" />
             <span>Simpan Opname</span>
@@ -360,7 +328,7 @@ export default function OpnamePage() {
                 handleSubmitReconciliation(true);
               }
             }}
-            className="px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-sm flex items-center gap-1.5 transition-all cursor-pointer"
+            className="px-5 py-2 rounded-none bg-amber-600 hover:bg-amber-500 text-white text-xs font-semibold shadow-sm flex items-center gap-1.5 transition-all cursor-pointer shadow-amber-600/20"
           >
             <CheckCircle2 className="w-3.5 h-3.5" />
             <span>Tutup Shift & Kunci Kas</span>

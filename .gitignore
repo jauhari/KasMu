@@ -4,3 +4,5 @@ node_modules
 .DS_Store
 kasmu.db
 kasmu.db-journal
+graphify-out/
+tsconfig.tsbuildinfo

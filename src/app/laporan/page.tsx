@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
+import { Select, Button } from "@/components/ui";
 
 export default function LaporanPage() {
   const [report, setReport] = useState<any>(null);
@@ -57,7 +58,7 @@ export default function LaporanPage() {
       head: [["Komponen Finansial", "Nilai (Rp)"]],
       body: rows,
       theme: "grid",
-      headStyles: { fillColor: [30, 41, 59] },
+      headStyles: { fillColor: [5, 5, 7] },
     });
 
     doc.save(`Laporan-Keuangan-KasMu-${period}.pdf`);
@@ -105,63 +106,68 @@ export default function LaporanPage() {
         subtitle="Laba rugi & profitabilitas operasional toko"
       />
 
-      {/* Top Filter and Action Buttons */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <select
-            value={period}
-            onChange={(e) => setPeriod(e.target.value)}
-            className="bg-white dark:bg-[#0f1626] border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-1.5 text-xs font-medium text-slate-800 dark:text-slate-200 focus:outline-none"
-          >
-            <option value="today">Hari Ini</option>
-            <option value="month">Bulan Ini</option>
-            <option value="year">Tahun Ini</option>
-          </select>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-slate-500">Periode</span>
+            <Select
+              value={period}
+              onValueChange={setPeriod}
+              options={[
+                { value: "today", label: "Hari Ini" },
+                { value: "month", label: "Bulan Ini" },
+                { value: "year", label: "Tahun Ini" },
+              ]}
+            />
+          </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <button
+        <div className="flex items-center gap-3">
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={exportPDF}
-            className="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer border border-slate-200 dark:border-slate-700"
+            className="border-slate-700 text-slate-400 hover:text-white hover:border-slate-500"
           >
             <FileText className="w-3.5 h-3.5" />
             <span>Ekspor PDF</span>
-          </button>
-          <button
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={exportExcel}
-            className="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer border border-slate-200 dark:border-slate-700"
+            className="border-slate-700 text-slate-400 hover:text-white hover:border-slate-500"
           >
             <Download className="w-3.5 h-3.5" />
             <span>Ekspor Excel</span>
-          </button>
+          </Button>
         </div>
       </div>
 
-      {/* Laba Bersih Highlight Card */}
-      <div className="bg-white dark:bg-[#0f1626] border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-[#0d0d11] border border-slate-700 rounded-none p-5 shadow-sm transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="text-[11px] text-slate-500 uppercase tracking-wider font-semibold">
+          <div className="text-[11px] text-slate-600 uppercase tracking-wider font-bold">
             Laba Bersih Periode Ini
           </div>
-          <div className="text-3xl font-bold font-mono text-emerald-600 dark:text-emerald-400 mt-1">
+          <div className="text-3xl font-bold font-mono text-emerald-500 mt-1">
             {formatRupiah(r.labaBersih)}
           </div>
-          <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+          <div className="text-xs text-slate-600 mt-1">
             Fee Toko + Pendapatan Lain − Beban Operasional
           </div>
         </div>
 
-        <div className="flex items-center gap-5 text-xs text-slate-600 dark:text-slate-400">
+        <div className="flex items-center gap-6 text-xs text-slate-600">
           <div>
-            <span className="block text-[10px] text-slate-400">vs Hari Lalu</span>
-            <span className="font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+            <span className="block text-[10px] text-slate-600">vs Hari Lalu</span>
+            <span className="font-semibold text-emerald-500 flex items-center gap-1">
               <TrendingUp className="w-3.5 h-3.5" />
               +5.7%
             </span>
           </div>
           <div>
-            <span className="block text-[10px] text-slate-400">vs Bulan Lalu</span>
-            <span className="font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+            <span className="block text-[10px] text-slate-600">vs Bulan Lalu</span>
+            <span className="font-semibold text-emerald-500 flex items-center gap-1">
               <TrendingUp className="w-3.5 h-3.5" />
               +12.4%
             </span>
@@ -169,69 +175,67 @@ export default function LaporanPage() {
         </div>
       </div>
 
-      {/* Tabel Laporan Laba Rugi */}
-      <div className="bg-white dark:bg-[#0f1626] border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm transition-colors">
-        <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-3 pb-2 border-b border-slate-100 dark:border-slate-800 flex items-center gap-2">
-          <DollarSign className="w-4 h-4 text-emerald-600" />
+      <div className="bg-[#0d0d11] border border-slate-700 rounded-none p-5 shadow-sm transition-colors">
+        <h3 className="text-sm font-bold text-white mb-3 pb-2 border-b border-slate-700 flex items-center gap-2">
+          <DollarSign className="w-4 h-4 text-emerald-500" />
           Rincian Laporan Laba Rugi
         </h3>
 
         <div className="space-y-2 text-xs">
-          <div className="flex justify-between py-1.5 border-b border-slate-100 dark:border-slate-800/80">
+          <div className="flex justify-between py-1.5 border-b border-slate-700/50">
             <div>
-              <span className="font-medium text-slate-800 dark:text-slate-200">Pendapatan Usaha (Fee Toko)</span>
-              <div className="text-[10px] text-slate-500">
+              <span className="font-medium text-slate-400">Pendapatan Usaha (Fee Toko)</span>
+              <div className="text-[10px] text-slate-600">
                 Biaya admin bank: ({formatRupiah(r.totalAdminBank)})
               </div>
             </div>
-            <span className="font-mono font-semibold text-slate-900 dark:text-slate-100">
+            <span className="font-mono font-semibold text-white">
               {formatRupiah(r.totalFeeToko)}
             </span>
           </div>
 
-          <div className="flex justify-between py-1.5 border-b border-slate-100 dark:border-slate-800/80">
-            <span className="font-medium text-slate-800 dark:text-slate-200">Pendapatan Lain-lain</span>
-            <span className="font-mono text-slate-900 dark:text-slate-100">{formatRupiah(r.otherIncome)}</span>
+          <div className="flex justify-between py-1.5 border-b border-slate-700/50">
+            <span className="font-medium text-slate-400">Pendapatan Lain-lain</span>
+            <span className="font-mono text-white">{formatRupiah(r.otherIncome)}</span>
           </div>
 
-          <div className="flex justify-between py-2 font-semibold text-slate-900 dark:text-white bg-slate-50 dark:bg-slate-900/60 px-3 rounded-lg">
+          <div className="flex justify-between py-2 font-semibold text-white bg-[#15151a] px-3 rounded-none border border-slate-700/50">
             <span>Total Pendapatan</span>
             <span className="font-mono">{formatRupiah(r.totalPendapatan)}</span>
           </div>
 
-          <div className="flex justify-between py-1.5 border-b border-slate-100 dark:border-slate-800/80 text-rose-600 dark:text-rose-400">
+          <div className="flex justify-between py-1.5 border-b border-slate-700/50 text-rose-500">
             <span className="font-medium">Beban Operasional Toko</span>
             <span className="font-mono font-semibold">({formatRupiah(r.operationalExpenses)})</span>
           </div>
 
-          <div className="flex justify-between py-3 px-3 rounded-lg bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 font-bold text-sm">
-            <span className="text-slate-900 dark:text-white">LABA BERSIH OPERASIONAL</span>
-            <span className="font-mono text-emerald-600 dark:text-emerald-400">{formatRupiah(r.labaBersih)}</span>
+          <div className="flex justify-between py-3 px-3 rounded-none bg-[#15151a] border border-slate-700/50 font-bold text-sm">
+            <span className="text-white">LABA BERSIH OPERASIONAL</span>
+            <span className="font-mono text-emerald-500">{formatRupiah(r.labaBersih)}</span>
           </div>
         </div>
       </div>
 
-      {/* 4 Summary Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-        <div className="bg-white dark:bg-[#0f1626] border border-slate-200 dark:border-slate-800 p-3.5 rounded-xl">
-          <span className="text-[11px] text-slate-500">Transaksi Sukses</span>
-          <div className="text-lg font-bold font-mono text-slate-900 dark:text-white mt-0.5">{r.txCount}</div>
+        <div className="bg-[#0d0d11] border border-slate-700 rounded-none p-3.5">
+          <span className="text-[11px] text-slate-600">Transaksi Sukses</span>
+          <div className="text-lg font-bold font-mono text-white mt-0.5">{r.txCount}</div>
         </div>
-        <div className="bg-white dark:bg-[#0f1626] border border-slate-200 dark:border-slate-800 p-3.5 rounded-xl">
-          <span className="text-[11px] text-slate-500">Rata-rata Pendapatan</span>
-          <div className="text-lg font-bold font-mono text-blue-600 dark:text-blue-400 mt-0.5">
+        <div className="bg-[#0d0d11] border border-slate-700 rounded-none p-3.5">
+          <span className="text-[11px] text-slate-600">Rata-rata Pendapatan</span>
+          <div className="text-lg font-bold font-mono text-blue-500 mt-0.5">
             {formatRupiah(r.txCount > 0 ? r.totalPendapatan / r.txCount : 0)}
           </div>
         </div>
-        <div className="bg-white dark:bg-[#0f1626] border border-slate-200 dark:border-slate-800 p-3.5 rounded-xl">
-          <span className="text-[11px] text-slate-500">Total Pendapatan</span>
-          <div className="text-lg font-bold font-mono text-slate-900 dark:text-white mt-0.5">
+        <div className="bg-[#0d0d11] border border-slate-700 rounded-none p-3.5">
+          <span className="text-[11px] text-slate-600">Total Pendapatan</span>
+          <div className="text-lg font-bold font-mono text-white mt-0.5">
             {formatRupiah(r.totalPendapatan)}
           </div>
         </div>
-        <div className="bg-white dark:bg-[#0f1626] border border-slate-200 dark:border-slate-800 p-3.5 rounded-xl">
-          <span className="text-[11px] text-slate-500">Beban Operasional</span>
-          <div className="text-lg font-bold font-mono text-rose-600 dark:text-rose-400 mt-0.5">
+        <div className="bg-[#0d0d11] border border-slate-700 rounded-none p-3.5">
+          <span className="text-[11px] text-slate-600">Beban Operasional</span>
+          <div className="text-lg font-bold font-mono text-rose-500 mt-0.5">
             {formatRupiah(r.operationalExpenses)}
           </div>
         </div>
