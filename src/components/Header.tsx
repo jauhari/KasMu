@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Plus, Clock, WifiOff } from "lucide-react";
 
 interface HeaderProps {
-  onOpenQuickTx: () => void;
+  onOpenQuickTx?: () => void;
   title?: string;
   subtitle?: string;
 }
@@ -65,13 +65,15 @@ export default function Header({ onOpenQuickTx, title, subtitle }: HeaderProps) 
       </div>
 
       {/* Button only on desktop/tablet; on mobile it is in the bottom bar */}
-      <button
-        onClick={onOpenQuickTx}
-        className="hidden sm:flex items-center gap-2 px-4 py-2.5 rounded-none bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs active:scale-95 cursor-pointer shrink-0 shadow-amber-600/20"
-      >
-        <Plus className="w-4 h-4 stroke-[2.5]" />
-        <span>Transaksi Baru (F2)</span>
-      </button>
+      {onOpenQuickTx && (
+        <button
+          onClick={onOpenQuickTx}
+          className="hidden sm:flex items-center gap-2 px-4 py-2.5 rounded-none bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs active:scale-95 cursor-pointer shrink-0 shadow-amber-600/20"
+        >
+          <Plus className="w-4 h-4 stroke-[2.5]" />
+          <span>Transaksi Baru (F2)</span>
+        </button>
+      )}
     </header>
   );
 }

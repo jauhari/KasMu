@@ -109,3 +109,43 @@ model DebtLoan {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 }
+
+model Customer {
+  id        String           @id @default(cuid())
+  name      String           @unique
+  phone     String?
+  notes     String?
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+  numbers   CustomerNumber[]
+  bills     Bill[]
+}
+
+model CustomerNumber {
+  id          String   @id @default(cuid())
+  customerId  String
+  customer    Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  jenis       String   // PLN | PDAM | BPJS TK | BPJS Kes
+  noPelanggan String   @unique
+  createdAt   DateTime @default(now())
+}
+
+model Bill {
+  id             String   @id @default(cuid())
+  bulan          String   // Periode "2026-10"
+  jenis          String   // PLN | PDAM | BPJS TK | BPJS Kes
+  customerId     String
+  customer       Customer @relation(fields: [customerId], references: [id])
+  noPelanggan    String
+  status         String   @default("BELUM") // BELUM | TALANGAN | LUNAS
+  tagihan        Int?     // Nilai tagihan (null saat BELUM)
+  admin          Int?     // Admin dibayar pelanggan (untung agen)
+  total          Int?     // tagihan + admin
+  providerPaidAt DateTime? // Waktu agen bayar ke provider (BRILink)
+  customerPaidAt DateTime? // Waktu pelanggan melunasi
+  catatan        String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([bulan, jenis, noPelanggan])
+}

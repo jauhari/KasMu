@@ -6,6 +6,9 @@ async function main() {
   console.log("Resetting KasMu data (users preserved)...");
 
   // Clear ALL data EXCEPT users so login accounts remain intact
+  await prisma.bill.deleteMany({});
+  await prisma.customerNumber.deleteMany({});
+  await prisma.customer.deleteMany({});
   await prisma.opnameDetail.deleteMany({});
   await prisma.transaction.deleteMany({});
   await prisma.cashMutation.deleteMany({});
