@@ -4,13 +4,9 @@ import React from "react";
 import { InputProps } from "./types";
 
 function formatRupiah(value: string | number): string {
-  const num = typeof value === "number" ? value : parseFloat(String(value).replace(/,/g, ""));
+  const num = typeof value === "number" ? value : parseFloat(String(value).replace(/\./g, "").replace(/,/g, ""));
   if (Number.isNaN(num)) return "";
   return num.toLocaleString("id-ID", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
-}
-
-function parseRupiah(display: string): string {
-  return String(display).replace(/\./g, "").replace(/,/g, "");
 }
 
 export function Input({
@@ -33,7 +29,11 @@ export function Input({
   const syncInput = React.useCallback(() => {
     if (ref.current) {
       const raw = String(value ?? "");
-      ref.current.value = focused && accounting ? raw : formatRupiah(raw);
+      if (accounting) {
+        ref.current.value = focused ? raw : formatRupiah(raw);
+      } else {
+        ref.current.value = raw;
+      }
     }
   }, [value, focused, accounting]);
 
@@ -42,7 +42,7 @@ export function Input({
   }, [value, focused, syncInput, accounting]);
 
   const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const raw = e.target.value.replace(/[^0-9]/g, "");
+    const raw = accounting ? e.target.value.replace(/[^0-9]/g, "") : e.target.value;
     internalValue.current = raw;
     onValueChange?.(raw);
   };
@@ -65,8 +65,8 @@ export function Input({
       >
         <input
           ref={ref}
-          type="text"
-          inputMode="numeric"
+          type={accounting ? "text" : type}
+          inputMode={accounting ? "numeric" : undefined}
           value={internalValue.current}
           onChange={handleInput}
           onFocus={handleFocus}
