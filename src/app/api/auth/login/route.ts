@@ -9,6 +9,14 @@ export async function POST(req: NextRequest) {
     let fromUrl: string = "/";
     let isFormRequest = false;
 
+    // Helper untuk redirect absolut aman di balik reverse proxy (Caddy / Cloudflare)
+    const getRedirectUrl = (targetPath: string) => {
+      const proto = req.headers.get("x-forwarded-proto") || "https";
+      const host = req.headers.get("x-forwarded-host") || req.headers.get("host") || "kasmu.jauhari.net";
+      const cleanPath = targetPath.startsWith("/") ? targetPath : `/${targetPath}`;
+      return new URL(cleanPath, `${proto}://${host}`);
+    };
+
     const contentType = req.headers.get("content-type") || "";
 
     if (contentType.includes("application/json")) {
@@ -38,7 +46,7 @@ export async function POST(req: NextRequest) {
 
     if (!pin) {
       if (isFormRequest) {
-        return NextResponse.redirect(new URL(`/login?error=pin_required`, req.url), 303);
+        return NextResponse.redirect(getRedirectUrl(`/login?error=pin_required`), 303);
       }
       return NextResponse.json(
         { success: false, error: "PIN wajib dimasukkan" },
@@ -65,7 +73,7 @@ export async function POST(req: NextRequest) {
 
     if (!user) {
       if (isFormRequest) {
-        return NextResponse.redirect(new URL(`/login?error=invalid_pin`, req.url), 303);
+        return NextResponse.redirect(getRedirectUrl(`/login?error=invalid_pin`), 303);
       }
       return NextResponse.json(
         { success: false, error: "PIN salah atau akun tidak terdaftar" },
@@ -79,8 +87,7 @@ export async function POST(req: NextRequest) {
     const secure = process.env.NODE_ENV === "production" || req.headers.get("x-forwarded-proto") === "https";
 
     if (isFormRequest) {
-      const redirectUrl = new URL(fromUrl.startsWith("/") ? fromUrl : "/", req.url);
-      const redirectRes = NextResponse.redirect(redirectUrl, 303);
+      const redirectRes = NextResponse.redirect(getRedirectUrl(fromUrl || "/"), 303);
       redirectRes.cookies.set({
         name: SESSION_COOKIE_NAME,
         value: token,
