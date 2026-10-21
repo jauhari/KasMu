@@ -1,5 +1,16 @@
 # KasMu - Changelog
 
+## [2.3.0] - 2026-10-21
+
+### Baru: Integrasi Buku Transaksi + Kontak Pelanggan
+
+- **Halaman `/customers` (Kontak Pelanggan)**: tabel per kontak — jumlah layanan, tagihan (nilai/admin/outstanding), transaksi kasir terkait, dan total keuntungan per kontak; klik baris = detail riwayat tagihan + struk
+- **Tagihan BRILink kini masuk buku transaksi**: saat pelanggan bayar, struk `Transaction` dibuat otomatis (kategori Tagihan PLN/PDAM/BPJS, untung = admin) dan kas +total — langsung ikut di Data Transaksi & Laporan
+- **Saldo akun akurat**: "Kirim (talangan)" memotong saldo akun sumber (BRILink); "Batal" membalikkan semua mutasi & struk secara presisi
+- **Data historis dari import aman**: flag `providerApplied`/`cashApplied` memastikan data lama tidak ganda terhitung
+- **API**: `/api/bills` menerima `accountId`, PATCH transisi status menangani mutasi uang atomik
+- **Filter baru di Data Transaksi**: kategori Tagihan PLN
+
 ## [2.2.0] - 2026-10-21
 
 ### Baru: Modul Tagihan BRILink
