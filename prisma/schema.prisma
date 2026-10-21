@@ -82,7 +82,7 @@ model Transaction {
   customerRef   String?  // No Rekening, ID Pelanggan, No HP
   customerName  String?  // Nama pelanggan/nasabah
   notes         String?
-  billId        String?  @unique // Tagihan asal (potongan tagihan BRILink)
+  billId        String?  // Tagihan asal potongan (harga: 2 struk — kirim BRILink & pembayaran pelanggan)
   bill          Bill?    @relation(fields: [billId], references: [id])
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt

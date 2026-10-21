@@ -31,6 +31,18 @@ export async function PATCH(
       );
     }
 
+    const moneyApplied = existing.providerApplied || existing.cashApplied;
+    const editingMoney = tagihan !== undefined || admin !== undefined;
+    if (moneyApplied && editingMoney && status !== "BELUM") {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Uang tagihan ini sudah termutasi — batalkan dulu sebelum ubah nominal",
+        },
+        { status: 400 }
+      );
+    }
+
     const patch: any = {};
     if (accountId !== undefined) patch.accountId = accountId || null;
 

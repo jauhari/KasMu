@@ -5,8 +5,9 @@
 ### Baru: Integrasi Buku Transaksi + Kontak Pelanggan
 
 - **Halaman `/customers` (Kontak Pelanggan)**: tabel per kontak — jumlah layanan, tagihan (nilai/admin/outstanding), transaksi kasir terkait, dan total keuntungan per kontak; klik baris = detail riwayat tagihan + struk
-- **Tagihan BRILink kini masuk buku transaksi**: saat pelanggan bayar, struk `Transaction` dibuat otomatis (kategori Tagihan PLN/PDAM/BPJS, untung = admin) dan kas +total — langsung ikut di Data Transaksi & Laporan
-- **Saldo akun akurat**: "Kirim (talangan)" memotong saldo akun sumber (BRILink); "Batal" membalikkan semua mutasi & struk secara presisi
+- **Tagihan BRILink kini masuk buku transaksi** (2 struk): (1) saat agen kirim via BRILink → struk **Akun BRILink** (nominal tagihan); (2) saat pelanggan bayar → struk **Kas** (nominal tagihan, untung = admin) — kas +total, langsung ikut Data Transaksi, Laporan & Opname
+- **Saldo akun akurat**: "Kirim (talangan)" memotong saldo akun sumber (BRILink); "Batal" menghapus kedua struk & membalikkan saldo secara presisi
+- **Opname konsisten**: struk pembayaran memakai nominal tagihan + fee admin = total kas masuk, tidak terhitung ganda
 - **Data historis dari import aman**: flag `providerApplied`/`cashApplied` memastikan data lama tidak ganda terhitung
 - **API**: `/api/bills` menerima `accountId`, PATCH transisi status menangani mutasi uang atomik
 - **Filter baru di Data Transaksi**: kategori Tagihan PLN
