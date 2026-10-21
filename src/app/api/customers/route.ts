@@ -1,16 +1,92 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { calculateNetProfit } from "@/lib/accounting";
 
 export async function GET() {
   try {
     const customers = await prisma.customer.findMany({
       include: {
         numbers: true,
-        _count: { select: { bills: true } },
+        bills: {
+          select: {
+            id: true,
+            bulan: true,
+            jenis: true,
+            status: true,
+            tagihan: true,
+            admin: true,
+            total: true,
+            noPelanggan: true,
+          },
+        },
       },
       orderBy: { name: "asc" },
     });
-    return NextResponse.json({ success: true, data: customers });
+
+    // ===== Transaksi kasir: masuk nama kontak (wajar — struk memakai nama) =====
+    const txs = await prisma.transaction.findMany({
+      where: { status: "SUCCESS" },
+      select: {
+        id: true,
+        customerName: true,
+        amount: true,
+        adminBank: true,
+        storeFee: true,
+        netProfit: true,
+        category: true,
+        createdAt: true,
+      },
+      orderBy: { createdAt: "desc" },
+      take: 3000,
+    });
+
+    const nameToTx = new Map<string, typeof txs>();
+    for (const t of txs) {
+      if (!t.customerName) continue;
+      const key = t.customerName.trim();
+      if (!nameToTx.has(key)) nameToTx.set(key, []);
+      nameToTx.get(key)!.push(t);
+    }
+
+    const data = customers.map((c) => {
+      const bills = c.bills;
+      const lunas = bills.filter((b) => b.status === "LUNAS");
+      const talangan = bills.filter((b) => b.status === "TALANGAN");
+      const belum = bills.filter((b) => b.status === "BELUM");
+
+      // Untung tagihan: admin dari semua tagihan yang sudah diberangkatkan (lunas + talangan)
+      const adminTagihan = [...lunas, ...talangan].reduce((s, b) => s + (b.admin || 0), 0);
+
+      const txsThis = nameToTx.get(c.name) || [];
+      const txTotal = txsThis.reduce((s, t) => s + t.amount, 0);
+      const txUntung = txsThis.reduce((s, t) => s + calculateNetProfit(t.storeFee, t.adminBank), 0);
+
+      return {
+        id: c.id,
+        name: c.name,
+        numbers: c.numbers.map((n) => ({ id: n.id, jenis: n.jenis, noPelanggan: n.noPelanggan })),
+        tagihan: {
+          total: bills.length,
+          lunas: lunas.length,
+          talangan: talangan.length,
+          belum: belum.length,
+          nilai: lunas.reduce((s, b) => s + (b.total || 0), 0),
+          admin: adminTagihan,
+          outstanding: talangan.reduce((s, b) => s + (b.total || 0), 0),
+        },
+        transaksi: {
+          count: txsThis.length,
+          total: txTotal,
+          untung: txUntung,
+        },
+        besarSemua: bills.reduce(
+          (s, b) => s + (b.total || 0),
+          0
+        ),
+      };
+    });
+
+    return NextResponse.json({ success: true, data });
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }

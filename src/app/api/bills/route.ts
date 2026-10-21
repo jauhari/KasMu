@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { applyProviderDeduct, applyCashPayment } from "@/lib/bills-accounting";
 
 const JENIS_VALID = ["PLN", "PDAM", "BPJS TK", "BPJS Kes"];
 
@@ -9,12 +10,14 @@ export async function GET(req: NextRequest) {
     const bulan = sp.get("bulan") || undefined;
     const jenis = sp.get("jenis") || undefined;
     const status = sp.get("status") || undefined;
+    const customerId = sp.get("customerId") || undefined;
     const q = sp.get("q")?.trim() || undefined;
 
     const where: any = {};
     if (bulan) where.bulan = bulan;
     if (jenis) where.jenis = jenis;
     if (status) where.status = status;
+    if (customerId) where.customerId = customerId;
     if (q) where.customer = { name: { contains: q } };
 
     const bills = await prisma.bill.findMany({
@@ -66,6 +69,7 @@ export async function POST(req: NextRequest) {
       status = "TALANGAN",
       tagihan,
       admin,
+      accountId,
       providerPaidAt,
       customerPaidAt,
       catatan,
@@ -120,7 +124,7 @@ export async function POST(req: NextRequest) {
         ? new Date()
         : null;
 
-    const createData = {
+    const createData: any = {
       bulan: String(bulan),
       jenis,
       customerId: custId,
@@ -133,6 +137,12 @@ export async function POST(req: NextRequest) {
       customerPaidAt: customerPaidAt ? new Date(customerPaidAt) : null,
       catatan: catatan || null,
     };
+    if (accountId) createData.accountId = accountId;
+
+    const existedBefore = await prisma.bill.findUnique({
+      where: { bulan_jenis_noPelanggan: { bulan: String(bulan), jenis, noPelanggan } },
+      select: { id: true, status: true },
+    });
 
     const bill = await prisma.bill.upsert({
       where: { bulan_jenis_noPelanggan: { bulan: String(bulan), jenis, noPelanggan } },
@@ -144,11 +154,26 @@ export async function POST(req: NextRequest) {
         providerPaidAt: createData.providerPaidAt,
         customerPaidAt: createData.customerPaidAt,
         catatan: createData.catatan,
+        accountId: createData.accountId ?? undefined,
       },
       create: createData,
     });
 
-    return NextResponse.json({ success: true, data: bill });
+    // Jalankan mutasi uang utk tagihan BARU manual (bukan update tagihan lama)
+    if (!existedBefore) {
+      if (String(status) === "TALANGAN") {
+        await applyProviderDeduct(bill.id);
+      } else if (String(status) === "LUNAS") {
+        await applyProviderDeduct(bill.id);
+        await applyCashPayment(bill.id);
+      }
+    }
+
+    const final = await prisma.bill.findUnique({
+      where: { id: bill.id },
+      include: { customer: true },
+    });
+    return NextResponse.json({ success: true, data: final });
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }

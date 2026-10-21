@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { applyProviderDeduct, applyCashPayment, revertBillMoney } from "@/lib/bills-accounting";
 
 export async function PATCH(
   req: NextRequest,
@@ -12,6 +13,7 @@ export async function PATCH(
       status,
       tagihan,
       admin,
+      accountId,
       providerPaidAt,
       customerPaidAt,
       catatan,
@@ -22,7 +24,22 @@ export async function PATCH(
       return NextResponse.json({ success: false, error: "Tagihan tidak ditemukan" }, { status: 404 });
     }
 
+    if (accountId !== undefined && accountId !== existing.accountId && existing.providerApplied) {
+      return NextResponse.json(
+        { success: false, error: "Saldo akun tagihan ini sudah termutasi — tidak bisa ganti akun" },
+        { status: 400 }
+      );
+    }
+
     const patch: any = {};
+    if (accountId !== undefined) patch.accountId = accountId || null;
+
+    if (tagihan !== undefined) {
+      patch.tagihan = tagihan === null || tagihan === "" ? null : Math.round(Number(tagihan));
+    }
+    if (admin !== undefined) {
+      patch.admin = admin === null || admin === "" ? null : Math.round(Number(admin));
+    }
 
     if (status !== undefined) {
       const newStatus = String(status);
@@ -31,44 +48,50 @@ export async function PATCH(
       }
       patch.status = newStatus;
 
-      // Logic waktu default supaya operator tidak salah input:
-      // -> TALANGAN  : agen sudah bayar ke provider
-      // -> LUNAS     : pelanggan sudah bayar
-      if (newStatus === "TALANGAN" && !providerPaidAt && !existing.providerPaidAt) {
-        patch.providerPaidAt = new Date();
+      if (newStatus === "LUNAS") {
+        if (existing.providerPaidAt === null && patch.providerPaidAt === undefined) {
+          patch.providerPaidAt = providerPaidAt ? new Date(providerPaidAt) : new Date();
+        }
+        if (existing.customerPaidAt === null && patch.customerPaidAt === undefined) {
+          patch.customerPaidAt = customerPaidAt ? new Date(customerPaidAt) : new Date();
+        }
+      } else if (newStatus === "TALANGAN") {
+        if (existing.providerPaidAt === null && patch.providerPaidAt === undefined) {
+          patch.providerPaidAt = providerPaidAt ? new Date(providerPaidAt) : new Date();
+        }
+      } else if (newStatus === "BELUM" && existing.status !== "BELUM") {
+        // Batal ke belum: tulis status dulu, lalu balikkan semua mutasi
+        await prisma.bill.update({ where: { id }, data: { ...patch, status: newStatus } });
+        await revertBillMoney(id);
+        const updated = await prisma.bill.findUnique({ where: { id }, include: { customer: true } });
+        return NextResponse.json({ success: true, data: updated });
       }
-      if (newStatus === "LUNAS" && !customerPaidAt && !existing.customerPaidAt) {
-        patch.customerPaidAt = new Date();
+    } else {
+      // tanpa perubahan status: edit waktu/catatan manual
+      if (providerPaidAt !== undefined) {
+        patch.providerPaidAt = providerPaidAt ? new Date(providerPaidAt) : null;
       }
-      if (newStatus === "LUNAS" && !providerPaidAt && !existing.providerPaidAt) {
-        // LUNAS tanpa pernah talangan: pelanggan bayar langsung sama hari
-        patch.providerPaidAt = new Date();
-      }
-      if (newStatus === "BELUM") {
-        // Dibatalkan ke belum: reset pembayaran
-        patch.tagihan = null;
-        patch.admin = null;
-        patch.total = null;
-        patch.providerPaidAt = null;
-        patch.customerPaidAt = null;
+      if (customerPaidAt !== undefined) {
+        patch.customerPaidAt = customerPaidAt ? new Date(customerPaidAt) : null;
       }
     }
 
-    // Nominal bisa diisi manual (koreksi / status BELUM naik level)
-    if (tagihan !== undefined) patch.tagihan = tagihan === null || tagihan === "" ? null : Math.round(Number(tagihan));
-    if (admin !== undefined) patch.admin = admin === null || admin === "" ? null : Math.round(Number(admin));
+    // tulis perubahan (termasuk tagihan/admin utk kirim dari BELUM)
+    await prisma.bill.update({ where: { id }, data: patch });
 
-    const finalTagihan = patch.tagihan !== undefined ? patch.tagihan : existing.tagihan;
-    const finalAdmin = patch.admin !== undefined ? patch.admin : existing.admin;
-    if (finalTagihan != null && finalAdmin != null) {
-      patch.total = finalTagihan + finalAdmin;
+    // jalankan mutasi uang sesuai status final
+    const finalStatus = patch.status ?? existing.status;
+    if (finalStatus === "TALANGAN") {
+      await applyProviderDeduct(id);
+    } else if (finalStatus === "LUNAS") {
+      await applyProviderDeduct(id);
+      await applyCashPayment(id);
     }
 
-    if (providerPaidAt !== undefined) patch.providerPaidAt = providerPaidAt ? new Date(providerPaidAt) : null;
-    if (customerPaidAt !== undefined) patch.customerPaidAt = customerPaidAt ? new Date(customerPaidAt) : null;
-    if (catatan !== undefined) patch.catatan = catatan || null;
-
-    const updated = await prisma.bill.update({ where: { id }, data: patch });
+    const updated = await prisma.bill.findUnique({
+      where: { id },
+      include: { customer: true },
+    });
     return NextResponse.json({ success: true, data: updated });
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
@@ -81,6 +104,12 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
+    const existing = await prisma.bill.findUnique({ where: { id } });
+    if (!existing) {
+      return NextResponse.json({ success: false, error: "Tagihan tidak ditemukan" }, { status: 404 });
+    }
+    // Balikkan dulu semua mutasi terkait (aman utk data historis: flag false)
+    await revertBillMoney(id);
     await prisma.bill.delete({ where: { id } });
     return NextResponse.json({ success: true });
   } catch (error: any) {

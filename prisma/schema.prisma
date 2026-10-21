@@ -32,6 +32,7 @@ model Account {
   updatedAt     DateTime       @updatedAt
   transactions  Transaction[]
   cashMutations CashMutation[]
+  bills         Bill[]
 }
 
 model Shift {
@@ -71,7 +72,7 @@ model Transaction {
   shift         Shift?   @relation(fields: [shiftId], references: [id])
   accountId     String
   account       Account  @relation(fields: [accountId], references: [id])
-  category      String   // TARIK_TUNAI | SETOR_TUNAI | TRANSFER_BANK | TOPUP_EWALLET | TOKEN_PLN | PULSA_DATA | TAGIHAN_BPJS | TAGIHAN_PDAM | LAINNYA
+  category      String   // TARIK_TUNAI | SETOR_TUNAI | TRANSFER_BANK | TOPUP_EWALLET | TOKEN_PLN | PULSA_DATA | TAGIHAN_BPJS | TAGIHAN_PDAM | TAGIHAN_PLN | LAINNYA
   amount        Float    // Nilai transaksi
   adminBank     Float    @default(0) // Biaya admin bank/provider
   storeFee      Float    @default(0) // Fee toko/jasa agen
@@ -81,6 +82,8 @@ model Transaction {
   customerRef   String?  // No Rekening, ID Pelanggan, No HP
   customerName  String?  // Nama pelanggan/nasabah
   notes         String?
+  billId        String?  @unique // Tagihan asal (potongan tagihan BRILink)
+  bill          Bill?    @relation(fields: [billId], references: [id])
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }
@@ -131,21 +134,26 @@ model CustomerNumber {
 }
 
 model Bill {
-  id             String   @id @default(cuid())
-  bulan          String   // Periode "2026-10"
-  jenis          String   // PLN | PDAM | BPJS TK | BPJS Kes
-  customerId     String
-  customer       Customer @relation(fields: [customerId], references: [id])
-  noPelanggan    String
-  status         String   @default("BELUM") // BELUM | TALANGAN | LUNAS
-  tagihan        Int?     // Nilai tagihan (null saat BELUM)
-  admin          Int?     // Admin dibayar pelanggan (untung agen)
-  total          Int?     // tagihan + admin
-  providerPaidAt DateTime? // Waktu agen bayar ke provider (BRILink)
-  customerPaidAt DateTime? // Waktu pelanggan melunasi
-  catatan        String?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id              String    @id @default(cuid())
+  bulan           String    // Periode "2026-10"
+  jenis           String    // PLN | PDAM | BPJS TK | BPJS Kes
+  customerId      String
+  customer        Customer  @relation(fields: [customerId], references: [id])
+  noPelanggan     String
+  status          String    @default("BELUM") // BELUM | TALANGAN | LUNAS
+  tagihan         Int?      // Nilai tagihan (null saat BELUM)
+  admin           Int?      // Admin dibayar pelanggan (untung agen)
+  total           Int?      // tagihan + admin
+  accountId       String?   // Akun sumber pemotongan (BRILink) — null utk data historis
+  account         Account?  @relation(fields: [accountId], references: [id])
+  providerPaidAt  DateTime? // Waktu agen bayar ke provider (BRILink)
+  customerPaidAt  DateTime? // Waktu pelanggan melunasi
+  providerApplied Boolean   @default(false) // Saldo akun provider sudah dipotong utk tagihan ini
+  cashApplied     Boolean   @default(false) // Kas sudah masuk total & struk transaction dibuat
+  catatan         String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  transactions    Transaction[]
 
   @@unique([bulan, jenis, noPelanggan])
 }

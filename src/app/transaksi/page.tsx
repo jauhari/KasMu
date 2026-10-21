@@ -179,6 +179,7 @@ const CATEGORIES_MAP: Record<string, string> = {
   TOPUP_EWALLET: "Topup E-Wallet",
   TOKEN_PLN: "Token Listrik PLN",
   PULSA_DATA: "Pulsa & Data",
+  TAGIHAN_PLN: "Tagihan PLN",
   TAGIHAN_BPJS: "Tagihan BPJS",
   TAGIHAN_PDAM: "Tagihan Air PDAM",
   LAINNYA: "Lainnya",

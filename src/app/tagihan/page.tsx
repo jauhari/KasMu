@@ -41,6 +41,13 @@ interface CustomerRow {
   numbers: { id: string; jenis: string; noPelanggan: string }[];
 }
 
+interface AccountRow {
+  id: string;
+  name: string;
+  type: string;
+  balance: number;
+}
+
 export default function TagihanPage() {
   const [bulan, setBulan] = useState(currentBulanID());
   const [bulanList, setBulanList] = useState<string[]>([]);
@@ -56,6 +63,9 @@ export default function TagihanPage() {
   const [loading, setLoading] = useState(true);
 
   const [customers, setCustomers] = useState<CustomerRow[]>([]);
+  const [accounts, setAccounts] = useState<AccountRow[]>([]);
+  const [kirimAccountId, setKirimAccountId] = useState("");
+  const [addAccountId, setAddAccountId] = useState("");
 
   // modal tambah tagihan
   const [showAdd, setShowAdd] = useState(false);
@@ -111,13 +121,34 @@ export default function TagihanPage() {
     }
   }, []);
 
+  const loadAccounts = useCallback(async () => {
+    try {
+      const res = await fetch("/api/accounts");
+      const json = await res.json();
+      if (json.success) {
+        const accs: AccountRow[] = json.data;
+        setAccounts(accs);
+        // Default: akun BRILink kalau ada, kalau tidak akun pertama
+        const brilink = accs.find((a) => a.name.toLowerCase().includes("brilink"));
+        const def = brilink ? brilink.id : accs[0]?.id || "";
+        setKirimAccountId((prev) => prev || def);
+        setAddAccountId((prev) => prev || def);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }, []);
+
   useEffect(() => {
     loadBills();
   }, [loadBills]);
 
   useEffect(() => {
-    if (showAdd) loadCustomers();
-  }, [showAdd, loadCustomers]);
+    if (showAdd) {
+      loadCustomers();
+      loadAccounts();
+    }
+  }, [showAdd, loadCustomers, loadAccounts]);
 
   // pilihan nomor layanan sesuai kontak & jenis terpilih
   const nomorOptions = useMemo(() => {
@@ -138,6 +169,7 @@ export default function TagihanPage() {
     setTagihanAdd("");
     setAdminAdd("");
     setCatatanAdd("");
+    setAddAccountId("");
   };
 
   const handleAdd = async () => {
@@ -159,6 +191,7 @@ export default function TagihanPage() {
           status: statusAdd,
           tagihan: statusAdd === "BELUM" ? undefined : tagihanAdd.replace(/\./g, ""),
           admin: statusAdd === "BELUM" ? undefined : adminAdd.replace(/\./g, ""),
+          accountId: statusAdd !== "BELUM" ? addAccountId || undefined : undefined,
           catatan: catatanAdd.trim() || undefined,
         }),
       });
@@ -209,11 +242,13 @@ export default function TagihanPage() {
       status: "TALANGAN",
       tagihan: tg,
       admin: ad,
+      accountId: kirimAccountId || undefined,
       providerPaidAt: new Date().toISOString(),
     });
     setSaving(false);
     if (ok) {
-      toast.success("Bayaran dikirim ke provider (talangan)");
+      const accName = accounts.find((a) => a.id === kirimAccountId)?.name || "akun";
+      toast.success(`Bayaran dikirim — saldo ${accName} dipotong (talangan)`);
       setKirimBill(null);
       setKirimTagihan("");
       setKirimAdmin("");
@@ -225,7 +260,7 @@ export default function TagihanPage() {
       status: "LUNAS",
       customerPaidAt: new Date().toISOString(),
     });
-    if (ok) toast.success(`${b.customer.name} Lunas`);
+    if (ok) toast.success(`${b.customer.name} Lunas — kas +${formatRupiah(b.total || 0)}`);
   };
 
   const handleDelete = async (b: BillRow) => {
@@ -440,6 +475,7 @@ export default function TagihanPage() {
                             setKirimBill(b);
                             setKirimTagihan("");
                             setKirimAdmin("3000");
+                            if (!kirimAccountId) loadAccounts();
                           }}
                           className="p-1.5 text-amber-400 hover:bg-amber-900/20 border border-amber-700/40 rounded-none transition-colors"
                         >
@@ -568,6 +604,20 @@ export default function TagihanPage() {
             </div>
           )}
 
+          {statusAdd !== "BELUM" && (
+            <Select
+              label="Akun Sumber Pemotongan"
+              value={addAccountId}
+              onValueChange={setAddAccountId}
+              options={accounts.map((a) => ({
+                value: a.id,
+                label: `${a.name} — ${formatRupiah(a.balance)}`,
+              }))}
+              placeholder="Pilih akun"
+              required
+            />
+          )}
+
           <Input label="Catatan (opsional)" value={catatanAdd} onValueChange={setCatatanAdd} />
 
           <div className="flex justify-end gap-3 pt-2">
@@ -635,8 +685,21 @@ export default function TagihanPage() {
                 required
               />
             </div>
-            <p className="text-[10px] text-slate-500">
-              Dicatat sebagai TALANGAN — waktu kirim: {formatDateTimeID(new Date())} WIB. Pelanggan belum bayar.
+            <Select
+              label="Akun Sumber Pemotongan"
+              value={kirimAccountId}
+              onValueChange={setKirimAccountId}
+              options={accounts.map((a) => ({
+                value: a.id,
+                label: `${a.name} — ${formatRupiah(a.balance)}`,
+              }))}
+              placeholder="Pilih akun"
+              required
+            />
+            <p className="text-[10px] text-slate-500 leading-relaxed">
+              Dicatat sebagai TALANGAN — waktu kirim: {formatDateTimeID(new Date())} WIB.
+              Saldo akun sumber dipotong <b>{kirimTagihan ? formatRupiah(parseInt(kirimTagihan.replace(/\./g, "")) || 0) : "-"}</b> sekarang;
+              saat pelanggan bayar nanti, kas akan masuk total dan struk transaksi dibuat otomatis.
             </p>
             <div className="flex justify-end gap-3">
               <Button variant="ghost" size="sm" onClick={() => setKirimBill(null)}>
