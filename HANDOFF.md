@@ -1,208 +1,97 @@
-# HANDOFF DOCUMENT: KASMU PRO (MINI-ATM & KEAGENAN OFFLINE)
+# HANDOFF — KasMu
 
-> **Last Updated:** 2026-10-21 09:35 WIB  
-> **Status:** Production Deployed & Verified Live at [https://kasmu.jauhari.net](https://kasmu.jauhari.net)  
-> **Repository / Local Root:** `C:\Users\RYZEN\Projects\KasMu`  
-> **Server Remote:** `dhw@100.78.120.29` (MacBook Air Server, macOS Darwin)  
+Dokumen penyerahan kondisi proyek per **21 Oktober 2026**. Baca ini sebelum melanjutkan pekerjaan apa pun.
 
----
+## 1. Gambaran Umum
 
-## 1. Project Overview & Architecture
+- **Aplikasi**: KasMu — pembukuan mini-ATM/BRILink (Next.js App Router + Prisma + SQLite), UI custom anti-slop (bukan library komponen).
+- **Repo lokal**: `C:\Users\RYZEN\Projects\KasMu` (branch `master`, **tanpa remote** — deploy via SSH/SCP).
+- **Server produksi**: MacBook Air user, `dhw@100.78.120.29`, app di `/Users/dhw/sites/kasmu.jauhari.net`, port `127.0.0.1:4000`.
+- ** NEXT dalam repo** tidak ada; jangan guess URL deploy.
 
-**KasMu PRO** is an offline-first bookkeeping and Point of Sale (POS) application specially engineered for Indonesian **Mini-ATM & Banking Agents** (BRILink, BNI Agen46, Mandiri Agen, Fastpay, PPOB, and E-Wallet top-ups).
+## 2. Deployment (cara pasti)
 
-### Key Architectural Pillars:
-1. **100% Offline Capable & Self-Hosted**: Powered by local SQLite + Prisma ORM. No third-party cloud dependencies required for transaction processing.
-2. **Multi-Tenant Reverse Proxy Deployment**: Served via Next.js standalone process bound to port `4000` on a MacBook Air server, reverse-proxied with SSL termination by Caddy (`8080` / `https`) to the domain `kasmu.jauhari.net`.
-3. **Double-Entry Financial Accuracy**: Real-time tracking of cash drawer vs. digital bank balances with audit trails, fee margin calculations, and physical cash opname.
-4. **Mobile-First POS Experience**: Custom responsive interface optimized for Android and iOS smartphones with bottom navigation, thumb-reach floating action buttons (FAB), and instant Server-Side Rendering (SSR).
-5. **Strict Role-Level Security (Owner vs. Staff)**: Cryptographically secured lock screen with granular data masking to ensure staff never view confidential store profit or master bank balances.
-
----
-
-## 2. Server Infrastructure & Multi-Tenant Setup
-
-Host server adalah sebuah **MacBook Air (Apple Silicon, macOS Darwin)** yang melayani beberapa website dan aplikasi internal secara simultan (*multi-tenant*).
-
-### A. Peta Alokasi Port Server (`100.78.120.29`)
-
-| Port | Service / Aplikasi | Keterangan & Aturan |
-| :--- | :--- | :--- |
-| **`4000`** | **KasMu PRO (`kasmu.jauhari.net`)** | **Dialokasikan khusus untuk KasMu**. Jangan ubah port ini agar tidak bentrok. |
-| **`3000`** | `brilink.jauhari.net` | Aplikasi agen BRILink lain yang sudah berjalan sebelumnya. |
-| **`80` / `443`** | Caddy Web Server | Reverse Proxy publik & otomatisasi sertifikat SSL (HTTPS). |
-| **`8080`** | Caddy Internal / Cloudflare Tunnel | Port binding Caddy reverse proxy. |
-| **`9000`** | PHP-FPM | Menangani backend PHP / Laravel (SIPENDA, ASA, dll). |
-
-### B. Konfigurasi Reverse Proxy Caddy (`/Users/dhw/sites/Caddyfile`)
-
-Caddy bertindak sebagai reverse proxy di depan Next.js KasMu. Konfigurasi aktif di `/Users/dhw/sites/Caddyfile`:
-
-```caddy
-# KasMu - POS Kasir & Pembukuan Agen Bank (kasmu.jauhari.net), Next.js di 127.0.0.1:4000
-@kasmu host kasmu.jauhari.net
-handle @kasmu {
-    reverse_proxy 127.0.0.1:4000 {
-        header_up Host {host}
-        header_up X-Forwarded-Host {host}
-        header_up X-Forwarded-Proto https
-    }
-}
+```powershell
+# PowerShell (Windows dev), kunci SSH:
+scp -i "$env:USERPROFILE\.ssh\id_ed25519_macbook_server" -r src/. dhw@100.78.120.29:/Users/dhw/sites/kasmu.jauhari.net/src/
+scp -i "$env:USERPROFILE\.ssh\id_ed25519_macbook_server" prisma/schema.prisma CHANGELOG.md dhw@100.78.120.29:/Users/dhw/sites/kasmu.jauhari.net/prisma/
 ```
 
-> [!IMPORTANT]
-> **Pengecualian Cache Statis Caddy**:  
-> Domain `kasmu.jauhari.net` sengaja **dikecualikan** dari aturan cache statis 30 hari Caddy (`not host ... kasmu.jauhari.net`). Hal ini krusial agar file script chunk Next.js (`/_next/static/chunks/*`) selalu sinkron setiap kali aplikasi di-build ulang dan tidak menyebabkan chunk-mismatch di browser klien.
+Rebuild + restart di server:
 
-### C. Konfigurasi Daemon macOS Launchd (`com.kasmu.server.plist`)
-
-KasMu berjalan di background sebagai service macOS via `launchd`.  
-File konfigurasi terletak di: `~/Library/LaunchAgents/com.kasmu.server.plist`
-
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-    <key>Label</key>
-    <string>com.kasmu.server</string>
-    <key>ProgramArguments</key>
-    <array>
-        <string>/Users/dhw/.local/node-22/bin/node</string>
-        <string>/Users/dhw/sites/kasmu.jauhari.net/node_modules/next/dist/bin/next</string>
-        <string>start</string>
-        <string>-p</string>
-        <string>4000</string>
-        <string>-H</string>
-        <string>127.0.0.1</string>
-    </array>
-    <key>EnvironmentVariables</key>
-    <dict>
-        <key>HOST</key>
-        <string>127.0.0.1</string>
-        <key>PORT</key>
-        <string>4000</string>
-        <key>NODE_ENV</key>
-        <string>production</string>
-        <key>PATH</key>
-        <string>/Users/dhw/.local/node-22/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
-    </dict>
-    <key>WorkingDirectory</key>
-    <string>/Users/dhw/sites/kasmu.jauhari.net</string>
-    <key>StandardOutPath</key>
-    <string>/Users/dhw/sites/kasmu.jauhari.net/kasmu.log</string>
-    <key>StandardErrorPath</key>
-    <string>/Users/dhw/sites/kasmu.jauhari.net/kasmu.log</string>
-    <key>KeepAlive</key>
-    <true/>
-    <key>RunAtLoad</key>
-    <true/>
-</dict>
-</plist>
+```bash
+ssh -i "$env:USERPROFILE\.ssh\id_ed25519_macbook_server" dhw@100.78.120.29 \
+  "export PATH=/Users/dhw/.local/node-22/bin:/usr/bin:/bin:/usr/sbin:/sbin && \
+   cd /Users/dhw/sites/kasmu.jauhari.net && \
+   npm run build 2>&1 | tail -2 && \
+   launchctl unload ~/Library/LaunchAgents/com.kasmu.server.plist; sleep 2; \
+   launchctl load ~/Library/LaunchAgents/com.kasmu.server.plist; sleep 12; \
+   curl -s -o /dev/null -w 'login: %{http_code}\n' http://127.0.0.1:4000/login"
 ```
 
----
+- Verifikasi: `/login` = 200; halaman auth (`/transaksi`, `/customers`, `/tagihan`) = 307 diarahkan login (middleware auth bekerja).
+- node dari `/Users/dhw/.local/node-22/bin` — selalu export PATH.
+- `prisma db push` di server bila schema berubah (additive aman; lihat catatan SQLite di bagian 6).
 
-## 3. Catatan Khusus & Masalah Setting Server (Troubleshooting Guide)
+## 3. Keadaan Data Server (per 21 Okt 2026)
 
-Berikut adalah daftar masalah kritis yang pernah terjadi pada setting server Mac dan solusinya:
+- DB asli = **`prisma/kasmu.db`** (schema `file:./kasmu.db` resolusinya relatif terhadap folder prisma). File `kasmu.db` & `prisma/dev.db` di root server adalah sampah 0-byte, boleh dihapus.
+- **Users**: owner PIN `123456`, kasir1 PIN `112233` — dipertahankan lewat reset.
+- **Akun**: BRILink (BANK, saldo = **−5.232.767** lihat catatan), BukuWarung (BANK, 0), Kasir (CASH_DRAWER, saldo = **3.510.988**).
+- **40 tagihan** hasil import CSV Oktober 2026 (data minggu berjalan, BUKAN riwayat lama): LUNAS=23, TALANGAN=15 (outstanding 1.838.059), BELUM=2. Sum: tagihan 5.232.767, admin 116.280, total 5.349.047 — terverifikasi sama persis CSV.
+- **61 struk** otomatis dari tagihan: 38 `KIRIM-*` (TRANSFER, Akun BRILink, untung 0) + 23 `BYR-*` (CASH, Akun Kasir, untung = admin). **Untung umum yang diakui = 72.780** (admin LUNAS saja — laporan tidak menghitung tagihan talangan).
+- Tanggal struk mencerminkan tanggal CSV (parse `+07:00` WIB).
+- **Kenapa BRILink minus 5.232.767**: baru tagihan tercatat; uang tarik tunai nasabah (pengisi saldo BRILink riil) belum dicatat. User harus menyesuaikan saldo BRILink ke saldo nyata lewat Saldo Akun → edit, atau mencatat tarik tunai lama via Data Transaksi.
 
-### 1. Masalah PATH Node.js pada Sesi SSH Non-Interactive
-* **Gejala**: Menjalankan perintah remote via SSH seperti `ssh dhw@100.78.120.29 "node -v"` menghasilkan error: `zsh: command not found: node`.
-* **Penyebab**: macOS tidak memuat `~/.zshrc` pada sesi SSH non-interactive (tanpa pty). Node.js v22 terpasang di direktori mandiri `/Users/dhw/.local/node-22/bin/node` dan bukan di `/usr/bin/node`.
-* **Solusi**: Setiap perintah SSH yang melibatkan Node atau NPM **harus** menyertakan export PATH:
-  ```bash
-  export PATH=/Users/dhw/.local/node-22/bin:/usr/bin:/bin:/usr/sbin:/sbin && cd /Users/dhw/sites/kasmu.jauhari.net && <perintah>
-  ```
+## 4. Model Uang Tagihan (inti sistem)
 
-### 2. Masalah Redirection Reverse Proxy (Error Lari ke `localhost:4000`)
-* **Gejala**: Saat pengguna selesai memasukkan PIN di `https://kasmu.jauhari.net/login`, browser diarahkan ke `http://localhost:4000/` atau `http://127.0.0.1:4000/` yang tidak bisa diakses dari smartphone.
-* **Penyebab**: Next.js berjalan di port internal 4000. Metode standar Next.js seperti `NextResponse.redirect(new URL('/', req.url))` membaca `req.url` internal (`127.0.0.1:4000`) alih-alih domain publik.
-* **Solusi**: Di `src/middleware.ts` dan `src/app/api/auth/login/route.ts`, URL redirect dibangun secara dinamis menggunakan header reverse proxy yang dikirimkan Caddy:
-  ```typescript
-  const proto = req.headers.get("x-forwarded-proto") || "https";
-  const host = req.headers.get("x-forwarded-host") || req.headers.get("host") || "kasmu.jauhari.net";
-  const redirectUrl = new URL(targetPath, `${proto}://${host}`);
-  ```
+Satu tagihan = 2 struk, dijaga flag `providerApplied`/`cashApplied` di Bill:
 
-### 3. Masalah Layar Macet *"Memuat data KasMu..."* (Loading Spinner Abadi di HP)
-* **Gejala**: Di browser smartphone Android/iPhone, setelah login halaman dashboard hanya menampilkan latar hitam dengan spinner *"Memuat data KasMu..."*.
-* **Penyebab**: Sebelumnya data dashboard diambil secara *client-side* via `fetch('/api/dashboard')`. Ketika ada build Next.js baru, chunk hash lama dihapus. Jika smartphone membuka tab lama, terjadi kegagalan muat chunk script (*ChunkLoadError*) sehingga eksekusi `useEffect` terhenti.
-* **Solusi**: Mengubah arsitektur menjadi **Server-Side Rendering (SSR)**. Data dashboard diambil langsung di server melalui `src/app/page.tsx` + `src/lib/dashboard.ts` dan disuntikkan ke `DashboardClient`. Browser smartphone langsung menerima HTML yang sudah terisi angka lengkap sejak byte pertama tanpa perlu menunggu JavaScript client.
+| Kejadian | Saldo | Struk |
+|---|---|---|
+| Kirim (kirim/talangan) | Akun sumber (BRILink) −tagihan | `KIRIM-<J>-<noPel>-<bulan>` TRANSFER, storeFee 0, netProfit 0 |
+| Pelanggan bayar (lunas) | Kasir +total | `BYR-...` CASH, storeFee=admin, netProfit=admin |
+| Batal / hapus | `revertBillMoney` membalik saldo + hapus kedua struk | — |
 
-### 4. Prosedur Restart Service yang Benar (Hindari `killall node`)
-* **Peringatan**: **JANGAN PERNAH** menggunakan `killall node` di server Mac ini! Karena ada aplikasi lain yang berjalan di port 3000 (`brilink`), mematikan proses node secara global akan mematikan aplikasi produksi lain.
-* **Cara Restart Aman KasMu**:
-  Gunakan `launchctl` khusus untuk label `com.kasmu.server`:
-  ```bash
-  ssh -i $env:USERPROFILE\.ssh\id_ed25519_macbook_server dhw@100.78.120.29 "launchctl unload ~/Library/LaunchAgents/com.kasmu.server.plist && sleep 1 && launchctl load ~/Library/LaunchAgents/com.kasmu.server.plist"
-  ```
+- Untung diakui SAAT PELANGGAN BAYAR (baris KIRIM menampilkan tulisan "admin RpX saat pelanggan bayar", badge Talangan kuning). Pilihan sadar: laporan = uang yang benar-benar masuk.
+- **Data historis aman**: flag false = tidak mutasi. Re-import idempoten (upsert by `@@unique bill [bulan, jenis, noPelanggan]`, struk nomor deterministik, skip flag true — sudah diuji: 0 ganda).
+- Import (API `/api/bills/import` & script `prisma/import-bills.mjs`) **langsung** menerapkan uang+struk bila akun ada: sumber = akun bernama mengandung "brilink" (fallback BANK pertama); kas = akun `CASH_DRAWER`.
+- Nominal `Transaction.billId` TIDAK lagi unik (2 struk per bill). Index unik lama sudah di-DROP manual di server — **di SQLite, `prisma db push` bisa gagal menghapus index unik**; cek `sqlite_master` bila error "Unique constraint failed on billId" muncul lagi (`prisma/fix-unique.mjs` mungkin perlu dibuat ulang).
+- Opname: target kas dihitung dari struk `calculateTransactionImpact` (CASH). Struk tagihan memakai nominal TAGIHAN + storeFee=admin = total ⇒ konsisten, tidak dobel.
 
-### 5. Penempatan File Upload via SCP
-* **Perhatian**: Jangan pernah mengunggah file langsung ke direktori `/Users/dhw/sites/kasmu.jauhari.net/src/` tanpa menentukan subdirektori (`src/components/`, `src/app/`, `src/lib/`). File `.tsx` yang tercecer di root `src/` dapat menyebabkan konflik routing atau error kompilasi Next.js.
+## 5. Halaman & Navigasi (final)
 
----
+- Sidebar **satu menu** "Data Transaksi" (`/transaksi`) berisi **tab**: Struk Kasir (daftar struk + Transaksi Baru F2) & Tagihan Pelanggan (kontrol CSV import, kirim/lunas/batal, filter periode).
+- `/tagihan` sekarang `redirect('/transaksi?tab=tagihan')`.
+- `src/components/TagihanSection.tsx` = isi tab tagihan (tanpa Header sendiri).
+- Menu lain: Dashboard, Kontak Pelanggan (`/customers` — agregat value/profit per kontak + detail modal), Opname, Saldo Akun, Keluar/Masuk Cash, Hutang/Piutang, Laporan, Staff, Backup.
+- API tagihan: `/api/bills` (GET/POST — GET dukung `customerId`; POST menerapkan uang hanya utk tagihan baru, default akun sumber otomatis), `/api/bills/[id]` (PATCH transisi status → helper uang; guard: edit nominal ditolak selagi uang sudah termutasi; DELETE revert dulu), `/api/customers` (agregat, tx dicocokkan via nama persis `customerName`).
 
-## 4. Keamanan & Role-Leveling (Owner vs. Kasir)
+## 6. Gotchas Teknis (Windows dev PowerShell)
 
-Aplikasi memiliki pemisahan data yang ketat antara Pemilik Toko (**Owner**) dan Petugas Kasir (**Staff/Kasir**):
+- Tidak ada `&&` (pakai `;` / `if ($?)`), tidak ada `<` redirect, nested quote mematikan → **jangan inline `node -e` berat**; tulis script `.mjs` (lihat pola `prisma/*.mjs`), scp, jalankan di server, hapus.
+- `sqlite3` tidak tersedia; cek DB via prisma `$queryRaw` / node script.
+- Selalu `npx tsc --noEmit` lalu `npx next build` sebelum commit/deploy.
+- Script mjs dulu sempat ada salah tulis lucu ("MISMAPANTHAN") — sudah dibersihkan; jaga kualitas string.
 
-| Fitur / Data | Level OWNER (PIN: `123456`) | Level KASIR (PIN: `112233`) |
-| :--- | :---: | :---: |
-| **Profit Bersih Hari Ini** | Tampil penuh (`Rp 50.500`) | **DISEMBUNYIKAN** |
-| **Profit Bersih Bulanan** | Tampil penuh (`-Rp 48.500`) | **DISEMBUNYIKAN** |
-| **Biaya Operasional Toko** | Tampil penuh (`-Rp 99.000`) | **DISEMBUNYIKAN** |
-| **Total Modal Toko (Bank & Digital)** | Tampil penuh (`Rp 60.735.612`) | **DISEMBUNYIKAN** |
-| **Grafik Tren Pertumbuhan Profit** | Tampil (7 Hari / 30 Hari) | **DISEMBUNYIKAN** |
-| **Transaksi Saya & Volume** | Tampil | Tampil (Fokus Shift) |
-| **Status Kas Laci Toko** | Tampil | Tampil (Normal / Siap) |
-| **Tombol Aksi Cepat Kasir** | Form Transaksi Cepat (F2) | Tombol Cepat F2 + Opname Laci |
-| **Menu Sidebar** | Semua Menu (Saldo, Laporan, Staff, Backup) | Hanya Dashboard, Transaksi, Opname, Mutasi Kas, Hutang |
+## 7. Commit Penting (terbaru dulu)
 
-> [!NOTE]
-> Data rahasia toko tidak hanya disembunyikan menggunakan CSS, melainkan **disaring langsung di level database query** (`src/lib/dashboard.ts`). Jika akun kasir melakukan inspeksi Network DevTools, payload JSON tidak mengandung informasi profit bersih toko maupun saldo bank master.
+- `ec8dd4f` chore: buang script cek sementara
+- `37afa22` refactor: Data Transaksi jadi satu buku — tab Struk Kasir & Tagihan Pelanggan
+- `4c12de8` feat: baris struk kirim tampilkan admin tagihan + status talangan (dipackage dengan build terakhir)
+- `93313ea` feat: import/CSV tagihan langsung jadi struk + saldo otomatis (idempoten)
+- `4eb64ed` refactor: tagihan 2 struk (kirim=BRILink, bayar=Kas+admin), opname konsisten
+- `8bbd951` feat: integrasi tagihan ke buku transaksi + halaman Kontak Pelanggan
+- `4695a7f` feat: modul Tagihan BRILink + import CSV
+- `16cd31b` fix: Input digits-only hanya saat prop `accounting`, syncInput tak blank, inputMode kondisional
+- `8a97b54` fix: seed.mjs dobel `main()`
 
----
+## 8. Langkah Lanjut (belum dikerjakan)
 
-## 5. Standard Operating Procedures (Runbook Deployment)
-
-### Langkah Deploy Update dari Komputer Lokal ke Server Mac:
-
-1. **Transfer File Sumber yang Diperbarui via SCP**:
-   ```powershell
-   scp -i $env:USERPROFILE\.ssh\id_ed25519_macbook_server -r src/* dhw@100.78.120.29:/Users/dhw/sites/kasmu.jauhari.net/src/
-   ```
-
-2. **Kompilasi Ulang Next.js & Restart Service di Mac**:
-   ```powershell
-   ssh -i $env:USERPROFILE\.ssh\id_ed25519_macbook_server dhw@100.78.120.29 "export PATH=/Users/dhw/.local/node-22/bin:/usr/bin:/bin:/usr/sbin:/sbin && cd /Users/dhw/sites/kasmu.jauhari.net && npm run build && launchctl unload ~/Library/LaunchAgents/com.kasmu.server.plist && sleep 1 && launchctl load ~/Library/LaunchAgents/com.kasmu.server.plist"
-   ```
-
-3. **Verifikasi Status Service**:
-   ```powershell
-   ssh -i $env:USERPROFILE\.ssh\id_ed25519_macbook_server dhw@100.78.120.29 "curl -I http://127.0.0.1:4000/login"
-   ```
-
-4. **Monitoring Log Server (Jika Terjadi Kendala)**:
-   ```powershell
-   ssh -i $env:USERPROFILE\.ssh\id_ed25519_macbook_server dhw@100.78.120.29 "tail -n 50 /Users/dhw/sites/kasmu.jauhari.net/kasmu.log"
-   ```
-
----
-
-## 6. Arsip Screenshot Verifikasi Live
-
-| Tampilan | Tautan File Screenshot |
-| :--- | :--- |
-| **Tampilan Kasir (Aman, Tanpa Bocor Profit)** | [`mobile_kasir_fixed.png`](file:///C:/Users/RYZEN/.gemini/antigravity/brain/36f49898-00fb-4305-8d93-55118724d52f/mobile_kasir_fixed.png) |
-| **Tampilan Owner (Lengkap dengan Profit & Modal)** | [`mobile_owner_fixed.png`](file:///C:/Users/RYZEN/.gemini/antigravity/brain/36f49898-00fb-4305-8d93-55118724d52f/mobile_owner_fixed.png) |
-| **Menu Drawer Slide-Over** | [`mobile_drawer_verified.png`](file:///C:/Users/RYZEN/.gemini/antigravity/brain/36f49898-00fb-4305-8d93-55118724d52f/mobile_drawer_verified.png) |
-| **Modal Input Transaksi Cepat (F2)** | [`mobile_modal_verified.png`](file:///C:/Users/RYZEN/.gemini/antigravity/brain/36f49898-00fb-4305-8d93-55118724d52f/mobile_modal_verified.png) |
-| **Tabel Riwayat Transaksi** | [`mobile_transaksi_verified.png`](file:///C:/Users/RYZEN/.gemini/antigravity/brain/36f49898-00fb-4305-8d93-55118724d52f/mobile_transaksi_verified.png) |
-
----
-
-## 7. Rekomendasi Skill untuk Agent Selanjutnya
-- **`antislop-layoutmobile`**: Menjaga integritas tata letak mobile-first, navigasi jempol, dan safe area padding.
-- **`antislop-ui`**: Menjaga estetika micro-typography dan komponen antarmuka POS perbankan.
-- **`verification-before-completion`**: Memastikan setiap update diuji langsung dengan verifikasi browser/screenshot sebelum menyatakan selesai.
+1. **User menyesuaikan saldo BRILink** ke nilai riil di Saldo Akun (saldo saat ini −5.232.767 karena buku mulai dari nol) — jika perlu, buatkan tombol "Penyesuaian Saldo" yang mencatat mutasi koreksi terstruktur.
+2. **Tarik tunai historis** belum dicatat → perlukan input manual atau import kedua.
+3. Cek halaman **Laporan Keuangan** terhadap 61 struk (untung 72.780) — belum diuji visual oleh user.
+4. Cocokkan kontak: transaksi kasir dikaitkan kontak hanya via nama persis; pertimbangkan pilih kontak saat input struk (user sudah diingatkan).
+5. Kolom `mode: "insensitive"` dihapus dari `getBillSourceAccount` (Prisma+SQLite tidak mendukung filter `mode` di versi ini); gantinya fetch aktif BANK/E_WALLET lalu pilih nama mengandung "brilink" secara manual.
+6. Bila error "Unique constraint failed on (billId)" muncul lagi: index `Transaction_billId_key` bisa muncul kembali dari `prisma db push`; DROP manual via `$queryRaw` (polanya ada di riwayat commit).
+7. Backup API & restore sudah ada — jalankan backup rutin di server.

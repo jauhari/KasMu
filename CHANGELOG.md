@@ -1,5 +1,17 @@
 # KasMu - Changelog
 
+## [2.4.0] - 2026-10-21
+
+### Baru: Satu Buku — Import CSV Langsung Jadi Transaksi
+
+- **Menu digabung**: "Tagihan BRILink" bukan lagi menu terpisah — masuk sebagai tab **"Tagihan Pelanggan"** di dalam **Data Transaksi** (tab satunya "Struk Kasir"). `/tagihan` mengarahkan otomatis
+- **Import CSV sekarang langsung menggerakkan uang**: setiap baris tagihan dari CSV otomatis membuat struk di Data Transaksi (kirim = struk Akun BRILink; pelanggan bayar = struk Kasir dengan untung admin) dan memutasi saldo akun — tanggal struk mengikuti tanggal di CSV, bukan waktu import
+- **Demo nyata pada data Oktober**: 40 tagihan → **61 struk**; BRILink −Rp5.232.767, Kasir +Rp3.510.988, untung tercatat Rp72.780 (admin 23 yang LUNAS; talangan belum dihitung untung — laporan tidak bohong)
+- **Idempoten**: import ulang = 0 struk baru, saldo tidak berubah (diuji)
+- **Tampilan baris kirim**: kolom admin menunjukkan tulisan "admin RpX saat pelanggan bayar" + badge Talangan (kuning) — tidak lagi tampak "admin hilang"
+- **Default otomatis**: tagihan baru/import otomatis pakai akun BRILink (atau bank pertama) sebagai sumber potongan, dan akun CASH_DRAWER ("Kasir") sebagai laci
+- **HANDOFF.md**: ditambahkan sebagai dokumen penyerahan (kondisi server, model uang, cara deploy, gotchas)
+
 ## [2.3.0] - 2026-10-21
 
 ### Baru: Integrasi Buku Transaksi + Kontak Pelanggan
