@@ -152,6 +152,17 @@ function TransaksiInner() {
                           <div className="font-semibold text-white">
                             {tx.category.replace(/_/g, " ")}
                           </div>
+                          {tx.billId && (
+                            <span
+                              className={`inline-block mt-0.5 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide border ${
+                                tx.txNumber?.startsWith("KIRIM")
+                                  ? "border-amber-700/50 bg-amber-900/20 text-amber-500"
+                                  : "border-emerald-700/50 bg-emerald-900/20 text-emerald-400"
+                              }`}
+                            >
+                              {tx.txNumber?.startsWith("KIRIM") ? "Kirim (potong saldo)" : "Terima kasir"}
+                            </span>
+                          )}
                           <div className="text-[10px] text-slate-600 font-mono">{tx.account?.name}</div>
                         </td>
                         <td className="px-4 py-3">
@@ -162,7 +173,7 @@ function TransaksiInner() {
                           {formatRupiah(tx.amount)}
                         </td>
                         <td className="px-4 py-3 text-right font-mono">
-                          {tx.billId && tx.bill && tx.bill.admin ? (
+                          {tx.billId && tx.bill && tx.bill.admin && tx.storeFee === 0 ? (
                             <>
                               <div className="text-slate-500">—</div>
                               <div className="text-[10px] text-amber-500/70">
