@@ -194,6 +194,7 @@ export default function QuickTransactionModal({
             type="number"
             placeholder="0"
             required
+            accounting
           />
           <div className="grid grid-cols-2 gap-4">
             <Input
@@ -202,6 +203,7 @@ export default function QuickTransactionModal({
               onValueChange={setAdminBank}
               type="number"
               placeholder="0"
+              accounting
             />
             <Input
               label="Fee Toko (Tarif Jasa)"
@@ -209,6 +211,7 @@ export default function QuickTransactionModal({
               onValueChange={setStoreFee}
               type="number"
               placeholder="0"
+              accounting
             />
           </div>
           <div className="flex items-center justify-between pt-2 border-t border-slate-700/30 text-[10px]">

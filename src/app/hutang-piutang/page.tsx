@@ -233,6 +233,7 @@ export default function HutangPiutangPage() {
                 type="number"
                 placeholder="0"
                 required
+                accounting
               />
 
               <div className="flex justify-end gap-3 pt-2">

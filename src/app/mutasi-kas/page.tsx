@@ -186,6 +186,7 @@ export default function MutasiKasPage() {
                 type="number"
                 placeholder="0"
                 required
+                accounting
               />
 
               <Input

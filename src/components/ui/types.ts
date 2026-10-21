@@ -19,6 +19,7 @@ export interface InputProps
   error?: string;
   required?: boolean;
   fontMono?: boolean;
+  accounting?: boolean;
 }
 
 export interface SelectProps

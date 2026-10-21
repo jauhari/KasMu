@@ -162,14 +162,15 @@ export default function SaldoPage() {
                   />
                 </div>
                 <div>
-                  <Input
-                    label="Saldo Awal (Rp)"
-                    value={balance}
-                    onValueChange={setBalance}
-                    type="number"
-                    placeholder="0"
-                    required
-                  />
+                <Input
+                  label="Saldo Awal (Rp)"
+                  value={balance}
+                  onValueChange={setBalance}
+                  type="number"
+                  placeholder="0"
+                  required
+                  accounting
+                />
                 </div>
               </div>
 

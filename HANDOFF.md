@@ -1,9 +1,9 @@
 # HANDOFF DOCUMENT: KASMU PRO (MINI-ATM & KEAGENAN OFFLINE)
 
-> **Last Updated:** 2026-10-21 08:48 WIB  
+> **Last Updated:** 2026-10-21 09:35 WIB  
 > **Status:** Production Deployed & Verified Live at [https://kasmu.jauhari.net](https://kasmu.jauhari.net)  
 > **Repository / Local Root:** `C:\Users\RYZEN\Projects\KasMu`  
-> **Server Remote:** `dhw@100.78.120.29` (MacBook Air Server, macOS)  
+> **Server Remote:** `dhw@100.78.120.29` (MacBook Air Server, macOS Darwin)  
 
 ---
 
@@ -13,155 +13,196 @@
 
 ### Key Architectural Pillars:
 1. **100% Offline Capable & Self-Hosted**: Powered by local SQLite + Prisma ORM. No third-party cloud dependencies required for transaction processing.
-2. **Reverse Proxy Deployment**: Served via Next.js standalone process bound to port `4000` on a MacBook Air server, reverse-proxied with SSL termination by Caddy (`8080` / `https`) to the domain `kasmu.jauhari.net`.
+2. **Multi-Tenant Reverse Proxy Deployment**: Served via Next.js standalone process bound to port `4000` on a MacBook Air server, reverse-proxied with SSL termination by Caddy (`8080` / `https`) to the domain `kasmu.jauhari.net`.
 3. **Double-Entry Financial Accuracy**: Real-time tracking of cash drawer vs. digital bank balances with audit trails, fee margin calculations, and physical cash opname.
 4. **Mobile-First POS Experience**: Custom responsive interface optimized for Android and iOS smartphones with bottom navigation, thumb-reach floating action buttons (FAB), and instant Server-Side Rendering (SSR).
 5. **Strict Role-Level Security (Owner vs. Staff)**: Cryptographically secured lock screen with granular data masking to ensure staff never view confidential store profit or master bank balances.
 
 ---
 
-## 2. Infrastructure & Deployment Environment
+## 2. Server Infrastructure & Multi-Tenant Setup
 
-| Component | Specification / Path |
-| :--- | :--- |
-| **Production URL** | `https://kasmu.jauhari.net` |
-| **Server Host** | `dhw@100.78.120.29` (MacBook Air, macOS Darwin) |
-| **Server Site Path** | `/Users/dhw/sites/kasmu.jauhari.net` |
-| **Node.js Binary** | `/Users/dhw/.local/node-22/bin/node` (Node v22.23.3) |
-| **Next.js Port** | `127.0.0.1:4000` |
-| **Service Manager** | macOS `launchd` via `~/Library/LaunchAgents/com.kasmu.server.plist` |
-| **Server Log File** | `/Users/dhw/sites/kasmu.jauhari.net/kasmu.log` |
-| **SSH Authentication** | `ssh -i $env:USERPROFILE\.ssh\id_ed25519_macbook_server dhw@100.78.120.29` |
+Host server adalah sebuah **MacBook Air (Apple Silicon, macOS Darwin)** yang melayani beberapa website dan aplikasi internal secara simultan (*multi-tenant*).
 
----
+### A. Peta Alokasi Port Server (`100.78.120.29`)
 
-## 3. Security, Authentication & Role Leveling
+| Port | Service / Aplikasi | Keterangan & Aturan |
+| :--- | :--- | :--- |
+| **`4000`** | **KasMu PRO (`kasmu.jauhari.net`)** | **Dialokasikan khusus untuk KasMu**. Jangan ubah port ini agar tidak bentrok. |
+| **`3000`** | `brilink.jauhari.net` | Aplikasi agen BRILink lain yang sudah berjalan sebelumnya. |
+| **`80` / `443`** | Caddy Web Server | Reverse Proxy publik & otomatisasi sertifikat SSL (HTTPS). |
+| **`8080`** | Caddy Internal / Cloudflare Tunnel | Port binding Caddy reverse proxy. |
+| **`9000`** | PHP-FPM | Menangani backend PHP / Laravel (SIPENDA, ASA, dll). |
 
-### A. Credentials & Access Levels
+### B. Konfigurasi Reverse Proxy Caddy (`/Users/dhw/sites/Caddyfile`)
 
-| Role | User Name | Default PIN | Access Privileges |
-| :--- | :--- | :--- | :--- |
-| **`OWNER`** | Owner Agen Mini-Atm | `123456` | **Full Store Control**: Profit Hari Ini, Profit Bulanan, Biaya Operasional, Komposisi Saldo Akun (Total Modal Toko), Laporan Keuangan, Manajemen Staff, Backup & Restore. |
-| **`STAFF`** | Kasir Kris Brilink | `112233` | **Operational Only**: Transaksi Saya, Volume Transaksi Kasir, Status Kas Laci, Catat Transaksi Baru (F2), Riwayat Transaksi (Fee Jasa), Opname Laci. **Confidential profit, operational cost, and master bank balances are completely hidden.** |
+Caddy bertindak sebagai reverse proxy di depan Next.js KasMu. Konfigurasi aktif di `/Users/dhw/sites/Caddyfile`:
 
-### B. Security Mechanisms
-- **Cryptographic Token**: Session cookie `kasmu_session` signed using HMAC-SHA256 (`src/lib/auth.ts`) using the Web Crypto API (`crypto.subtle`), valid for 7 days.
-- **Proxy-Aware Middleware (`src/middleware.ts`)**: Reads `x-forwarded-proto` and `x-forwarded-host` from Caddy reverse proxy to guarantee redirection stays on `https://kasmu.jauhari.net/login` without leaking `localhost:4000`.
-- **Database-Level Data Masking (`src/lib/dashboard.ts`)**: The backend strips out `netProfit`, `profitToday`, `profitMonth`, `cashMutationToday`, `accounts`, and `chartData` when queried by a user with role `STAFF`. Data is not merely hidden with CSS; it is withheld at the server layer.
-- **Keypad Security**: All bypass/cheat buttons have been removed from `LoginForm.tsx`. Authentication requires entering the 6-digit PIN on the interactive on-screen keypad or hardware keyboard.
-
----
-
-## 4. Mobile-First Interface Architecture
-
-The mobile layout adheres strictly to touch-friendly, mobile-first design principles (`antislop-layoutmobile`):
-
-1. **Sticky Top Header (`h-14 lg:hidden`)**:
-   - Branding: `KM KasMu PRO`
-   - Active Role Pill: Bright blue `Kasir` or warm amber `Owner`
-   - Real-Time Clock: Pre-rendered Indonesian date/time string (eliminates `"Memuat..."` stutter)
-   - Quick Theme Toggle: Dark mode / Light mode toggle
-   - Off-Canvas Drawer Toggle: Hamburger menu
-2. **Off-Canvas Slide Drawer (`Sidebar.tsx`)**:
-   - Fixed slide-over drawer with backdrop blur and close `X` button
-   - Automatically filters menu links based on role (hiding Saldo, Laporan, Staff, Backup for cashiers)
-   - Displays user card with quick Lock Screen (`Kunci`) action
-3. **Fixed Bottom Navigation Bar (`h-16 lg:hidden`)**:
-   - Left: **Beranda** (Dashboard) & **Transaksi** (Data Transaksi)
-   - Center: **Elevated FAB (`+`)** with orange-amber gradient glow for quick transaction entry
-   - Right: **Opname** (Hitung Kas Laci) & **Menu** (Opens Drawer)
-   - Uses `pb-[max(env(safe-area-inset-bottom),0.35rem)]` for iOS/Android home indicators
-4. **Safe Scroll Padding (`pb-28 sm:pb-32`)**:
-   - Main container features generous bottom padding so cards and tables are never obscured behind the bottom bar.
-5. **Instant Server-Side Rendering (SSR)**:
-   - `src/app/page.tsx` executes `getDashboardData()` directly on the server and feeds `initialData` into `DashboardClient.tsx`.
-   - Result: **Zero Loading Delay**. The complete dashboard renders on the initial HTML byte with no stuck loading spinners.
-6. **Isolated Recharts Mounting**:
-   - `ResponsiveContainer` charts in `DashboardClient.tsx` are wrapped with a `mounted` check to prevent hydration mismatch crashes on mobile viewports.
-
----
-
-## 5. Directory Structure & Key Files
-
+```caddy
+# KasMu - POS Kasir & Pembukuan Agen Bank (kasmu.jauhari.net), Next.js di 127.0.0.1:4000
+@kasmu host kasmu.jauhari.net
+handle @kasmu {
+    reverse_proxy 127.0.0.1:4000 {
+        header_up Host {host}
+        header_up X-Forwarded-Host {host}
+        header_up X-Forwarded-Proto https
+    }
+}
 ```
-c:\Users\RYZEN\Projects\KasMu\
-├── prisma/
-│   ├── schema.prisma            # SQLite database schema (User, Account, Transaction, CashMutation, Shift, OpnameLog)
-│   └── dev.db                   # Production SQLite database file
-├── src/
-│   ├── app/
-│   │   ├── api/
-│   │   │   ├── auth/            # login, logout, me, users endpoints
-│   │   │   ├── dashboard/       # Secured role-level dashboard API
-│   │   │   ├── transactions/    # CRUD transactions & double-entry balance updates
-│   │   │   ├── opname/          # Drawer physical count vs system audits
-│   │   │   └── accounts/        # Master bank/provider balance management
-│   │   ├── layout.tsx           # Root server layout, injects session into AppShell
-│   │   ├── page.tsx             # Root page (SSR getDashboardData + role redirect)
-│   │   ├── DashboardClient.tsx  # Dynamic dashboard with role-specific views
-│   │   ├── login/               # Secure keypad PIN screen
-│   │   ├── transaksi/           # Transaction history & receipts
-│   │   ├── opname/              # Physical cash drawer calculation
-│   │   ├── saldo/               # Master accounts balance (Owner only)
-│   │   ├── mutasi-kas/          # Operational cash flow in/out
-│   │   ├── hutang-piutang/      # Receivables & payables ledger
-│   │   ├── laporan/             # Comprehensive P&L reports (Owner only)
-│   │   ├── staff/               # Staff PIN & accounts management (Owner only)
-│   │   └── backup/              # Database backup & restore (Owner only)
-│   ├── components/
-│   │   ├── AppShell.tsx         # Responsive layout container, top header, bottom bar
-│   │   ├── Sidebar.tsx          # Desktop sidebar + Mobile slide-over drawer
-│   │   ├── Header.tsx           # Dashboard title, offline badge, live clock
-│   │   ├── QuickTransactionModal.tsx # Fast 3-second transaction recording modal
-│   │   ├── ReceiptPrinter.tsx   # Bluetooth / 58mm thermal receipt modal
-│   │   └── ThemeProvider.tsx    # Dark/light mode theme context
-│   ├── lib/
-│   │   ├── auth.ts              # HMAC-SHA256 session token generator & verifier
-│   │   ├── dashboard.ts         # Server-side dashboard data aggregator with role masking
-│   │   ├── prisma.ts            # Prisma client singleton
-│   │   └── utils.ts             # Currency formatter (IDR), date helpers
-│   └── middleware.ts            # Reverse-proxy aware auth route protection
+
+> [!IMPORTANT]
+> **Pengecualian Cache Statis Caddy**:  
+> Domain `kasmu.jauhari.net` sengaja **dikecualikan** dari aturan cache statis 30 hari Caddy (`not host ... kasmu.jauhari.net`). Hal ini krusial agar file script chunk Next.js (`/_next/static/chunks/*`) selalu sinkron setiap kali aplikasi di-build ulang dan tidak menyebabkan chunk-mismatch di browser klien.
+
+### C. Konfigurasi Daemon macOS Launchd (`com.kasmu.server.plist`)
+
+KasMu berjalan di background sebagai service macOS via `launchd`.  
+File konfigurasi terletak di: `~/Library/LaunchAgents/com.kasmu.server.plist`
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.kasmu.server</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/Users/dhw/.local/node-22/bin/node</string>
+        <string>/Users/dhw/sites/kasmu.jauhari.net/node_modules/next/dist/bin/next</string>
+        <string>start</string>
+        <string>-p</string>
+        <string>4000</string>
+        <string>-H</string>
+        <string>127.0.0.1</string>
+    </array>
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>HOST</key>
+        <string>127.0.0.1</string>
+        <key>PORT</key>
+        <string>4000</string>
+        <key>NODE_ENV</key>
+        <string>production</string>
+        <key>PATH</key>
+        <string>/Users/dhw/.local/node-22/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+    </dict>
+    <key>WorkingDirectory</key>
+    <string>/Users/dhw/sites/kasmu.jauhari.net</string>
+    <key>StandardOutPath</key>
+    <string>/Users/dhw/sites/kasmu.jauhari.net/kasmu.log</string>
+    <key>StandardErrorPath</key>
+    <string>/Users/dhw/sites/kasmu.jauhari.net/kasmu.log</string>
+    <key>KeepAlive</key>
+    <true/>
+    <key>RunAtLoad</key>
+    <true/>
+</dict>
+</plist>
 ```
 
 ---
 
-## 6. Standard Operating Procedures (Runbook)
+## 3. Catatan Khusus & Masalah Setting Server (Troubleshooting Guide)
 
-### Deploying Changes to Mac Server
-1. Copy updated source files from local machine to server:
+Berikut adalah daftar masalah kritis yang pernah terjadi pada setting server Mac dan solusinya:
+
+### 1. Masalah PATH Node.js pada Sesi SSH Non-Interactive
+* **Gejala**: Menjalankan perintah remote via SSH seperti `ssh dhw@100.78.120.29 "node -v"` menghasilkan error: `zsh: command not found: node`.
+* **Penyebab**: macOS tidak memuat `~/.zshrc` pada sesi SSH non-interactive (tanpa pty). Node.js v22 terpasang di direktori mandiri `/Users/dhw/.local/node-22/bin/node` dan bukan di `/usr/bin/node`.
+* **Solusi**: Setiap perintah SSH yang melibatkan Node atau NPM **harus** menyertakan export PATH:
+  ```bash
+  export PATH=/Users/dhw/.local/node-22/bin:/usr/bin:/bin:/usr/sbin:/sbin && cd /Users/dhw/sites/kasmu.jauhari.net && <perintah>
+  ```
+
+### 2. Masalah Redirection Reverse Proxy (Error Lari ke `localhost:4000`)
+* **Gejala**: Saat pengguna selesai memasukkan PIN di `https://kasmu.jauhari.net/login`, browser diarahkan ke `http://localhost:4000/` atau `http://127.0.0.1:4000/` yang tidak bisa diakses dari smartphone.
+* **Penyebab**: Next.js berjalan di port internal 4000. Metode standar Next.js seperti `NextResponse.redirect(new URL('/', req.url))` membaca `req.url` internal (`127.0.0.1:4000`) alih-alih domain publik.
+* **Solusi**: Di `src/middleware.ts` dan `src/app/api/auth/login/route.ts`, URL redirect dibangun secara dinamis menggunakan header reverse proxy yang dikirimkan Caddy:
+  ```typescript
+  const proto = req.headers.get("x-forwarded-proto") || "https";
+  const host = req.headers.get("x-forwarded-host") || req.headers.get("host") || "kasmu.jauhari.net";
+  const redirectUrl = new URL(targetPath, `${proto}://${host}`);
+  ```
+
+### 3. Masalah Layar Macet *"Memuat data KasMu..."* (Loading Spinner Abadi di HP)
+* **Gejala**: Di browser smartphone Android/iPhone, setelah login halaman dashboard hanya menampilkan latar hitam dengan spinner *"Memuat data KasMu..."*.
+* **Penyebab**: Sebelumnya data dashboard diambil secara *client-side* via `fetch('/api/dashboard')`. Ketika ada build Next.js baru, chunk hash lama dihapus. Jika smartphone membuka tab lama, terjadi kegagalan muat chunk script (*ChunkLoadError*) sehingga eksekusi `useEffect` terhenti.
+* **Solusi**: Mengubah arsitektur menjadi **Server-Side Rendering (SSR)**. Data dashboard diambil langsung di server melalui `src/app/page.tsx` + `src/lib/dashboard.ts` dan disuntikkan ke `DashboardClient`. Browser smartphone langsung menerima HTML yang sudah terisi angka lengkap sejak byte pertama tanpa perlu menunggu JavaScript client.
+
+### 4. Prosedur Restart Service yang Benar (Hindari `killall node`)
+* **Peringatan**: **JANGAN PERNAH** menggunakan `killall node` di server Mac ini! Karena ada aplikasi lain yang berjalan di port 3000 (`brilink`), mematikan proses node secara global akan mematikan aplikasi produksi lain.
+* **Cara Restart Aman KasMu**:
+  Gunakan `launchctl` khusus untuk label `com.kasmu.server`:
+  ```bash
+  ssh -i $env:USERPROFILE\.ssh\id_ed25519_macbook_server dhw@100.78.120.29 "launchctl unload ~/Library/LaunchAgents/com.kasmu.server.plist && sleep 1 && launchctl load ~/Library/LaunchAgents/com.kasmu.server.plist"
+  ```
+
+### 5. Penempatan File Upload via SCP
+* **Perhatian**: Jangan pernah mengunggah file langsung ke direktori `/Users/dhw/sites/kasmu.jauhari.net/src/` tanpa menentukan subdirektori (`src/components/`, `src/app/`, `src/lib/`). File `.tsx` yang tercecer di root `src/` dapat menyebabkan konflik routing atau error kompilasi Next.js.
+
+---
+
+## 4. Keamanan & Role-Leveling (Owner vs. Kasir)
+
+Aplikasi memiliki pemisahan data yang ketat antara Pemilik Toko (**Owner**) dan Petugas Kasir (**Staff/Kasir**):
+
+| Fitur / Data | Level OWNER (PIN: `123456`) | Level KASIR (PIN: `112233`) |
+| :--- | :---: | :---: |
+| **Profit Bersih Hari Ini** | Tampil penuh (`Rp 50.500`) | **DISEMBUNYIKAN** |
+| **Profit Bersih Bulanan** | Tampil penuh (`-Rp 48.500`) | **DISEMBUNYIKAN** |
+| **Biaya Operasional Toko** | Tampil penuh (`-Rp 99.000`) | **DISEMBUNYIKAN** |
+| **Total Modal Toko (Bank & Digital)** | Tampil penuh (`Rp 60.735.612`) | **DISEMBUNYIKAN** |
+| **Grafik Tren Pertumbuhan Profit** | Tampil (7 Hari / 30 Hari) | **DISEMBUNYIKAN** |
+| **Transaksi Saya & Volume** | Tampil | Tampil (Fokus Shift) |
+| **Status Kas Laci Toko** | Tampil | Tampil (Normal / Siap) |
+| **Tombol Aksi Cepat Kasir** | Form Transaksi Cepat (F2) | Tombol Cepat F2 + Opname Laci |
+| **Menu Sidebar** | Semua Menu (Saldo, Laporan, Staff, Backup) | Hanya Dashboard, Transaksi, Opname, Mutasi Kas, Hutang |
+
+> [!NOTE]
+> Data rahasia toko tidak hanya disembunyikan menggunakan CSS, melainkan **disaring langsung di level database query** (`src/lib/dashboard.ts`). Jika akun kasir melakukan inspeksi Network DevTools, payload JSON tidak mengandung informasi profit bersih toko maupun saldo bank master.
+
+---
+
+## 5. Standard Operating Procedures (Runbook Deployment)
+
+### Langkah Deploy Update dari Komputer Lokal ke Server Mac:
+
+1. **Transfer File Sumber yang Diperbarui via SCP**:
    ```powershell
    scp -i $env:USERPROFILE\.ssh\id_ed25519_macbook_server -r src/* dhw@100.78.120.29:/Users/dhw/sites/kasmu.jauhari.net/src/
    ```
-2. Build and restart service via SSH:
+
+2. **Kompilasi Ulang Next.js & Restart Service di Mac**:
    ```powershell
    ssh -i $env:USERPROFILE\.ssh\id_ed25519_macbook_server dhw@100.78.120.29 "export PATH=/Users/dhw/.local/node-22/bin:/usr/bin:/bin:/usr/sbin:/sbin && cd /Users/dhw/sites/kasmu.jauhari.net && npm run build && launchctl unload ~/Library/LaunchAgents/com.kasmu.server.plist && sleep 1 && launchctl load ~/Library/LaunchAgents/com.kasmu.server.plist"
    ```
-3. Check service health:
+
+3. **Verifikasi Status Service**:
    ```powershell
    ssh -i $env:USERPROFILE\.ssh\id_ed25519_macbook_server dhw@100.78.120.29 "curl -I http://127.0.0.1:4000/login"
    ```
-4. View live server logs:
+
+4. **Monitoring Log Server (Jika Terjadi Kendala)**:
    ```powershell
-   ssh -i $env:USERPROFILE\.ssh\id_ed25519_macbook_server dhw@100.78.120.29 "tail -f /Users/dhw/sites/kasmu.jauhari.net/kasmu.log"
+   ssh -i $env:USERPROFILE\.ssh\id_ed25519_macbook_server dhw@100.78.120.29 "tail -n 50 /Users/dhw/sites/kasmu.jauhari.net/kasmu.log"
    ```
 
 ---
 
-## 7. Verification Artifacts & Screenshots
+## 6. Arsip Screenshot Verifikasi Live
 
-| View Description | Screenshot Artifact Link |
+| Tampilan | Tautan File Screenshot |
 | :--- | :--- |
-| **Kasir View (Secured, No Profit Leaks)** | [`mobile_kasir_fixed.png`](file:///C:/Users/RYZEN/.gemini/antigravity/brain/36f49898-00fb-4305-8d93-55118724d52f/mobile_kasir_fixed.png) |
-| **Owner View (Full Financial Dashboard)** | [`mobile_owner_fixed.png`](file:///C:/Users/RYZEN/.gemini/antigravity/brain/36f49898-00fb-4305-8d93-55118724d52f/mobile_owner_fixed.png) |
-| **Slide-Over Drawer Menu** | [`mobile_drawer_verified.png`](file:///C:/Users/RYZEN/.gemini/antigravity/brain/36f49898-00fb-4305-8d93-55118724d52f/mobile_drawer_verified.png) |
-| **Quick Transaction Modal (F2)** | [`mobile_modal_verified.png`](file:///C:/Users/RYZEN/.gemini/antigravity/brain/36f49898-00fb-4305-8d93-55118724d52f/mobile_modal_verified.png) |
-| **Data Transaksi Table** | [`mobile_transaksi_verified.png`](file:///C:/Users/RYZEN/.gemini/antigravity/brain/36f49898-00fb-4305-8d93-55118724d52f/mobile_transaksi_verified.png) |
+| **Tampilan Kasir (Aman, Tanpa Bocor Profit)** | [`mobile_kasir_fixed.png`](file:///C:/Users/RYZEN/.gemini/antigravity/brain/36f49898-00fb-4305-8d93-55118724d52f/mobile_kasir_fixed.png) |
+| **Tampilan Owner (Lengkap dengan Profit & Modal)** | [`mobile_owner_fixed.png`](file:///C:/Users/RYZEN/.gemini/antigravity/brain/36f49898-00fb-4305-8d93-55118724d52f/mobile_owner_fixed.png) |
+| **Menu Drawer Slide-Over** | [`mobile_drawer_verified.png`](file:///C:/Users/RYZEN/.gemini/antigravity/brain/36f49898-00fb-4305-8d93-55118724d52f/mobile_drawer_verified.png) |
+| **Modal Input Transaksi Cepat (F2)** | [`mobile_modal_verified.png`](file:///C:/Users/RYZEN/.gemini/antigravity/brain/36f49898-00fb-4305-8d93-55118724d52f/mobile_modal_verified.png) |
+| **Tabel Riwayat Transaksi** | [`mobile_transaksi_verified.png`](file:///C:/Users/RYZEN/.gemini/antigravity/brain/36f49898-00fb-4305-8d93-55118724d52f/mobile_transaksi_verified.png) |
 
 ---
 
-## 8. Suggested Skills for Next Agent
-When continuing work on this project, the incoming agent should invoke the following skills:
-- **`antislop-layoutmobile`**: Enforces strict touch target boundaries, overflow prevention, and thumb-reach zones.
-- **`antislop-ui`**: Prevents generic AI component styling and maintains cohesive micro-typography.
-- **`frontend-design`**: Maintains aesthetic consistency for offline banking tools.
-- **`verification-before-completion`**: Mandates automated browser / curl verification with screenshot evidence before reporting completion.
+## 7. Rekomendasi Skill untuk Agent Selanjutnya
+- **`antislop-layoutmobile`**: Menjaga integritas tata letak mobile-first, navigasi jempol, dan safe area padding.
+- **`antislop-ui`**: Menjaga estetika micro-typography dan komponen antarmuka POS perbankan.
+- **`verification-before-completion`**: Memastikan setiap update diuji langsung dengan verifikasi browser/screenshot sebelum menyatakan selesai.
