@@ -162,16 +162,31 @@ function TransaksiInner() {
                           {formatRupiah(tx.amount)}
                         </td>
                         <td className="px-4 py-3 text-right font-mono">
-                          <div className="text-amber-500 font-semibold">{formatRupiah(tx.storeFee)}</div>
+                          {tx.billId && tx.bill && tx.bill.admin ? (
+                            <>
+                              <div className="text-slate-500">—</div>
+                              <div className="text-[10px] text-amber-500/70">
+                                admin {formatRupiah(tx.bill.admin)} saat pelanggan bayar
+                              </div>
+                            </>
+                          ) : (
+                            <div className="text-amber-500 font-semibold">{formatRupiah(tx.storeFee)}</div>
+                          )}
                           <div className="text-[10px] text-slate-600">-{formatRupiah(tx.adminBank)}</div>
                         </td>
                         <td className="px-4 py-3 text-right font-bold font-mono text-emerald-400">
-                          +{formatRupiah(tx.netProfit)}
+                          {tx.netProfit > 0 ? `+${formatRupiah(tx.netProfit)}` : <span className="text-slate-600 font-normal">—</span>}
                         </td>
                         <td className="px-4 py-3 text-center">
-                          <span className="inline-block px-1.5 py-0.5 rounded-none text-[9px] font-semibold border border-emerald-700/50 bg-emerald-900/20 text-emerald-400">
-                            {tx.status}
-                          </span>
+                          {tx.bill && tx.bill.status !== "LUNAS" ? (
+                            <span className="inline-block px-1.5 py-0.5 rounded-none text-[9px] font-semibold border border-amber-700/50 bg-amber-900/20 text-amber-400">
+                              Talangan
+                            </span>
+                          ) : (
+                            <span className="inline-block px-1.5 py-0.5 rounded-none text-[9px] font-semibold border border-emerald-700/50 bg-emerald-900/20 text-emerald-400">
+                              {tx.status}
+                            </span>
+                          )}
                         </td>
                         <td className="px-4 py-3 text-center">
                           <button

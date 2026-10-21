@@ -27,6 +27,7 @@ export async function GET(req: NextRequest) {
       include: {
         account: true,
         user: true,
+        bill: { select: { admin: true, status: true, jenis: true } },
       },
       take: 100,
     });
