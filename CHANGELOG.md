@@ -1,5 +1,30 @@
 # KasMu - Changelog
 
+## [2.2.0] - 2026-10-21
+
+### Baru: Modul Tagihan BRILink
+
+- **Halaman `/tagihan`**: pencatatan pemotongan tagihan pelanggan (PLN, PDAM, BPJS TK, BPJS Kes) via akun agen
+- **Kontak pelanggan**: satu kontak bisa punya lebih dari 1 nomor layanan (mis. MTs Muh. Ponjong: PLN + PDAM + BPJS TK)
+- **Status alur tagihan**: BELUM (belum dikirim) → TALANGAN (agen bayar dulu, pelanggan hutang) → LUNAS (pelanggan bayar)
+- **Import CSV**: paste data buku tagihan langsung dari UI; validasi lengkap server-side (nominal, status, waktu, duplikat) — gagal validasi = tidak ada yang ditulis; import ulang idempoten (tidak ganda)
+- **Import CLI**: `prisma/import-bills.mjs` + `prisma/verify-bills.mjs` untuk verifikasi totals
+- **Ringkasan**: total tagihan, untung admin, talangan outstanding, terenkani
+- **Aksi cepat**: kirim talangan (dari BELUM), tandai pelanggan bayar (ke LUNAS), batal, hapus
+- **Model baru**: `Customer`, `CustomerNumber`, `Bill` (unik per bulan+jenis+no pelanggan)
+- **API baru**: `/api/bills`, `/api/bills/[id]`, `/api/bills/import`, `/api/customers`
+
+### Perbaikan
+
+- `Input` teks tidak lagi hanya menerima angka (filter digit hanya untuk mode `accounting`)
+- Waktu disimpan akurat WIB (UTC+7) dan ditampilkan dalam format Indonesia
+
+### Data Awal
+
+- Import data buku tagihan Oktober 2026: 40 tagihan, 33 kontak, 40 nomor layanan
+- Ringkasan: tagihan Rp5.232.767, admin Rp116.280, total Rp5.349.047
+- Status: Lunas 23, Talangan 15 (outstanding Rp1.838.059), Belum 2
+
 ## [2.0.0] - 2026-10-21
 
 ### Diubah (Breaking Design)
