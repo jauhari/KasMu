@@ -4,10 +4,42 @@ import { createSessionToken, SESSION_COOKIE_NAME } from "@/lib/auth";
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
-    const { pin, userId } = body;
+    let pin: string | null = null;
+    let userId: string | null = null;
+    let fromUrl: string = "/";
+    let isFormRequest = false;
+
+    const contentType = req.headers.get("content-type") || "";
+
+    if (contentType.includes("application/json")) {
+      try {
+        const body = await req.json();
+        pin = body?.pin ? String(body.pin).trim() : null;
+        userId = body?.userId ? String(body.userId).trim() : null;
+        fromUrl = body?.from || "/";
+      } catch (err) {
+        console.warn("Could not parse json body:", err);
+      }
+    } else {
+      isFormRequest = true;
+      try {
+        const formData = await req.formData();
+        pin = formData.get("pin")?.toString().trim() || null;
+        userId = formData.get("userId")?.toString().trim() || null;
+        fromUrl = formData.get("from")?.toString().trim() || "/";
+      } catch {
+        const text = await req.text();
+        const params = new URLSearchParams(text);
+        pin = params.get("pin")?.trim() || null;
+        userId = params.get("userId")?.trim() || null;
+        fromUrl = params.get("from")?.trim() || "/";
+      }
+    }
 
     if (!pin) {
+      if (isFormRequest) {
+        return NextResponse.redirect(new URL(`/login?error=pin_required`, req.url), 303);
+      }
       return NextResponse.json(
         { success: false, error: "PIN wajib dimasukkan" },
         { status: 400 }
@@ -16,15 +48,27 @@ export async function POST(req: NextRequest) {
 
     // Cari user berdasarkan PIN (dan userId jika spesifik)
     const whereClause: any = { pin, isActive: true };
-    if (userId) whereClause.id = userId;
+    if (userId) {
+      whereClause.id = userId;
+    }
 
-    const user = await prisma.user.findFirst({
+    let user = await prisma.user.findFirst({
       where: whereClause,
     });
 
+    // Fallback pencocokan jika PIN valid untuk user aktif manapun
     if (!user) {
+      user = await prisma.user.findFirst({
+        where: { pin, isActive: true },
+      });
+    }
+
+    if (!user) {
+      if (isFormRequest) {
+        return NextResponse.redirect(new URL(`/login?error=invalid_pin`, req.url), 303);
+      }
       return NextResponse.json(
-        { success: false, error: "PIN salah atau akun tidak aktif" },
+        { success: false, error: "PIN salah atau akun tidak terdaftar" },
         { status: 401 }
       );
     }
@@ -32,7 +76,24 @@ export async function POST(req: NextRequest) {
     // Buat token sesi
     const token = await createSessionToken(user, 86400 * 7); // 7 hari
 
-    // Response dengan set cookie
+    const secure = process.env.NODE_ENV === "production" || req.headers.get("x-forwarded-proto") === "https";
+
+    if (isFormRequest) {
+      const redirectUrl = new URL(fromUrl.startsWith("/") ? fromUrl : "/", req.url);
+      const redirectRes = NextResponse.redirect(redirectUrl, 303);
+      redirectRes.cookies.set({
+        name: SESSION_COOKIE_NAME,
+        value: token,
+        httpOnly: true,
+        secure,
+        sameSite: "lax",
+        path: "/",
+        maxAge: 86400 * 7,
+      });
+      return redirectRes;
+    }
+
+    // Response JSON
     const response = NextResponse.json({
       success: true,
       data: {
@@ -42,13 +103,14 @@ export async function POST(req: NextRequest) {
         role: user.role,
       },
       message: `Selamat bertugas, ${user.name}!`,
+      redirectUrl: fromUrl || "/",
     });
 
     response.cookies.set({
       name: SESSION_COOKIE_NAME,
       value: token,
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure,
       sameSite: "lax",
       path: "/",
       maxAge: 86400 * 7,

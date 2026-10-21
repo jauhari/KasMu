@@ -18,13 +18,17 @@ const ThemeContext = createContext<ThemeContextType>({
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = useState<Theme>("dark");
-  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    const saved = localStorage.getItem("kasmu_theme") as Theme | null;
-    const initialTheme = saved === "light" ? "light" : "dark";
+    let initialTheme: Theme = "dark";
+    try {
+      const saved = localStorage.getItem("kasmu_theme") as Theme | null;
+      if (saved === "light" || saved === "dark") {
+        initialTheme = saved;
+      }
+    } catch {}
+
     setThemeState(initialTheme);
-    setMounted(true);
 
     const root = document.documentElement;
     if (initialTheme === "dark") {
@@ -38,7 +42,10 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   const setTheme = (t: Theme) => {
     setThemeState(t);
-    localStorage.setItem("kasmu_theme", t);
+    try {
+      localStorage.setItem("kasmu_theme", t);
+    } catch {}
+
     const root = document.documentElement;
     if (t === "dark") {
       root.classList.add("dark");
