@@ -194,6 +194,42 @@ async function main() {
   let billsUpdated = 0;
   let customersCreated = 0;
   let numbersCreated = 0;
+  let strukKirim = 0;
+  let strukBayar = 0;
+  const gagal = [];
+
+  // akun sumber potongan & laci kasir
+  const src =
+    (await prisma.account.findFirst({
+      where: { isActive: true, name: { contains: "brilink" } },
+      orderBy: { createdAt: "asc" },
+    })) ||
+    (await prisma.account.findFirst({
+      where: { isActive: true, type: "BANK" },
+      orderBy: { createdAt: "asc" },
+    }));
+  const kas = await prisma.account.findFirst({
+    where: { isActive: true, type: "CASH_DRAWER" },
+    orderBy: { createdAt: "asc" },
+  });
+  if (!src) console.error("PERINGATAN: tidak ada akun sumber potongan (BRILink) — struk kirim dilewati");
+  if (!kas) console.error("PERINGATAN: tidak ada akun CASH_DRAWER — struk pelanggan bayar dilewati");
+  const owner =
+    (await prisma.user.findFirst({ where: { role: "OWNER" } })) ||
+    (await prisma.user.findFirst());
+
+  function jenisCode(j) {
+    return { PLN: "P", PDAM: "D", "BPJS TK": "T", "BPJS Kes": "K" }[j] || j.slice(0, 1).toUpperCase();
+  }
+  function billTxNumber(p, fase) {
+    return `${fase}-${jenisCode(p.jenis)}-${p.noPel}-${p.bulan}`;
+  }
+  function billCategory(j) {
+    if (j === "PLN") return "TAGIHAN_PLN";
+    if (j === "PDAM") return "TAGIHAN_PDAM";
+    if (j.startsWith("BPJS")) return "TAGIHAN_BPJS";
+    return "LAINNYA";
+  }
 
   for (const p of parsed) {
     // kontak
@@ -226,18 +262,99 @@ async function main() {
       providerPaidAt: p.providerAt,
       customerPaidAt: p.customerAt,
       catatan: p.catatan,
+      accountId: src ? src.id : null,
     };
 
     const existingBill = await prisma.bill.findUnique({
       where: { bulan_jenis_noPelanggan: { bulan: p.bulan, jenis: p.jenis, noPelanggan: p.noPel } },
     });
 
+    let bill;
     if (existingBill) {
-      await prisma.bill.update({ where: { id: existingBill.id }, data: billData });
+      const upd = { ...billData };
+      if (existingBill.accountId) delete upd.accountId; // jangan tukar akun yang sudah termutasi
+      bill = await prisma.bill.update({ where: { id: existingBill.id }, data: upd });
       billsUpdated++;
     } else {
-      await prisma.bill.create({ data: billData });
+      bill = await prisma.bill.create({ data: billData });
       billsCreated++;
+    }
+
+    // --- uang & struk: hanya jika belum diterapkan (idempoten) ---
+    if (src && owner && bill.tagihan && bill.providerPaidAt && !bill.providerApplied) {
+      try {
+        await prisma.$transaction([
+          prisma.account.update({
+            where: { id: src.id },
+            data: { balance: { decrement: bill.tagihan } },
+          }),
+          prisma.bill.update({
+            where: { id: bill.id },
+            data: { providerApplied: true },
+          }),
+          prisma.transaction.create({
+            data: {
+              txNumber: billTxNumber(p, "KIRIM"),
+              userId: owner.id,
+              accountId: src.id,
+              category: billCategory(p.jenis),
+              amount: bill.tagihan,
+              adminBank: 0,
+              storeFee: 0,
+              netProfit: 0,
+              paymentMethod: "TRANSFER",
+              status: "SUCCESS",
+              customerName: p.nama,
+              customerRef: p.noPel,
+              notes: `Potongan tagihan ${p.jenis} periode ${p.bulan} ${
+                p.status === "LUNAS" ? "(pelanggan juga sudah bayar)" : "(talangan)"
+              }`,
+              billId: bill.id,
+              createdAt: bill.providerPaidAt,
+            },
+          }),
+        ]);
+        strukKirim++;
+      } catch (e) {
+        gagal.push(`Baris ${p.line}: kirim — ${e.message}`);
+      }
+    }
+
+    if (kas && owner && p.status === "LUNAS" && bill.total && bill.customerPaidAt && !bill.cashApplied) {
+      try {
+        await prisma.$transaction([
+          prisma.account.update({
+            where: { id: kas.id },
+            data: { balance: { increment: bill.total } },
+          }),
+          prisma.bill.update({
+            where: { id: bill.id },
+            data: { cashApplied: true },
+          }),
+          prisma.transaction.create({
+            data: {
+              txNumber: billTxNumber(p, "BYR"),
+              userId: owner.id,
+              accountId: kas.id,
+              category: billCategory(p.jenis),
+              amount: bill.tagihan,
+              adminBank: 0,
+              storeFee: bill.admin || 0,
+              netProfit: bill.admin || 0,
+              paymentMethod: "CASH",
+              status: "SUCCESS",
+              customerName: p.nama,
+              customerRef: p.noPel,
+              notes: `Pembayaran tagihan ${p.jenis} periode ${p.bulan}`,
+              billId: bill.id,
+              createdAt: bill.customerPaidAt,
+            },
+          }),
+        ]);
+        strukBayar++;
+      } catch (e) {
+        gagal.push(`Baris ${p.line}: pelanggan bayar — ${e.message}`);
+      }
     }
   }
 
@@ -268,8 +385,14 @@ async function main() {
   console.log(`Status DB   : LUNAS=${byStatus.LUNAS} TALANGAN=${byStatus.TALANGAN} BELUM=${byStatus.BELUM}`);
   console.log(`Sum CSV     : tagihan=${sumTagihan} admin=${sumAdmin} total=${sumTotal}`);
   console.log(`Sum DB      : tagihan=${agg._sum.tagihan || 0} admin=${agg._sum.admin || 0} total=${agg._sum.total || 0}`);
+  console.log(`Struk kirim   : dibuat ${strukKirim} (BRILink terpotong otomatis)`);
+  console.log(`Struk pelanggan bayar: dibuat ${strukBayar} (Kasir masuk + untung admin)`);
+  if (gagal.length > 0) {
+    console.error("PERINGATAN: beberapa mutasi uang gagal dijalankan:");
+    gagal.forEach((g) => console.error("  " + g));
+  }
   if (sumTagihan !== (agg._sum.tagihan || 0) || sumAdmin !== (agg._sum.admin || 0)) {
-    console.error("!!!!! MISMAPANTHAN: SUM DB != SUM CSV !!!!!");
+    console.error("!!!!! MISMATCH: SUM DB != SUM CSV !!!!!");
     process.exit(1);
   }
   console.log("OK: sum DB sama dengan sum CSV.");

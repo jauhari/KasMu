@@ -1,5 +1,4 @@
 import { prisma } from "@/lib/prisma";
-import { generateTxNumber } from "@/lib/utils";
 
 export function billCategory(jenis: string): string {
   if (jenis === "PLN") return "TAGIHAN_PLN";
@@ -24,41 +23,75 @@ export async function getKasAccount() {
   });
 }
 
+/** Akun sumber potongan tagihan: akun yang mengandung "brilink", fallback bank pertama */
+export async function getBillSourceAccount() {
+  const account = await prisma.account.findMany({
+    where: { isActive: true, OR: [{ type: "BANK" }, { type: "E_WALLET" }] },
+  });
+  const byName = account.find((a) => a.name.toLowerCase().includes("brilink"));
+  if (byName) return byName;
+  return account[0] || null;
+}
+
+function jenisCode(jenis: string): string {
+  if (jenis === "PLN") return "P";
+  if (jenis === "PDAM") return "D";
+  if (jenis === "BPJS TK") return "T";
+  if (jenis === "BPJS Kes") return "K";
+  return jenis.slice(0, 1).toUpperCase();
+}
+
+/** Nomor struk deterministik per tagihan — idempoten & aman untuk import massal */
+function billTxNumber(bill: { jenis: string; noPelanggan: string; bulan: string }, fase: "KIRIM" | "BAYAR"): string {
+  return `${fase}-${jenisCode(bill.jenis)}-${bill.noPelanggan}-${bill.bulan}`;
+}
+
 async function getUser() {
   const owner = await prisma.user.findFirst({ where: { role: "OWNER" } });
   return owner || (await prisma.user.findFirst());
 }
 
 /**
- * Event "agend membayar provider": saldo akun sumber (BRILink) dipotong
+ * Event "agen membayar provider": saldo akun sumber (BRILink) dipotong
  * sebesar tagihan + struk TRANSFER di Data Transaksi (Akun = BRILink).
  * Nominal struk = tagihan; untung belum diakui (diakui saat pelanggan bayar).
+ * opts.accountId: sumber untuk tagihan yang belum punya akun (mis. hasil import).
+ * opts.at: waktu struk (mis. tanggal dibayar ke provider dari CSV).
  */
-export async function applyProviderDeduct(billId: string) {
+export async function applyProviderDeduct(
+  billId: string,
+  opts: { accountId?: string | null; at?: Date } = {}
+) {
   const bill = await prisma.bill.findUnique({
     where: { id: billId },
     include: { customer: true },
   });
-  if (!bill || !bill.accountId || !bill.tagihan) return false;
-  if (bill.providerApplied) return false;
+  if (!bill || bill.providerApplied) return false;
+
+  const accountId = bill.accountId || opts.accountId || null;
+  if (!accountId || !bill.tagihan) return false;
 
   const user = await getUser();
   if (!user) throw new Error("Tidak ada user kasir");
 
   await prisma.$transaction([
     prisma.account.update({
-      where: { id: bill.accountId },
+      where: { id: accountId },
       data: { balance: { decrement: bill.tagihan } },
     }),
     prisma.bill.update({
       where: { id: bill.id },
-      data: { providerApplied: true },
+      data: {
+        providerApplied: true,
+        accountId,
+        providerPaidAt: opts.at && !bill.providerPaidAt ? opts.at : undefined,
+      },
     }),
     prisma.transaction.create({
       data: {
-        txNumber: generateTxNumber("BILL"),
+        txNumber: billTxNumber(bill, "KIRIM"),
         userId: user.id,
-        accountId: bill.accountId,
+        accountId,
         category: billCategory(bill.jenis),
         amount: bill.tagihan,
         adminBank: 0,
@@ -69,9 +102,10 @@ export async function applyProviderDeduct(billId: string) {
         customerName: bill.customer.name,
         customerRef: bill.noPelanggan,
         notes: `Potongan tagihan ${billJenisLabel(bill.jenis)} periode ${bill.bulan} (${
-          bill.status === "LUNAS" ? "langsung" : "talangan"
+          bill.status === "LUNAS" ? "pelanggan juga sudah bayar" : "talangan"
         })`,
         billId: bill.id,
+        createdAt: opts.at ?? new Date(),
       },
     }),
   ]);
@@ -79,18 +113,18 @@ export async function applyProviderDeduct(billId: string) {
 }
 
 /**
- * Event "pelanggan membayar": kas (laci) masuk total + struk CASH kutuk
- * (nominal tagihan, untung = admin). Konsisten dengan opname shift di mana
- * kas masuk = tagihan + admin (total) — tak terhitung ganda.
+ * Event "pelanggan membayar": kas (laci) masuk total + struk CASH
+ * (nominal tagihan, untung = admin). Konsisten dengan opname shift:
+ * kas masuk = tagihan + admin = total — tidak terhitung ganda.
+ * opts.at: waktu struk (mis. tanggal pelanggan bayar dari CSV).
  */
-export async function applyCashPayment(billId: string) {
+export async function applyCashPayment(billId: string, opts: { at?: Date } = {}) {
   const bill = await prisma.bill.findUnique({
     where: { id: billId },
     include: { customer: true },
   });
   if (!bill || bill.total == null || bill.tagihan == null) return false;
   if (bill.cashApplied) return false;
-  const tagihan = bill.tagihan;
   const admin = bill.admin ?? 0;
 
   const kas = await getKasAccount();
@@ -107,15 +141,18 @@ export async function applyCashPayment(billId: string) {
     }),
     prisma.bill.update({
       where: { id: bill.id },
-      data: { cashApplied: true },
+      data: {
+        cashApplied: true,
+        customerPaidAt: opts.at && !bill.customerPaidAt ? opts.at : undefined,
+      },
     }),
     prisma.transaction.create({
       data: {
-        txNumber: generateTxNumber("BILL"),
+        txNumber: billTxNumber(bill, "BAYAR"),
         userId: user.id,
         accountId: kas.id,
         category: billCategory(bill.jenis),
-        amount: tagihan,
+        amount: bill.tagihan,
         adminBank: 0,
         storeFee: admin,
         netProfit: admin,
@@ -125,6 +162,7 @@ export async function applyCashPayment(billId: string) {
         customerRef: bill.noPelanggan,
         notes: `Pembayaran tagihan ${billJenisLabel(bill.jenis)} periode ${bill.bulan}`,
         billId: bill.id,
+        createdAt: opts.at ?? new Date(),
       },
     }),
   ]);

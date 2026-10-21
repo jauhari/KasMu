@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { applyProviderDeduct, applyCashPayment, getBillSourceAccount } from "@/lib/bills-accounting";
 
 const JENIS_VALID = ["PLN", "PDAM", "BPJS TK", "BPJS Kes"];
 
@@ -181,10 +182,15 @@ export async function POST(req: NextRequest) {
       seen.set(key, p.line);
     }
 
-    // ===== upsert =====
+    // ===== upsert + terapkan mutasi uang & struk =====
     let created = 0;
     let updated = 0;
     let customersCreated = 0;
+    let strukKirim = 0;
+    let strukBayar = 0;
+    const warnings: string[] = [];
+
+    const source = await getBillSourceAccount();
 
     for (const p of parsed) {
       let customer = await prisma.customer.findUnique({ where: { name: p.nama } });
@@ -199,7 +205,7 @@ export async function POST(req: NextRequest) {
         });
       }
 
-      const data = {
+      const data: any = {
         bulan: p.bulan,
         jenis: p.jenis,
         customerId: customer.id,
@@ -216,18 +222,43 @@ export async function POST(req: NextRequest) {
       const existingBill = await prisma.bill.findUnique({
         where: { bulan_jenis_noPelanggan: { bulan: p.bulan, jenis: p.jenis, noPelanggan: p.noPel } },
       });
+      let bill;
       if (existingBill) {
-        await prisma.bill.update({ where: { id: existingBill.id }, data });
+        if (!existingBill.accountId && source) data.accountId = source.id;
+        bill = await prisma.bill.update({ where: { id: existingBill.id }, data });
         updated++;
       } else {
-        await prisma.bill.create({ data });
+        if (source) data.accountId = source.id;
+        bill = await prisma.bill.create({ data });
         created++;
+      }
+
+      // --- uang & struk: hanya jika belum diterapkan (idempoten) ---
+      try {
+        if (await applyProviderDeduct(bill.id, { at: p.providerAt ?? undefined })) strukKirim++;
+      } catch (e: any) {
+        warnings.push(`Baris ${p.line}: kirim gagal — ${e.message}`);
+      }
+      if (p.status === "LUNAS") {
+        try {
+          if (await applyCashPayment(bill.id, { at: p.customerAt ?? undefined })) strukBayar++;
+        } catch (e: any) {
+          warnings.push(`Baris ${p.line}: pelanggan bayar gagal — ${e.message}`);
+        }
       }
     }
 
     return NextResponse.json({
       success: true,
-      data: { baris: parsed.length, created, updated, customersCreated },
+      data: {
+        baris: parsed.length,
+        created,
+        updated,
+        customersCreated,
+        strukKirim,
+        strukBayar,
+        warnings,
+      },
     });
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });

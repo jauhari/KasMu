@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { applyProviderDeduct, applyCashPayment } from "@/lib/bills-accounting";
+import { applyProviderDeduct, applyCashPayment, getBillSourceAccount } from "@/lib/bills-accounting";
 
 const JENIS_VALID = ["PLN", "PDAM", "BPJS TK", "BPJS Kes"];
 
@@ -138,6 +138,11 @@ export async function POST(req: NextRequest) {
       catatan: catatan || null,
     };
     if (accountId) createData.accountId = accountId;
+    else {
+      // default: akun BRILink (atau bank pertama) — biar kirim langsung mutasi
+      const src = await getBillSourceAccount();
+      if (src) createData.accountId = src.id;
+    }
 
     const existedBefore = await prisma.bill.findUnique({
       where: { bulan_jenis_noPelanggan: { bulan: String(bulan), jenis, noPelanggan } },
