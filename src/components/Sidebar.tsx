@@ -5,7 +5,6 @@ import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard,
   Receipt,
-  Zap,
   Contact,
   Lock,
   Wallet,
@@ -26,7 +25,6 @@ import { toast } from "sonner";
 export const allNavItems = [
   { label: "Dashboard", href: "/", icon: LayoutDashboard, ownerOnly: false },
   { label: "Data Transaksi", href: "/transaksi", icon: Receipt, ownerOnly: false },
-  { label: "Tagihan BRILink", href: "/tagihan", icon: Zap, ownerOnly: false },
   { label: "Kontak Pelanggan", href: "/customers", icon: Contact, ownerOnly: false },
   { label: "Opname Cash", href: "/opname", icon: Lock, ownerOnly: false },
   { label: "Saldo Akun", href: "/saldo", icon: Wallet, ownerOnly: true },
