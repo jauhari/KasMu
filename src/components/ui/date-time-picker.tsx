@@ -16,6 +16,10 @@ const MONTHS_ID = [
   "Juli", "Agustus", "September", "Oktober", "November", "Desember",
 ];
 const WEEKDAYS = ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"];
+const MONTHS_ID_SHORT = [
+  "Jan", "Feb", "Mar", "Apr", "Mei", "Jun",
+  "Jul", "Agu", "Sep", "Okt", "Nov", "Des",
+];
 
 function parseValue(v: string): Date | null {
   if (!v || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(v)) return null;
@@ -96,9 +100,9 @@ export function DateTimePicker({
     setTimeList(null);
   };
 
-  // Tampilan trigger: "24 Oktober 2026 — 07:32"
+  // Tampilan trigger ringkas: "24 Okt 2026 · 08:26"
   const display = selected
-    ? `${selected.getDate()} ${MONTHS_ID[selected.getMonth()]} ${selected.getFullYear()} — ${String(
+    ? `${selected.getDate()} ${MONTHS_ID_SHORT[selected.getMonth()]} ${selected.getFullYear()} · ${String(
         selected.getHours()
       ).padStart(2, "0")}:${String(selected.getMinutes()).padStart(2, "0")}`
     : "Pilih tanggal & jam…";
@@ -115,7 +119,7 @@ export function DateTimePicker({
         className={`km-input-field relative group ${open ? "km-input-focused" : ""}`}
         onClick={open ? undefined : openPanel}
       >
-        <div className="km-input-inner w-full bg-transparent text-sm cursor-pointer font-mono text-slate-900 dark:text-slate-100 border-b border-slate-400/30 focus:border-amber-600 dark:focus:border-amber-500 outline-none transition-colors pr-8">
+        <div className="km-input-inner w-full bg-transparent text-sm cursor-pointer font-mono text-slate-900 dark:text-slate-100 border-b border-slate-400/30 focus:border-amber-600 dark:focus:border-amber-500 outline-none transition-colors pr-8 truncate">
           {display}
         </div>
         <span className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
