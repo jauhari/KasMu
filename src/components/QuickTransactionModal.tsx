@@ -223,17 +223,18 @@ export default function QuickTransactionModal({
       isOpen={isOpen}
       onClose={onClose}
       title="Input Transaksi Kasir"
-      size="lg"
+      size="2xl"
     >
       {error && (
-        <div className="mb-4 p-3 rounded-none bg-rose-900/20 border border-rose-700/50 text-rose-400 text-xs flex items-center gap-2">
+        <div className="mb-3 p-2.5 rounded-none bg-rose-900/20 border border-rose-700/50 text-rose-400 text-xs flex items-center gap-2">
           <AlertCircle className="w-4 h-4 shrink-0" />
           <span>{error}</span>
         </div>
       )}
 
-      <div className="space-y-4 overflow-y-auto max-h-[70vh] pr-2">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="space-y-3">
+        {/* Baris 1: kategori + provider + metode */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <Select
             label="Kategori Layanan"
             value={category}
@@ -252,44 +253,55 @@ export default function QuickTransactionModal({
             placeholder="Pilih provider..."
             required
           />
+          <Select
+            label="Metode Pembayaran"
+            value={paymentMethod}
+            onValueChange={setPaymentMethod}
+            options={PAYMENT_METHODS}
+          />
         </div>
 
-        <div className="bg-[#0a0a0a]/30 border border-slate-700/50 p-4 rounded-none space-y-4">
-          <Input
-            label="Nominal Transaksi (Rp)"
-            value={amount}
-            onValueChange={setAmount}
-            type="number"
-            placeholder="0"
-            required
-            accounting
-          />
-          <div className="grid grid-cols-2 gap-4">
+        {/* Baris 2: uang — nominal, admin, fee, total (fee otomatis) */}
+        <div className="bg-[#0a0a0a]/30 border border-slate-700/50 p-3 rounded-none">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <Input
-              label="Biaya Admin Bank"
+              label="Nominal Transaksi"
+              value={amount}
+              onValueChange={setAmount}
+              type="number"
+              placeholder="0"
+              required
+              accounting
+              fontMono
+            />
+            <Input
+              label="Admin Bank"
               value={adminBank}
               onValueChange={setAdminBank}
               type="number"
               placeholder="0"
               accounting
+              fontMono
             />
             <Input
-              label="Fee Toko (Tarif Jasa)"
+              label="Fee Toko"
               value={storeFee}
               onValueChange={setStoreFee}
               type="number"
               placeholder="0"
               accounting
+              fontMono
+            />
+            <Input
+              label="Total Diterima"
+              value={totalCollected}
+              onValueChange={setTotalCollected}
+              placeholder="fee otomatis"
+              accounting
+              fontMono
             />
           </div>
-          <Input
-            label="Total Diterima dari Pelanggan (Fee Otomatis)"
-            value={totalCollected}
-            onValueChange={setTotalCollected}
-            placeholder="Misal: 1050000 → fee dihitung sendiri"
-            accounting
-          />
-          <div className="flex items-center justify-between pt-2 border-t border-slate-700/30 text-[10px]">
+          <div className="flex items-center justify-end gap-4 pt-2 mt-1 border-t border-slate-700/30 text-[10px]">
             <span className="text-slate-500">Estimasi Laba Bersih:</span>
             <span className="font-bold font-mono text-emerald-400">
               +{formatRupiah(profit)}
@@ -297,13 +309,8 @@ export default function QuickTransactionModal({
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Select
-            label="Metode Pembayaran"
-            value={paymentMethod}
-            onValueChange={setPaymentMethod}
-            options={PAYMENT_METHODS}
-          />
+        {/* Baris 3: status + tanggal + nama nasabah */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <Select
             label="Status Pembayaran"
             value={paymentStatus}
@@ -313,26 +320,13 @@ export default function QuickTransactionModal({
               { value: "HUTANG", label: "Hutang — Bayar Nanti" },
             ]}
           />
-          {paymentStatus === "HUTANG" && (
-            <div className="sm:col-span-2 p-3 border border-amber-700/40 bg-amber-900/10 text-[10px] text-amber-500/90 leading-relaxed">
-              Struk dicatat sebagai <strong>HUTANG</strong>: saldo provider tetap
-              terpotong, kas belum dihitung, profit belum diakui. Piutang
-              tercatat di halaman Hutang/Piutang atas nama pelanggan — begitu
-              dilunasi di sana, struk otomatis jadi lunas &amp; profit mengalir.
-              {category === "TARIK_TUNAI" && (
-                <span className="block mt-1 text-rose-400">
-                  Tarik tunai tidak bisa hutang — uang keluar dari toko.
-                </span>
-              )}
-            </div>
-          )}
           <DateTimePicker
             label="Tanggal Transaksi"
             value={tanggal}
             onValueChange={setTanggal}
             required
           />
-          <div className="sm:col-span-2 relative">
+          <div className="relative">
             <Input
               label="Nama Nasabah"
               value={customerName}
@@ -353,45 +347,51 @@ export default function QuickTransactionModal({
                 .filter((n) => n.toLowerCase().includes(q) && n !== customerName.trim())
                 .slice(0, 6);
               const isNew = !customerNames.some((n) => n.toLowerCase() === q);
-              return (
-                <>
-                  {sugg.length > 0 && (
-                    <div className="absolute top-full left-0 right-0 z-50 mt-0.5 bg-white dark:bg-[#0c1220] border border-slate-400/60 shadow-lg max-h-48 overflow-y-auto">
-                      {sugg.map((n) => (
-                        <div
-                          key={n}
-                          onMouseDown={(e) => {
-                            e.preventDefault();
-                            setNameTouched(false);
-                            setCustomerName(n);
-                          }}
-                          className="px-3 py-2 text-xs font-mono cursor-pointer hover:bg-amber-50 dark:hover:bg-amber-900/20 text-slate-700 dark:text-slate-300"
-                        >
-                          {n}
-                        </div>
-                      ))}
+              return sugg.length > 0 ? (
+                <div className="absolute top-full left-0 right-0 z-50 mt-0.5 bg-white dark:bg-[#0c1220] border border-slate-400/60 shadow-lg max-h-48 overflow-y-auto">
+                  {sugg.map((n) => (
+                    <div
+                      key={n}
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        setNameTouched(false);
+                        setCustomerName(n);
+                      }}
+                      className="px-3 py-2 text-xs font-mono cursor-pointer hover:bg-amber-50 dark:hover:bg-amber-900/20 text-slate-700 dark:text-slate-300"
+                    >
+                      {n}
                     </div>
-                  )}
-                  {isNew && (
-                    <p className="mt-1 text-[10px] italic text-amber-500/80">
-                      Kontak baru — nanti otomatis ditambahkan saat disimpan
-                    </p>
-                  )}
-                </>
-              );
+                  ))}
+                </div>
+              ) : isNew ? (
+                <p className="mt-1 text-[10px] italic text-amber-500/80">
+                  Kontak baru — otomatis ditambahkan saat disimpan
+                </p>
+              ) : null;
             })()}
           </div>
         </div>
 
+        {/* Baris 4: catatan opsional + info hutang */}
+        {paymentStatus === "HUTANG" && (
+          <div className="p-2.5 border border-amber-700/40 bg-amber-900/10 text-[10px] text-amber-500/90 leading-relaxed">
+            Struk dicatat <strong>HUTANG</strong> — saldo provider terpotong,
+            kas &amp; profit belum diakui sampai dilunasi di halaman
+            Hutang/Piutang.
+            {category === "TARIK_TUNAI" && (
+              <span className="block mt-1 text-rose-400">
+                Tarik tunai tidak bisa hutang — uang keluar dari toko.
+              </span>
+            )}
+          </div>
+        )}
         <Input
           label="No Rekening / No HP / ID Pelanggan"
           value={customerRef}
           onValueChange={setCustomerRef}
           type="text"
           placeholder="Contoh: 00120192847250 / 08123456789"
-          className="mb-4"
         />
-
         <Input
           label="Catatan"
           value={notes}
@@ -401,7 +401,7 @@ export default function QuickTransactionModal({
         />
       </div>
 
-      <Separator className="my-4" />
+      <Separator className="my-3" />
 
       <div className="flex items-center justify-end gap-3">
         <Button

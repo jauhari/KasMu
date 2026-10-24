@@ -14,7 +14,7 @@ export interface InputProps
   label?: string;
   value?: string | number;
   onValueChange?: (value: string) => void;
-  type?: "text" | "number" | "password" | "datetime-local";
+  type?: "text" | "number" | "password";
   placeholder?: string;
   error?: string;
   required?: boolean;
@@ -46,7 +46,7 @@ export interface ModalProps {
   onClose: () => void;
   title?: string;
   children: React.ReactNode;
-  size?: "sm" | "md" | "lg" | "xl";
+  size?: "sm" | "md" | "lg" | "xl" | "2xl";
 }
 
 export interface LabelProps
