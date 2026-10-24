@@ -71,7 +71,12 @@ export function Select({
                     ? "bg-amber-50 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400 font-bold"
                     : "text-slate-700 dark:text-slate-300 border-b border-slate-200/50 dark:border-slate-800/50 last:border-0"
                 }`}
-                onClick={() => handleSelect(opt.value, opt.label)}
+                onClick={(e) => {
+                  // stopPropagation: tanpa ini klik opsi bubble ke toggle field
+                  // (ikut tombol kotak) — dropdown tertutup lalu terbuka lagi.
+                  e.stopPropagation();
+                  handleSelect(opt.value, opt.label);
+                }}
               >
                 {opt.label}
               </div>
