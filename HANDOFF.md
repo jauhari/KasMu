@@ -73,8 +73,29 @@ Satu tagihan = 2 struk, dijaga flag `providerApplied`/`cashApplied` di Bill:
 - `sqlite3` tidak tersedia; cek DB via prisma `$queryRaw` / node script.
 - Selalu `npx tsc --noEmit` lalu `npx next build` sebelum commit/deploy.
 - Script mjs dulu sempat ada salah tulis lucu ("MISMAPANTHAN") — sudah dibersihkan; jaga kualitas string.
+- **RULE UI (wajib)**: tidak ada elemen bawaan browser yang tampak & tidak ada emoji di UI. `datetime-local` native **dibanned** — pakai `DateTimePicker` kustom (`ui/date-time-picker.tsx`). Emoji diganti icon lucide (contoh kasus: 🔍 → RefreshCw). Kontrak komponen dasar:
+  - `Input` `accounting` = **controlled** & selalu tampil berformat titik ribuan (termasuk saat mengetik); state nilai = **digit mentah tanpa titik**; backspace di depan titik di-handle manual. Tipe `"datetime-local"` sudah dihapus dari InputProps.
+  - `Modal` = klik-keluar ditangani di **kontainer overlay** (`target === currentTarget`) + `stopPropagation` di panel; TIDAK ada layer backdrop terpisah (layer terpisah pernah salah tumpuk → modal close sendiri). Panel wajib `relative` di atas overlay. Ukuran tambahan `"2xl"`.
+  - `Select` = klik opsi **wajib `stopPropagation`** — opsi di dalam field yang menerima toggle `onClick`; tanpa itu dropdown tertutup lalu terbuka lagi (pernah jadi bug).
+- Palet grafik dashboard (`DashboardClient`): `PIE_COLORS` amber-first, fallback mengganti warna legacy default `#2563eb` (dianggap "belum ditata"); tooltip ikut `tooltipStyle()` (rounded-none, mono). Line chart stroke amber `#f59e0b`.
+- **Model HUTANG transaksi kasir** (status baru): `Transaction.status = "HUTANG"` → struk HUTANG di-exclude dari opname (filter `status === "SUCCESS"` di 2 tempat), laporan & dashboard otomatis aman. Saat membuat: validasi nama nasabah wajib + tolak TARIK_TUNAI; `netProfit` ditulis 0; dibuat `DebtLoan PIUTANG` amount = amount + storeFee, `notes` memuat anchor **`Kasir TX:<txNumber>`** (jangan dirusak formatnya). Pelunasan via `PUT /api/debt-loans`: bayar parsial → CashMutation IN (untuk struk CASH jangan catat CashMutation — nanti dobel dengan cashDelta saat status jadi SUCCESS); lunas penuh → tx di-PUT jadi SUCCESS + netProfit = storeFee − adminBank.
+- **Form transaksi**: field `totalCollected` (Total Diterima) otomatis menghitung `storeFee = total − amount − adminBank` (effect; masih teraktif selama field terisi). Field `tanggal` ditolak jika di masa depan (+5 menit toleransi).
+- **`/api/version`** membaca `CHANGELOG.md` **saat runtime** (fs) → menambah rilis baru cukup scp CHANGELOG.md, tidak perlu restart. Halaman `/perubahan` (Log Perubahan) menampilkan versi server + waktu build (`fs.stat .next/BUILD_ID`, dikonversi WIB) + seluruh riwayat rilis. Dipakai user untuk pantau deployment.
 
 ## 7. Commit Penting (terbaru dulu)
+
+### Sesi 24 Okt 2026 — rilis v2.5.x (semua sudah di server)
+
+- `2cf5451` feat: koreksi saldo tampil otomatis saat ketik saldo baru
+- `a154200` ui: trigger tanggal ringkas (24 Okt 2026 · 08:26) + truncate
+- `5814527` ui: label akun provider dipendekkan supaya muat di kolom
+- `64e6f5f` ui: modal transaksi satu layar tanpa scroll (2 kolom rapat); hapus tipe datetime-local dari Input
+- `8f1ce38` ui: tooltip & stroke grafik dashboard ikut tema (rounded-none, panel mono, tanpa outline putih)
+- `5c47452` fix: klik opsi Select bubble ke toggle — dropdown tidak kolaps
+- `66b54b6` feat: custom DateTimePicker — banned native picker bawaan browser
+- `f44b63d` feat: fee otomatis, transaksi hutang, tanggal transaksi; fix: modal auto-close, titik ribuan konsisten; feat: halaman Log Perubahan + API /api/version
+
+### Sebelumnya
 
 - `ec8dd4f` chore: buang script cek sementara
 - `37afa22` refactor: Data Transaksi jadi satu buku — tab Struk Kasir & Tagihan Pelanggan
@@ -88,10 +109,11 @@ Satu tagihan = 2 struk, dijaga flag `providerApplied`/`cashApplied` di Bill:
 
 ## 8. Langkah Lanjut (belum dikerjakan)
 
-1. **User menyesuaikan saldo BRILink** ke nilai riil di Saldo Akun (saldo saat ini −5.232.767 karena buku mulai dari nol) — jika perlu, buatkan tombol "Penyesuaian Saldo" yang mencatat mutasi koreksi terstruktur.
+1. **User menyesuaikan saldo BRILink** ke nilai riil di Saldo Akun — sekarang makin gampang: modal koreksi menampilkan selisih koreksi otomatis saat mengetik (feat `2cf5451`).
 2. **Tarik tunai historis** belum dicatat → perlukan input manual atau import kedua.
-3. Cek halaman **Laporan Keuangan** terhadap 61 struk (untung 72.780) — belum diuji visual oleh user.
-4. Cocokkan kontak: transaksi kasir dikaitkan kontak hanya via nama persis; pertimbangkan pilih kontak saat input struk (user sudah diingatkan).
-5. Kolom `mode: "insensitive"` dihapus dari `getBillSourceAccount` (Prisma+SQLite tidak mendukung filter `mode` di versi ini); gantinya fetch aktif BANK/E_WALLET lalu pilih nama mengandung "brilink" secara manual.
-6. Bila error "Unique constraint failed on (billId)" muncul lagi: index `Transaction_billId_key` bisa muncul kembali dari `prisma db push`; DROP manual via `$queryRaw` (polanya ada di riwayat commit).
+3. **Pelunasan piutang kasir**: pembayaran parsial via PUT `/api/debt-loans` (CashMutation IN "Pelunasan Piutang") — belum diuji UI oleh user; khusus struk CASH kasir jangan sampai dobel dengan target opname (sudah dijaga di kode, tetap uji).
+4. Cocokkan kontak: pencocokan struk–kontak tetap via nama persis; autocomplete di form transaksi mendarat kontak baru otomatis — sisa kasus lama masih menumpang nama bebas.
+5. Kolom `mode: "insensitive"` dihapus dari `getBillSourceAccount` (Prisma+SQLite tidak mendukung filter `mode` di versi ini). ✓ sudah — pengingat historis.
+6. Bila error "Unique constraint failed on (billId)" muncul lagi: index `Transaction_billId_key` bisa muncul kembali dari `prisma db push`; DROP manual via `$queryRaw`.
 7. Backup API & restore sudah ada — jalankan backup rutin di server.
+8. DateTimePicker panel & dropdown Select — di layar hp sempit, panel/option list bisa lewat tepi modal; belum terverifikasi di hp, pantau kalau user mulai pakai dari ponsel.
