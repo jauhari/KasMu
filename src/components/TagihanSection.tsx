@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { formatRupiah, formatDateTimeID, currentBulanID } from "@/lib/utils";
 import { Zap, Plus, Upload, CheckCircle2, Clock, AlertCircle, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import { Input, Select, Button, Modal, Badge } from "@/components/ui";
+import { Input, Select, Button, Modal, Badge, DateTimePicker } from "@/components/ui";
 
 const JENIS_OPTIONS = [
   { value: "PLN", label: "PLN" },
@@ -693,9 +693,8 @@ export default function TagihanSection() {
               </p>
               <p className="font-mono text-[11px] text-slate-500">{lunasBill.noPelanggan}</p>
             </div>
-            <Input
+            <DateTimePicker
               label="Waktu Pelunasan"
-              type="datetime-local"
               value={lunasAt}
               onValueChange={setLunasAt}
               required

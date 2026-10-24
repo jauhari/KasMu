@@ -10,6 +10,7 @@ import {
   Modal,
   Badge,
   Separator,
+  DateTimePicker,
 } from "@/components/ui";
 
 interface Account {
@@ -325,11 +326,10 @@ export default function QuickTransactionModal({
               )}
             </div>
           )}
-          <Input
+          <DateTimePicker
             label="Tanggal Transaksi"
             value={tanggal}
             onValueChange={setTanggal}
-            type="datetime-local"
             required
           />
           <div className="sm:col-span-2 relative">

@@ -8,7 +8,7 @@ import ReceiptModal from "@/components/ReceiptPrinter";
 import TagihanSection from "@/components/TagihanSection";
 import { formatRupiah } from "@/lib/utils";
 import { Search, Filter, Printer, CircleCheck, ArrowUpDown } from "lucide-react";
-import { Input, Select } from "@/components/ui";
+import { Input, Select, DateTimePicker } from "@/components/ui";
 import { toast } from "sonner";
 
 type Tab = "struk" | "tagihan";
@@ -360,8 +360,7 @@ function TransaksiInner() {
                 <div className="space-y-4 text-xs">
                   <div>
                     <label className="km-label">Waktu Pelunasan</label>
-                    <Input
-                      type="datetime-local"
+                    <DateTimePicker
                       value={lunasAt}
                       onValueChange={setLunasAt}
                       className="w-full"
