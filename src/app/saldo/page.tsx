@@ -309,6 +309,30 @@ export default function SaldoPage() {
                 accounting
                 required
               />
+              {/* Koreksi otomatis: langsung dihitung dari saldo tercatat */}
+              {(() => {
+                const newVal = parseFloat(editBalance.replace(/[^0-9.-]/g, "")) || 0;
+                const diff = Math.round((newVal - (editAcc.balance || 0)) * 100) / 100;
+                if (editBalance === "" || diff === 0) {
+                  return (
+                    <p className="text-[11px] font-mono text-slate-500">
+                      Koreksi: tidak ada perubahan (saldo tercatat {formatRupiah(editAcc.balance || 0)})
+                    </p>
+                  );
+                }
+                const plus = diff > 0;
+                return (
+                  <p
+                    className={`text-[11px] font-mono font-semibold ${
+                      plus ? "text-emerald-400" : "text-rose-400"
+                    }`}
+                  >
+                    Koreksi: {plus ? "+" : "-"}
+                    {formatRupiah(Math.abs(diff))} {plus ? "(kelebihan masuk)" : "(kurang keluar)"} — dari{" "}
+                    {formatRupiah(editAcc.balance || 0)} menjadi {formatRupiah(newVal)}
+                  </p>
+                );
+              })()}
               <Input label="Catatan" value={editNote} onValueChange={setEditNote} placeholder="Alasan koreksi (opsional)" />
               <div className="flex justify-end gap-3 pt-2">
                 <button
