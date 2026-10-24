@@ -29,14 +29,17 @@ export function Modal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/70 backdrop-blur-sm animate-fade-in duration-150">
+    <div
+      onClick={(e) => {
+        // Close hanya saat klik tepat di area gelap LUAR panel.
+        // Klik di mana pun di dalam panel (termasuk area kosong/label)
+        // target-nya bukan kontainer ini → tidak pernah close.
+        if (e.target === e.currentTarget) onClose();
+      }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-xl animate-fade-in duration-150"
+    >
       <div
-        onClick={(e) => {
-          if (e.target === e.currentTarget) onClose();
-        }}
-        className="absolute inset-0 z-0"
-      />
-      <div
+        onClick={(e) => e.stopPropagation()}
         className={`km-modal-panel bg-[#0c1220] border border-slate-700 rounded-none shadow-2xl ${sizes[size]} w-full max-h-[90vh] flex flex-col overflow-hidden`}
       >
         {title && (

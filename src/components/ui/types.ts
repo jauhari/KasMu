@@ -14,7 +14,7 @@ export interface InputProps
   label?: string;
   value?: string | number;
   onValueChange?: (value: string) => void;
-  type?: "text" | "number" | "password";
+  type?: "text" | "number" | "password" | "datetime-local";
   placeholder?: string;
   error?: string;
   required?: boolean;

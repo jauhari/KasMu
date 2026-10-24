@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { applyProviderDeduct, applyCashPayment, revertBillMoney } from "@/lib/bills-accounting";
+import { getSession } from "@/lib/auth";
 
 export async function PATCH(
   req: NextRequest,
@@ -22,6 +23,19 @@ export async function PATCH(
     const existing = await prisma.bill.findUnique({ where: { id } });
     if (!existing) {
       return NextResponse.json({ success: false, error: "Tagihan tidak ditemukan" }, { status: 404 });
+    }
+
+    if (customerPaidAt !== undefined) {
+      const session = await getSession();
+      if (!session) {
+        return NextResponse.json({ success: false, error: "Belum terautentikasi" }, { status: 401 });
+      }
+      if (session.role !== "OWNER") {
+        return NextResponse.json(
+          { success: false, error: "Hanya owner yang bisa mengatur waktu pelunasan manual" },
+          { status: 403 }
+        );
+      }
     }
 
     if (accountId !== undefined && accountId !== existing.accountId && existing.providerApplied) {

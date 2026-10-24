@@ -1,14 +1,15 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, useMemo, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Header from "@/components/Header";
 import QuickTransactionModal from "@/components/QuickTransactionModal";
 import ReceiptModal from "@/components/ReceiptPrinter";
 import TagihanSection from "@/components/TagihanSection";
 import { formatRupiah } from "@/lib/utils";
-import { Search, Filter, Printer } from "lucide-react";
+import { Search, Filter, Printer, CircleCheck, ArrowUpDown } from "lucide-react";
 import { Input, Select } from "@/components/ui";
+import { toast } from "sonner";
 
 type Tab = "struk" | "tagihan";
 
@@ -23,6 +24,52 @@ function TransaksiInner() {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTxForReceipt, setSelectedTxForReceipt] = useState<any>(null);
+  const [statusFilter, setStatusFilter] = useState("");
+  const [sortKey, setSortKey] = useState("tanggal_desc");
+  const [role, setRole] = useState<string>("");
+  const [lunasTarget, setLunasTarget] = useState<any>(null);
+  const [lunasAt, setLunasAt] = useState("");
+
+  const localNow = () => {
+    const n = new Date();
+    const pad = (v: number) => String(v).padStart(2, "0");
+    return `${n.getFullYear()}-${pad(n.getMonth() + 1)}-${pad(n.getDate())}T${pad(n.getHours())}:${pad(n.getMinutes())}`;
+  };
+
+  useEffect(() => {
+    fetch("/api/auth/me")
+      .then((r) => r.json())
+      .then((j) => {
+        if (j.success) setRole(j.data.role);
+      })
+      .catch(() => {});
+  }, []);
+
+  const displayTx = useMemo(() => {
+    let rows = [...transactions];
+    if (statusFilter === "TALANGAN") {
+      rows = rows.filter((tx) => tx.bill && tx.bill.status !== "LUNAS");
+    } else if (statusFilter === "LUNAS_BILL") {
+      rows = rows.filter((tx) => tx.bill && tx.bill.status === "LUNAS");
+    } else if (statusFilter === "KASIR") {
+      rows = rows.filter((tx) => !tx.bill);
+    } else if (statusFilter === "HUTANG") {
+      rows = rows.filter((tx) => tx.status === "HUTANG");
+    }
+    const dir = sortKey.endsWith("_asc") ? 1 : -1;
+    if (sortKey.startsWith("tanggal")) {
+      rows.sort((a, b) => (new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()) * dir);
+    } else if (sortKey.startsWith("nama")) {
+      rows.sort((a, b) =>
+        dir * String(a.customerName || "").localeCompare(String(b.customerName || ""), "id")
+      );
+    } else if (sortKey.startsWith("nominal")) {
+      rows.sort((a, b) => (a.amount - b.amount) * dir);
+    } else if (sortKey.startsWith("profit")) {
+      rows.sort((a, b) => (a.netProfit - b.netProfit) * dir);
+    }
+    return rows;
+  }, [transactions, statusFilter, sortKey]);
 
   const loadTransactions = async () => {
     try {
@@ -45,6 +92,35 @@ function TransaksiInner() {
   useEffect(() => {
     loadTransactions();
   }, [selectedCategory]);
+
+  const handleLunasStruk = async (tx: any, paidAt?: string) => {
+    try {
+      const res = await fetch(`/api/bills/${tx.billId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          status: "LUNAS",
+          customerPaidAt: paidAt || new Date().toISOString(),
+        }),
+      });
+      const json = await res.json();
+      if (!json.success) throw new Error(json.error);
+      toast.success(`${tx.customerName} Lunas — kas +${formatRupiah(tx.amount)}`);
+      setLunasTarget(null);
+      loadTransactions();
+    } catch (err: any) {
+      toast.error(err.message || "Gagal tandai lunas");
+    }
+  };
+
+  const requestLunas = (tx: any) => {
+    if (role === "OWNER") {
+      setLunasTarget(tx);
+      setLunasAt(localNow());
+    } else {
+      handleLunasStruk(tx);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -95,9 +171,41 @@ function TransaksiInner() {
               </button>
             </div>
 
-            <div className="flex items-center gap-3 w-full sm:w-auto">
+            <div className="flex items-center gap-3 w-full sm:w-auto flex-wrap">
               <div className="flex items-center gap-2">
                 <Filter className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                <Select
+                  value={statusFilter}
+                  onValueChange={setStatusFilter}
+                  options={[
+                    { value: "", label: "Semua Status" },
+                    { value: "TALANGAN", label: "Belum Dibayar (Talangan)" },
+                    { value: "LUNAS_BILL", label: "Sudah Dibayar (Lunas)" },
+                    { value: "KASIR", label: "Kasir Biasa (non-tagihan)" },
+                    { value: "HUTANG", label: "Hutang Pelanggan" },
+                  ]}
+                  placeholder="Status"
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <ArrowUpDown className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                <Select
+                  value={sortKey}
+                  onValueChange={setSortKey}
+                  options={[
+                    { value: "tanggal_desc", label: "Terbaru dulu" },
+                    { value: "tanggal_asc", label: "Terlama dulu" },
+                    { value: "nama_asc", label: "Nama A → Z" },
+                    { value: "nama_desc", label: "Nama Z → A" },
+                    { value: "nominal_desc", label: "Nominal terbesar" },
+                    { value: "nominal_asc", label: "Nominal terkecil" },
+                    { value: "profit_desc", label: "Profit terbesar" },
+                    { value: "profit_asc", label: "Profit terkecil" },
+                  ]}
+                  placeholder="Urutkan"
+                />
+              </div>
+              <div className="flex items-center gap-2">
                 <Select
                   value={selectedCategory}
                   onValueChange={setSelectedCategory}
@@ -133,14 +241,14 @@ function TransaksiInner() {
                         Memuat daftar transaksi...
                       </td>
                     </tr>
-                  ) : transactions.length === 0 ? (
+                  ) : displayTx.length === 0 ? (
                     <tr>
                       <td colSpan={8} className="text-center py-10 text-slate-600">
                         Tidak ada transaksi ditemukan
                       </td>
                     </tr>
                   ) : (
-                    transactions.map((tx) => (
+                    displayTx.map((tx) => (
                       <tr key={tx.id} className="hover:bg-[#15151a]/50 transition-colors">
                         <td className="px-4 py-3">
                           <div className="font-mono font-bold text-slate-200 text-[11px]">{tx.txNumber}</div>
@@ -193,6 +301,10 @@ function TransaksiInner() {
                             <span className="inline-block px-1.5 py-0.5 rounded-none text-[9px] font-semibold border border-amber-700/50 bg-amber-900/20 text-amber-400">
                               Talangan
                             </span>
+                          ) : tx.status === "HUTANG" ? (
+                            <span className="inline-block px-1.5 py-0.5 rounded-none text-[9px] font-semibold border border-rose-700/50 bg-rose-900/20 text-rose-400">
+                              HUTANG
+                            </span>
                           ) : (
                             <span className="inline-block px-1.5 py-0.5 rounded-none text-[9px] font-semibold border border-emerald-700/50 bg-emerald-900/20 text-emerald-400">
                               {tx.status}
@@ -200,13 +312,25 @@ function TransaksiInner() {
                           )}
                         </td>
                         <td className="px-4 py-3 text-center">
-                          <button
-                            onClick={() => setSelectedTxForReceipt(tx)}
-                            title="Cetak Struk Thermal"
-                            className="p-1.5 rounded-none bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors"
-                          >
-                            <Printer className="w-3.5 h-3.5" />
-                          </button>
+                          <div className="flex items-center justify-center gap-1.5">
+                            {tx.bill && tx.bill.status !== "LUNAS" && (
+                              <button
+                                onClick={() => requestLunas(tx)}
+                                title="Pelanggan sudah bayar — tandai tagihan LUNAS & catat kas masuk"
+                                className="inline-flex items-center gap-1 px-2 py-1.5 rounded-none border border-amber-700/60 text-amber-500 hover:bg-amber-600/10 font-semibold text-[10px] uppercase transition-colors"
+                              >
+                                <CircleCheck className="w-3.5 h-3.5" />
+                                Lunas
+                              </button>
+                            )}
+                            <button
+                              onClick={() => setSelectedTxForReceipt(tx)}
+                              title="Cetak Struk Thermal"
+                              className="p-1.5 rounded-none bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors"
+                            >
+                              <Printer className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))
@@ -226,6 +350,48 @@ function TransaksiInner() {
             transaction={selectedTxForReceipt}
             onClose={() => setSelectedTxForReceipt(null)}
           />
+
+          {lunasTarget && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-xl">
+              <div className="bg-[#0c1220] border border-slate-700 rounded-none w-full max-w-sm p-5 text-white shadow-xl space-y-4">
+                <h3 className="text-[10px] uppercase tracking-[0.05em] font-bold">
+                  Tandai Lunas — {lunasTarget.customerName}
+                </h3>
+                <div className="space-y-4 text-xs">
+                  <div>
+                    <label className="km-label">Waktu Pelunasan</label>
+                    <Input
+                      type="datetime-local"
+                      value={lunasAt}
+                      onValueChange={setLunasAt}
+                      className="w-full"
+                    />
+                    <p className="text-[10px] text-slate-500 mt-1.5 leading-relaxed">
+                      Diisi waktu sekarang secara default — ubah jika pelanggan
+                      membayar di tanggal/waktu lain. Kas masuk &amp; profit admin
+                      dicatat pada waktu tersebut.
+                    </p>
+                  </div>
+                  <div className="flex justify-end gap-3 pt-2">
+                    <button
+                      type="button"
+                      onClick={() => setLunasTarget(null)}
+                      className="px-3.5 py-1.5 rounded-none bg-slate-800 hover:bg-slate-700 text-slate-400 font-medium text-xs transition-colors"
+                    >
+                      Batal
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleLunasStruk(lunasTarget, new Date(lunasAt).toISOString())}
+                      className="px-4 py-1.5 rounded-none bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs transition-colors"
+                    >
+                      Simpan Lunas
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </>
       ) : (
         <TagihanSection />

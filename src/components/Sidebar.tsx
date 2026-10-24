@@ -17,6 +17,7 @@ import {
   LogOut,
   HardDriveDownload,
   X,
+  History,
 } from "lucide-react";
 import { useTheme } from "./ThemeProvider";
 import { useState, useEffect } from "react";
@@ -33,6 +34,8 @@ export const allNavItems = [
   { label: "Laporan Keuangan", href: "/laporan", icon: BarChart3, ownerOnly: true },
   { label: "Staff", href: "/staff", icon: Users, ownerOnly: true },
   { label: "Backup & Restore", href: "/backup", icon: HardDriveDownload, ownerOnly: true },
+
+  { label: "Log Perubahan", href: "/perubahan", icon: History, ownerOnly: false },
 ];
 
 interface SidebarProps {
@@ -213,7 +216,7 @@ export default function Sidebar({ mobileOpen = false, onCloseMobile, user }: Sid
 
       {/* 2. Mobile Off-Canvas Drawer Backdrop */}
       <div
-        className={`lg:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 transition-opacity duration-300 ${
+        className={`lg:hidden fixed inset-0 bg-black/85 backdrop-blur-xl z-50 transition-opacity duration-300 ${
           mobileOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         }`}
         onClick={onCloseMobile}

@@ -48,23 +48,50 @@ export async function POST(req: NextRequest) {
 export async function PUT(req: NextRequest) {
   try {
     const body = await req.json();
-    const { id, name, accountNumber, type, balance, color, isActive } = body;
+    const { id, name, accountNumber, type, balance, color, isActive, balanceNote } = body;
 
     if (!id) {
       return NextResponse.json({ success: false, error: "ID akun wajib ada" }, { status: 400 });
     }
 
-    const updated = await prisma.account.update({
-      where: { id },
-      data: {
-        name: name !== undefined ? name : undefined,
-        accountNumber: accountNumber !== undefined ? accountNumber : undefined,
-        type: type !== undefined ? type : undefined,
-        balance: balance !== undefined ? Number(balance) : undefined,
-        color: color !== undefined ? color : undefined,
-        isActive: isActive !== undefined ? Boolean(isActive) : undefined,
-      },
-    });
+    const existing = await prisma.account.findUnique({ where: { id } });
+    if (!existing) {
+      return NextResponse.json({ success: false, error: "Akun tidak ditemukan" }, { status: 404 });
+    }
+
+    const newBalance = balance !== undefined ? Number(balance) : existing.balance;
+    const delta = newBalance - existing.balance;
+
+    const ops: any[] = [
+      prisma.account.update({
+        where: { id },
+        data: {
+          name: name !== undefined ? name : undefined,
+          accountNumber: accountNumber !== undefined ? accountNumber : undefined,
+          type: type !== undefined ? type : undefined,
+          balance: balance !== undefined ? Number(balance) : undefined,
+          color: color !== undefined ? color : undefined,
+          isActive: isActive !== undefined ? Boolean(isActive) : undefined,
+        },
+      }),
+    ];
+
+    // Koreksi saldo laci kasir harus tercatat sebagai mutasi kas,
+    // supaya target uang fisik saat opname ikut berubah (tidak selisih terus).
+    if (existing.type === "CASH_DRAWER" && delta !== 0) {
+      ops.push(
+        prisma.cashMutation.create({
+          data: {
+            type: delta > 0 ? "IN" : "OUT",
+            category: "Penyesuaian Saldo",
+            amount: Math.abs(delta),
+            notes: balanceNote || `Koreksi saldo laci (delta ${delta > 0 ? "+" : "-"}${Math.abs(delta).toLocaleString("id-ID")})`,
+          },
+        })
+      );
+    }
+
+    const [updated] = await prisma.$transaction(ops);
 
     return NextResponse.json({ success: true, data: updated });
   } catch (error: any) {

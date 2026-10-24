@@ -89,6 +89,17 @@ export default function TagihanSection() {
   const [kirimTagihan, setKirimTagihan] = useState("");
   const [kirimAdmin, setKirimAdmin] = useState("");
 
+  // role user & modal pelunasan khusus owner (atur waktu bayar)
+  const [role, setRole] = useState<string>("");
+  const [lunasBill, setLunasBill] = useState<BillRow | null>(null);
+  const [lunasAt, setLunasAt] = useState("");
+
+  const localNow = () => {
+    const n = new Date();
+    const pad = (v: number) => String(v).padStart(2, "0");
+    return `${n.getFullYear()}-${pad(n.getMonth() + 1)}-${pad(n.getDate())}T${pad(n.getHours())}:${pad(n.getMinutes())}`;
+  };
+
   const loadBills = useCallback(async () => {
     try {
       const params = new URLSearchParams({ bulan });
@@ -109,6 +120,15 @@ export default function TagihanSection() {
       setLoading(false);
     }
   }, [bulan, fJenis, fStatus, q]);
+
+  useEffect(() => {
+    fetch("/api/auth/me")
+      .then((r) => r.json())
+      .then((j) => {
+        if (j.success) setRole(j.data.role);
+      })
+      .catch(() => {});
+  }, []);
 
   const loadCustomers = useCallback(async () => {
     try {
@@ -254,12 +274,24 @@ export default function TagihanSection() {
     }
   };
 
-  const handleLunas = async (b: BillRow) => {
+  const handleLunas = async (b: BillRow, paidAt?: string) => {
     const ok = await patchBill(b.id, {
       status: "LUNAS",
-      customerPaidAt: new Date().toISOString(),
+      customerPaidAt: paidAt || new Date().toISOString(),
     });
-    if (ok) toast.success(`${b.customer.name} Lunas — kas +${formatRupiah(b.total || 0)}`);
+    if (ok) {
+      toast.success(`${b.customer.name} Lunas — kas +${formatRupiah(b.total || 0)}`);
+      setLunasBill(null);
+    }
+  };
+
+  const requestLunas = (b: BillRow) => {
+    if (role === "OWNER") {
+      setLunasBill(b);
+      setLunasAt(localNow());
+    } else {
+      handleLunas(b);
+    }
   };
 
   const handleDelete = async (b: BillRow) => {
@@ -479,7 +511,7 @@ export default function TagihanSection() {
                       {b.status === "TALANGAN" && (
                         <button
                           title="Tandai pelanggan bayar (Lunas)"
-                          onClick={() => handleLunas(b)}
+                          onClick={() => requestLunas(b)}
                           className="p-1.5 text-emerald-400 hover:bg-emerald-900/20 border border-emerald-700/40 rounded-none transition-colors"
                         >
                           <CheckCircle2 className="w-3.5 h-3.5" />
@@ -649,6 +681,43 @@ export default function TagihanSection() {
             </Button>
           </div>
         </div>
+      </Modal>
+
+      {/* Modal Pelunasan khusus owner: atur waktu pelanggan bayar */}
+      <Modal isOpen={!!lunasBill} onClose={() => setLunasBill(null)} title="Tandai Lunas">
+        {lunasBill && (
+          <div className="space-y-4 text-xs">
+            <div className="bg-[#080810] border border-slate-800 p-3 space-y-1">
+              <p className="font-semibold text-white">
+                {lunasBill.jenis} — {lunasBill.customer.name}
+              </p>
+              <p className="font-mono text-[11px] text-slate-500">{lunasBill.noPelanggan}</p>
+            </div>
+            <Input
+              label="Waktu Pelunasan"
+              type="datetime-local"
+              value={lunasAt}
+              onValueChange={setLunasAt}
+              required
+            />
+            <p className="text-[10px] text-slate-500 leading-relaxed">
+              Default waktu sekarang — ubah jika pelanggan membayar di tanggal/waktu lain.
+              Kas masuk &amp; profit admin dicatat pada waktu tersebut.
+            </p>
+            <div className="flex justify-end gap-3">
+              <Button variant="ghost" size="sm" onClick={() => setLunasBill(null)}>
+                Batal
+              </Button>
+              <Button
+                variant="solid"
+                size="sm"
+                onClick={() => handleLunas(lunasBill, new Date(lunasAt).toISOString())}
+              >
+                Simpan Lunas
+              </Button>
+            </div>
+          </div>
+        )}
       </Modal>
 
       {/* Modal Kirim Talangan dari BELUM */}

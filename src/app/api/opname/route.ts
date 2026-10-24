@@ -38,6 +38,9 @@ export async function GET() {
     let totalAdminBank = 0;
 
     activeShift.transactions.forEach((tx) => {
+      // Struk HUTANG belum menerima uang fisik — jangan ikut target kas,
+      // baru terhitung otomatis setelah pelunasan (status jadi SUCCESS).
+      if (tx.status !== "SUCCESS") return;
       totalFeeToko += tx.storeFee;
       totalAdminBank += tx.adminBank;
 
@@ -148,6 +151,7 @@ export async function POST(req: NextRequest) {
     let totalCashIn = 0;
     let totalCashOut = 0;
     shift.transactions.forEach((tx) => {
+      if (tx.status !== "SUCCESS") return;
       const { cashDrawerDelta } = calculateTransactionImpact(
         tx.category,
         tx.amount,

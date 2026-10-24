@@ -55,11 +55,58 @@ export default function QuickTransactionModal({
   const [adminBank, setAdminBank] = useState("2500");
   const [storeFee, setStoreFee] = useState("10000");
   const [paymentMethod, setPaymentMethod] = useState("CASH");
+  const [paymentStatus, setPaymentStatus] = useState("PAID");
+  const [tanggal, setTanggal] = useState("");
   const [customerName, setCustomerName] = useState("");
   const [customerRef, setCustomerRef] = useState("");
+  const [totalCollected, setTotalCollected] = useState(""); // total yg ditagih ke pelanggan
   const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [customerNames, setCustomerNames] = useState<string[]>([]);
+  const [nameTouched, setNameTouched] = useState(false);
+
+  // Waktu lokal format "YYYY-MM-DDTHH:mm" untuk <input type="datetime-local">
+  const nowLocalInput = () => {
+    const d = new Date();
+    return new Date(d.getTime() - d.getTimezoneOffset() * 60 * 1000)
+      .toISOString()
+      .slice(0, 16);
+  };
+
+  // Setiap kali modal dibuka, tanggal default = sekarang
+  useEffect(() => {
+    if (isOpen) setTanggal(nowLocalInput());
+  }, [isOpen]);
+
+  const numAmount = parseFloat(amount) || 0;
+  const numAdmin = parseFloat(adminBank) || 0;
+  const numFee = parseFloat(storeFee) || 0;
+  const profit = numFee - numAdmin;
+
+  // ===== FEE OTOMATIS: isi "Total Diterima dari Pelanggan" → Fee Toko =
+  // total − nominal transaksi − admin bank. Nikah sekalian saat
+  // nominal/admin ikut diubah, jadi tidak perlu pakai kalkulator manual.
+  useEffect(() => {
+    const target = parseFloat(totalCollected) || 0;
+    if (target > 0 && numAmount > 0) {
+      const fee = Math.max(0, Math.round(target - numAmount - numAdmin));
+      setStoreFee(String(fee));
+    }
+  }, [totalCollected, numAmount, numAdmin]);
+
+  // Daftar kontak utk autocomplete — sekalian acuan "sudah terdaftar / belum"
+  useEffect(() => {
+    if (!isOpen) return;
+    fetch("/api/customers")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && Array.isArray(data.data)) {
+          setCustomerNames(data.data.map((c: { name: string }) => c.name));
+        }
+      })
+      .catch(console.error);
+  }, [isOpen]);
 
   useEffect(() => {
     if (category === "SETOR_TUNAI") {
@@ -102,15 +149,14 @@ export default function QuickTransactionModal({
 
   if (!isOpen) return null;
 
-  const numAmount = parseFloat(amount) || 0;
-  const numAdmin = parseFloat(adminBank) || 0;
-  const numFee = parseFloat(storeFee) || 0;
-  const profit = numFee - numAdmin;
-
   const handleSubmit = async () => {
     setError(null);
     if (!accountId || numAmount <= 0) {
       setError("Silakan pilih akun provider dan isi nominal transaksi");
+      return;
+    }
+    if (paymentStatus === "HUTANG" && !customerName.trim()) {
+      setError("Hutang harus punya nama nasabah — siapa yang berhutang?");
       return;
     }
 
@@ -126,6 +172,8 @@ export default function QuickTransactionModal({
           adminBank: numAdmin,
           storeFee: numFee,
           paymentMethod,
+          paymentStatus,
+          tanggal,
           customerName,
           customerRef,
           notes,
@@ -142,7 +190,26 @@ export default function QuickTransactionModal({
       setAmount("");
       setCustomerName("");
       setCustomerRef("");
+      setTotalCollected("");
+      setPaymentStatus("PAID");
+      setTanggal(nowLocalInput());
       setNotes("");
+      setNameTouched(false);
+      // Kontak baru → daftarkan otomatis agar riwayat & profit terkumpul
+      // di halaman Kontak Pelanggan (409 "sudah ada" diabaikan saja).
+      const cleanName = customerName.trim();
+      if (cleanName && !customerNames.includes(cleanName)) {
+        fetch("/api/customers", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name: cleanName }),
+        })
+          .then((r) => r.json())
+          .then((j) => {
+            if (j.success) setCustomerNames((prev) => [...prev, cleanName]);
+          })
+          .catch(() => {});
+      }
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -214,6 +281,13 @@ export default function QuickTransactionModal({
               accounting
             />
           </div>
+          <Input
+            label="Total Diterima dari Pelanggan (Fee Otomatis)"
+            value={totalCollected}
+            onValueChange={setTotalCollected}
+            placeholder="Misal: 1050000 → fee dihitung sendiri"
+            accounting
+          />
           <div className="flex items-center justify-between pt-2 border-t border-slate-700/30 text-[10px]">
             <span className="text-slate-500">Estimasi Laba Bersih:</span>
             <span className="font-bold font-mono text-emerald-400">
@@ -229,13 +303,84 @@ export default function QuickTransactionModal({
             onValueChange={setPaymentMethod}
             options={PAYMENT_METHODS}
           />
-          <Input
-            label="Nama Nasabah (Opsional)"
-            value={customerName}
-            onValueChange={setCustomerName}
-            type="text"
-            placeholder="Pak Herman"
+          <Select
+            label="Status Pembayaran"
+            value={paymentStatus}
+            onValueChange={setPaymentStatus}
+            options={[
+              { value: "PAID", label: "Lunas Sekarang" },
+              { value: "HUTANG", label: "Hutang — Bayar Nanti" },
+            ]}
           />
+          {paymentStatus === "HUTANG" && (
+            <div className="sm:col-span-2 p-3 border border-amber-700/40 bg-amber-900/10 text-[10px] text-amber-500/90 leading-relaxed">
+              Struk dicatat sebagai <strong>HUTANG</strong>: saldo provider tetap
+              terpotong, kas belum dihitung, profit belum diakui. Piutang
+              tercatat di halaman Hutang/Piutang atas nama pelanggan — begitu
+              dilunasi di sana, struk otomatis jadi lunas &amp; profit mengalir.
+              {category === "TARIK_TUNAI" && (
+                <span className="block mt-1 text-rose-400">
+                  Tarik tunai tidak bisa hutang — uang keluar dari toko.
+                </span>
+              )}
+            </div>
+          )}
+          <Input
+            label="Tanggal Transaksi"
+            value={tanggal}
+            onValueChange={setTanggal}
+            type="datetime-local"
+            required
+          />
+          <div className="sm:col-span-2 relative">
+            <Input
+              label="Nama Nasabah"
+              value={customerName}
+              required={paymentStatus === "HUTANG"}
+              onValueChange={(v) => {
+                setNameTouched(true);
+                setCustomerName(v);
+              }}
+              type="text"
+              placeholder="Pak Herman"
+              autoComplete="off"
+            />
+            {/* Autocomplete kontak: pilih yang sudah ada, atau ketik baru
+                — nanti otomatis ditambahkan ke kontak saat disimpan */}
+            {nameTouched && customerName.trim() && (() => {
+              const q = customerName.trim().toLowerCase();
+              const sugg = customerNames
+                .filter((n) => n.toLowerCase().includes(q) && n !== customerName.trim())
+                .slice(0, 6);
+              const isNew = !customerNames.some((n) => n.toLowerCase() === q);
+              return (
+                <>
+                  {sugg.length > 0 && (
+                    <div className="absolute top-full left-0 right-0 z-50 mt-0.5 bg-white dark:bg-[#0c1220] border border-slate-400/60 shadow-lg max-h-48 overflow-y-auto">
+                      {sugg.map((n) => (
+                        <div
+                          key={n}
+                          onMouseDown={(e) => {
+                            e.preventDefault();
+                            setNameTouched(false);
+                            setCustomerName(n);
+                          }}
+                          className="px-3 py-2 text-xs font-mono cursor-pointer hover:bg-amber-50 dark:hover:bg-amber-900/20 text-slate-700 dark:text-slate-300"
+                        >
+                          {n}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {isNew && (
+                    <p className="mt-1 text-[10px] italic text-amber-500/80">
+                      Kontak baru — nanti otomatis ditambahkan saat disimpan
+                    </p>
+                  )}
+                </>
+              );
+            })()}
+          </div>
         </div>
 
         <Input

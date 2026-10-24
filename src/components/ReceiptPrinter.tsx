@@ -21,7 +21,7 @@ export default function ReceiptModal({ transaction, onClose }: ReceiptProps) {
       : transaction.amount + transaction.storeFee;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-xl animate-in fade-in">
       <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6 w-full max-w-sm text-slate-100 shadow-2xl space-y-4">
         <div className="flex justify-between items-center pb-2 border-b border-slate-800">
           <span className="text-sm font-bold text-slate-300">Struk Transaksi Mini-ATM</span>

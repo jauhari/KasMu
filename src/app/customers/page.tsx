@@ -18,6 +18,7 @@ interface Aggregate {
     belum: number;
     nilai: number;
     admin: number;
+    adminTalangan: number;
     outstanding: number;
   };
   transaksi: { count: number; total: number; untung: number };
@@ -101,8 +102,15 @@ export default function CustomersPage() {
     (c) => !q.trim() || c.name.toLowerCase().includes(q.trim().toLowerCase())
   );
 
-  const totalUntung = filtered.reduce(
+  // Total untung yang SUDAH CAIR (konsisten dengan dashboard):
+  // admin dari tagihan lunas + untung struk kasir.
+  const totalUntungCair = filtered.reduce(
     (s, c) => s + c.tagihan.admin + c.transaksi.untung,
+    0
+  );
+  // Potensi untung talangan yang pelanggan belum bayar — ditampilkan terpisah.
+  const totalPotensiTalangan = filtered.reduce(
+    (s, c) => s + (c.tagihan.adminTalangan || 0),
     0
   );
 
@@ -119,9 +127,14 @@ export default function CustomersPage() {
         </div>
         <div className="bg-[#0d0d11] border border-slate-700 rounded-none p-3 text-xs">
           <span className="text-slate-500 text-[10px] uppercase tracking-wider">
-            Total Untung Semua Kontak
+            Total Untung Sudah Cair
           </span>
-          <p className="font-mono font-bold text-emerald-400 text-base">{formatRupiah(totalUntung)}</p>
+          <p className="font-mono font-bold text-emerald-400 text-base">{formatRupiah(totalUntungCair)}</p>
+          {totalPotensiTalangan > 0 && (
+            <p className="text-[10px] text-amber-400 mt-1">
+              + {formatRupiah(totalPotensiTalangan)} potensi talangan (belum dibayar)
+            </p>
+          )}
         </div>
       </div>
 
@@ -194,6 +207,11 @@ export default function CustomersPage() {
                   </td>
                   <td className="px-3 py-2.5 text-right font-mono text-emerald-400 font-bold">
                     {formatRupiah(c.tagihan.admin)}
+                    {(c.tagihan.adminTalangan || 0) > 0 && (
+                      <span className="text-[9px] text-amber-400 block leading-tight font-normal">
+                        talangan +{formatRupiah(c.tagihan.adminTalangan)}
+                      </span>
+                    )}
                   </td>
                   <td className="px-3 py-2.5 text-right font-mono text-amber-400">
                     {c.tagihan.outstanding > 0 ? formatRupiah(c.tagihan.outstanding) : "-"}
@@ -216,7 +234,7 @@ export default function CustomersPage() {
 
       {/* Modal Detail Kontak */}
       {detail && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-xl">
           <div
             className="absolute inset-0"
             onClick={() => setDetail(null)}
@@ -243,10 +261,15 @@ export default function CustomersPage() {
                 <p className="font-mono font-bold text-white text-sm">{formatRupiah(detail.tagihan.nilai)}</p>
               </div>
               <div className="bg-[#080810] border border-slate-800 p-3">
-                <p className="text-[9px] uppercase tracking-wider text-slate-500">Untung Total</p>
+                <p className="text-[9px] uppercase tracking-wider text-slate-500">Untung Sudah Cair</p>
                 <p className="font-mono font-bold text-emerald-400 text-sm">
                   {formatRupiah(detail.tagihan.admin + detail.transaksi.untung)}
                 </p>
+                {(detail.tagihan.adminTalangan || 0) > 0 && (
+                  <p className="text-[9px] text-amber-400 mt-0.5">
+                    + {formatRupiah(detail.tagihan.adminTalangan)} potensi talangan
+                  </p>
+                )}
               </div>
               <div className="bg-[#080810] border border-slate-800 p-3">
                 <p className="text-[9px] uppercase tracking-wider text-slate-500">Talangan Hutang</p>

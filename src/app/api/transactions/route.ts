@@ -51,6 +51,8 @@ export async function POST(req: NextRequest) {
       customerName,
       customerRef,
       notes,
+      paymentStatus, // PAID default | HUTANG (layanan jalan, pelanggan bayar nanti)
+      tanggal, // ISO/WIB opsional — waktu riil transaksi (default: sekarang)
       userId,
     } = body;
 
@@ -59,6 +61,39 @@ export async function POST(req: NextRequest) {
         { success: false, error: "Akun, Kategori, dan Nominal transaksi wajib diisi" },
         { status: 400 }
       );
+    }
+
+    const isHutang = paymentStatus === "HUTANG";
+    if (isHutang && !String(customerName || "").trim()) {
+      return NextResponse.json(
+        { success: false, error: "Nama nasabah wajib diisi untuk transaksi hutang" },
+        { status: 400 }
+      );
+    }
+    if (isHutang && category === "TARIK_TUNAI") {
+      return NextResponse.json(
+        { success: false, error: "Tarik tunai tidak bisa dilakukan hutang — uang keluar dari toko" },
+        { status: 400 }
+      );
+    }
+
+    // Tanggal riil transaksi (backdate didukung; masa depan ditolak)
+    let tanggalParsed: Date | undefined;
+    if (tanggal) {
+      const d = new Date(String(tanggal));
+      if (Number.isNaN(d.getTime())) {
+        return NextResponse.json(
+          { success: false, error: "Tanggal transaksi tidak valid" },
+          { status: 400 }
+        );
+      }
+      if (d.getTime() > Date.now() + 5 * 60 * 1000) {
+        return NextResponse.json(
+          { success: false, error: "Tanggal transaksi tidak bisa di masa depan" },
+          { status: 400 }
+        );
+      }
+      tanggalParsed = d;
     }
 
     const account = await prisma.account.findUnique({
@@ -107,11 +142,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: "User kasir tidak valid" }, { status: 400 });
     }
 
+    // Saat HUTANG: profit di-X (belum cair) — diakui saat pelanggan melunasi.
+    const txNumber = generateTxNumber();
+    const txStatus = isHutang ? "HUTANG" : "SUCCESS";
+    const netProfitStored = isHutang ? 0 : netProfit;
+
     // Jalankan dalam transaksi atomik Prisma
     const [tx, updatedAccount] = await prisma.$transaction([
       prisma.transaction.create({
         data: {
-          txNumber: generateTxNumber(),
+          txNumber,
           userId: user.id,
           shiftId: activeShift ? activeShift.id : null,
           accountId,
@@ -119,9 +159,10 @@ export async function POST(req: NextRequest) {
           amount: Number(amount),
           adminBank: Number(adminBank),
           storeFee: Number(storeFee),
-          netProfit,
+          netProfit: netProfitStored,
           paymentMethod,
-          status: "SUCCESS",
+          status: txStatus,
+          createdAt: tanggalParsed,
           customerName: customerName || null,
           customerRef: customerRef || null,
           notes: notes || null,
@@ -137,6 +178,21 @@ export async function POST(req: NextRequest) {
           balance: { increment: accountDelta },
         },
       }),
+      ...(isHutang
+        ? [
+            prisma.debtLoan.create({
+              data: {
+                type: "PIUTANG",
+                partyName: String(customerName).trim(),
+                // Yang ditunggak pelanggan = total yang harus ia bayarkan
+                amount: Number(amount) + Number(storeFee),
+                remaining: Number(amount) + Number(storeFee),
+                notes: `Kasir TX:${txNumber}`,
+                status: "UNPAID",
+              },
+            }),
+          ]
+        : []),
     ]);
 
     return NextResponse.json({

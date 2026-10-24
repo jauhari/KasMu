@@ -54,8 +54,11 @@ export async function GET() {
       const talangan = bills.filter((b) => b.status === "TALANGAN");
       const belum = bills.filter((b) => b.status === "BELUM");
 
-      // Untung tagihan: admin dari semua tagihan yang sudah diberangkatkan (lunas + talangan)
-      const adminTagihan = [...lunas, ...talangan].reduce((s, b) => s + (b.admin || 0), 0);
+      // Untung tagihan yang SUDAH CAIR (lunas) — konsisten dengan dashboard:
+      // profit diakui saat pelanggan bayar, bukan saat diberangkatkan.
+      const adminLunas = lunas.reduce((s, b) => s + (b.admin || 0), 0);
+      // Potensi untung dari tagihan talangan yang pelanggan belum bayar.
+      const adminTalangan = talangan.reduce((s, b) => s + (b.admin || 0), 0);
 
       const txsThis = nameToTx.get(c.name) || [];
       const txTotal = txsThis.reduce((s, t) => s + t.amount, 0);
@@ -71,7 +74,8 @@ export async function GET() {
           talangan: talangan.length,
           belum: belum.length,
           nilai: lunas.reduce((s, b) => s + (b.total || 0), 0),
-          admin: adminTagihan,
+          admin: adminLunas,
+          adminTalangan: adminTalangan,
           outstanding: talangan.reduce((s, b) => s + (b.total || 0), 0),
         },
         transaksi: {

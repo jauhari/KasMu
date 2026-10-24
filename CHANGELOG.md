@@ -1,5 +1,19 @@
 # KasMu - Changelog
 
+## [2.5.0] - 2026-10-24
+
+### Baru: Form Transaksi Makin Cerdas
+
+- **Fee Toko Otomatis**: isi "Total Diterima dari Pelanggan" (mis. 1.050.000) → Fee Toko terisi sendiri = total − nominal − admin bank; ikut menyesuaikan ulang saat nominal/admin diubah
+- **Hutang — Bayar Nanti**: dropdown baru "Status Pembayaran" di form; struk berstatus HUTANG (badge merah, filter "Hutang Pelanggan"), otomatis membuat piutang di Hutang/Piutang atas nama nasabah; pelunasan di sana → struk jadi SUCCESS & profit diakui
+- **Nama Nasabah otomatis**: autocomplete kontak dari database; kontak baru otomatis didaftarkan saat struk disimpan riwayat & profit pelanggan terkumpul di Kontak Pelanggan
+
+### Perbaikan
+
+- **Modal close sendiri**: klik di area kosong dalam kotak modal tidak lagi menutup modal (layer backdrop dihilangkan, close hanya dari ✕, Batal, klik luar panel, Esc)
+- **Titik ribuan konsisten**: angka di kolom nominal selalu berformat (1.000.000) termasuk saat mengetik; backspace di depan titik tidak lagi terasa mati
+- **Blur overlay maksimal** (`bg-black/85 backdrop-blur-xl`), header/nav mobile tak disentuh
+
 ## [2.4.0] - 2026-10-21
 
 ### Baru: Satu Buku — Import CSV Langsung Jadi Transaksi

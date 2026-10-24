@@ -53,19 +53,65 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json({ success: false, error: "Data tidak ditemukan" }, { status: 404 });
     }
 
-    const newRemaining = Math.max(0, record.remaining - Number(paymentAmount));
+    const pay = Number(paymentAmount) || 0;
+    if (pay <= 0 || pay > record.remaining) {
+      return NextResponse.json(
+        { success: false, error: `Nominal bayar tidak valid (sisa: Rp ${record.remaining.toLocaleString("id-ID")})` },
+        { status: 400 }
+      );
+    }
+
+    const newRemaining = Math.max(0, record.remaining - pay);
     const newStatus = newRemaining === 0 ? "PAID" : "PARTIAL";
 
-    const updated = await prisma.debtLoan.update({
-      where: { id },
-      data: {
-        remaining: newRemaining,
-        status: newStatus,
-      },
+    // Pelunasan boleh terhubung ke struk kasir bertanda HUTANG
+    // (dibuat dari form Input Transaksi Kasir via notes "Kasir TX:...").
+    const linkedNumber = record.notes?.match(/TX:([A-Za-z0-9-]+)/)?.[1];
+    const linkedTx = linkedNumber
+      ? await prisma.transaction.findUnique({ where: { txNumber: linkedNumber } })
+      : null;
+
+    const updated = await prisma.$transaction(async (prismaTx) => {
+      // Untuk struk kasir CASH: kas target baru terbentuk saat status
+      // transaksi jadi SUCCESS — jangan catat CashMutation biar tak dobel.
+      // Untuk piutang biasa (atau struk TRANSFER/QRIS): uang masuk fisik
+      // dicatat sebagai mutasi kas agar opname tetap konsisten.
+      const isCashKasirHutang = !!linkedTx && linkedTx.paymentMethod === "CASH";
+      if (!isCashKasirHutang) {
+        await prismaTx.cashMutation.create({
+          data: {
+            type: "IN",
+            category: "Pelunasan Piutang",
+            amount: pay,
+            notes: `${record.partyName} — pelunasan ${record.type}`,
+          },
+        });
+      }
+
+      if (newRemaining === 0 && linkedTx && linkedTx.status === "HUTANG") {
+        await prismaTx.transaction.update({
+          where: { id: linkedTx.id },
+          data: {
+            status: "SUCCESS",
+            netProfit: Number((linkedTx.storeFee - linkedTx.adminBank).toFixed(2)),
+          },
+        });
+      }
+
+      return prismaTx.debtLoan.update({
+        where: { id },
+        data: {
+          remaining: newRemaining,
+          status: newStatus,
+          // Simpan rangkuman pembayaran di catatan
+          notes: `${record.notes ? record.notes.split(" | bayar:")[0] : ""} | bayar:+${pay.toLocaleString("id-ID")}`.trim(),
+        },
+      });
     });
 
     return NextResponse.json({ success: true, data: updated });
   } catch (error: any) {
+    console.error("Pay debt-loan error:", error);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
