@@ -7,7 +7,7 @@ import QuickTransactionModal from "@/components/QuickTransactionModal";
 import ReceiptModal from "@/components/ReceiptPrinter";
 import TagihanSection from "@/components/TagihanSection";
 import { formatRupiah } from "@/lib/utils";
-import { Search, Filter, Printer, CircleCheck, ArrowUpDown } from "lucide-react";
+import { Search, Filter, Printer, CircleCheck, ArrowUpDown, RefreshCw } from "lucide-react";
 import { Input, Select, DateTimePicker } from "@/components/ui";
 import { toast } from "sonner";
 
@@ -165,9 +165,10 @@ function TransaksiInner() {
               />
               <button
                 onClick={() => loadTransactions()}
-                className="absolute right-2 top-2 text-slate-500 hover:text-white"
+                className="absolute right-2 top-2.5 text-slate-500 hover:text-amber-500 transition-colors"
+                title="Cari / muat ulang"
               >
-                🔍
+                <RefreshCw className="w-3.5 h-3.5" />
               </button>
             </div>
 

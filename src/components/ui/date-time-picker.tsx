@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { CalendarDays } from "lucide-react";
 
 interface DateTimePickerProps {
   label?: string;
@@ -117,8 +118,8 @@ export function DateTimePicker({
         <div className="km-input-inner w-full bg-transparent text-sm cursor-pointer font-mono text-slate-900 dark:text-slate-100 border-b border-slate-400/30 focus:border-amber-600 dark:focus:border-amber-500 outline-none transition-colors pr-8">
           {display}
         </div>
-        <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-400 pointer-events-none">
-          {open ? "▲" : "📅"}
+        <span className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
+          {open ? "▲" : <CalendarDays className="w-3.5 h-3.5" />}
         </span>
       </div>
 

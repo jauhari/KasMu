@@ -33,7 +33,14 @@ import {
 import { useTheme } from "@/components/ThemeProvider";
 import Link from "next/link";
 
-const PIE_COLORS = ["#2563eb", "#0ea5e9", "#059669", "#d97706", "#7c3aed", "#e11d48"];
+// Palet grafik selaras desain terminal-amber (aksen utama = amber)
+const PIE_COLORS = ["#f59e0b", "#0ea5e9", "#10b981", "#8b5cf6", "#f43f5e", "#38bdf8"];
+// Warna default lama dari data awal — dianggap "belum ditata" dan diganti palet tema
+const LEGACY_DEFAULT_COLOR = "#2563eb";
+const colorFor = (acc: { color?: string | null }, index: number) =>
+  acc.color && acc.color !== LEGACY_DEFAULT_COLOR
+    ? acc.color
+    : PIE_COLORS[index % PIE_COLORS.length];
 
 interface DashboardClientProps {
   initialData?: any;
@@ -401,7 +408,7 @@ export default function DashboardClient({ initialData, currentUser }: DashboardC
                       {pieAccounts.map((acc: any, index: number) => (
                         <Cell
                           key={`cell-${index}`}
-                          fill={acc.color || PIE_COLORS[index % PIE_COLORS.length]}
+                          fill={colorFor(acc, index)}
                         />
                       ))}
                     </Pie>
@@ -430,7 +437,7 @@ export default function DashboardClient({ initialData, currentUser }: DashboardC
                 <div key={acc.id} className="flex items-center gap-1.5 text-xs truncate">
                   <span
                     className="w-2.5 h-2.5 rounded-full shrink-0"
-                    style={{ backgroundColor: acc.color || PIE_COLORS[index % PIE_COLORS.length] }}
+                    style={{ backgroundColor: colorFor(acc, index) }}
                   ></span>
                   <span className="text-slate-400 truncate text-[11px]">{acc.name}</span>
                   <span className="text-slate-600 font-mono text-[10px] ml-auto shrink-0">
@@ -509,9 +516,9 @@ export default function DashboardClient({ initialData, currentUser }: DashboardC
                   <Line
                     type="monotone"
                     dataKey="profit"
-                    stroke="#2563eb"
+                    stroke="#f59e0b"
                     strokeWidth={2}
-                    dot={{ fill: "#2563eb", r: 3 }}
+                    dot={{ fill: "#f59e0b", r: 3 }}
                     activeDot={{ r: 5 }}
                   />
                 </LineChart>
