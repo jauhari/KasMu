@@ -248,7 +248,7 @@ export default function QuickTransactionModal({
             onValueChange={setAccountId}
             options={accounts.map((acc) => ({
               value: acc.id,
-              label: `${acc.name} — Saldo: ${formatRupiah(acc.balance)}`,
+              label: `${acc.name} · ${formatRupiah(acc.balance)}`,
             }))}
             placeholder="Pilih provider..."
             required
