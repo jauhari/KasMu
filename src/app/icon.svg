@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="96" fill="#0b0b0f"/>
+  <rect x="3" y="3" width="506" height="506" rx="93" fill="none" stroke="#23232a" stroke-width="6"/>
+  <text x="234" y="336" text-anchor="middle"
+        font-family="JetBrains Mono, Consolas, 'Courier New', monospace"
+        font-weight="700" font-size="216" fill="#ffffff" letter-spacing="-12">KM</text>
+  <rect x="384" y="216" width="34" height="120" fill="#f59e0b"/>
+</svg>

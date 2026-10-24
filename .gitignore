@@ -1,0 +1,21 @@
+# Dependencies & build
+node_modules
+.next
+tsconfig.tsbuildinfo
+
+# Logs & OS
+*.log
+.DS_Store
+
+# Database (data nyata — JANGAN commit)
+*.db
+*.db-journal
+
+# Data pelanggan sensitif (CSV import)
+prisma/*.csv
+
+# Dokumen internal deploy (IP server, PIN, saldo asli)
+HANDOFF.md
+
+# Misc
+graphify-out/

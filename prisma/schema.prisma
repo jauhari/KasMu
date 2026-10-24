@@ -1,0 +1,159 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./kasmu.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id           String        @id @default(cuid())
+  username     String        @unique
+  name         String
+  pin          String        // 6 digit PIN untuk login kasir
+  role         String        @default("STAFF") // OWNER | STAFF
+  isActive     Boolean       @default(true)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  shifts       Shift[]
+  transactions Transaction[]
+}
+
+model Account {
+  id            String         @id @default(cuid())
+  name          String         // e.g. "BRImo Kasir", "BNI Agen46", "Livin Mandiri", "DANA Bisnis"
+  accountNumber String?
+  type          String         // BANK | EWALLET | CASH_DRAWER
+  balance       Float          @default(0)
+  color         String?        @default("#2563eb")
+  isActive      Boolean        @default(true)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  transactions  Transaction[]
+  cashMutations CashMutation[]
+  bills         Bill[]
+}
+
+model Shift {
+  id               String         @id @default(cuid())
+  userId           String
+  user             User           @relation(fields: [userId], references: [id])
+  startTime        DateTime       @default(now())
+  endTime          DateTime?
+  initialCash      Float          @default(0) // Modal kas tunai awal buka shift
+  finalCashTarget  Float?         // Target uang fisik dihitung sistem saat tutup shift
+  finalCashCounted Float?         // Uang fisik riil hasil hitung pecahan lembar
+  discrepancy      Float?         // finalCashCounted - finalCashTarget (+ Lebih / - Kurang / 0 Cocok)
+  status           String         @default("OPEN") // OPEN | CLOSED
+  notes            String?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  transactions     Transaction[]
+  opnameDetails    OpnameDetail[]
+}
+
+model OpnameDetail {
+  id           String   @id @default(cuid())
+  shiftId      String
+  shift        Shift    @relation(fields: [shiftId], references: [id], onDelete: Cascade)
+  denomination Int      // 100000, 50000, 20000, 10000, 5000, 2000, 1000, 500
+  sheetCount   Int      @default(0)
+  totalAmount  Float    @default(0) // denomination * sheetCount
+  createdAt    DateTime @default(now())
+}
+
+model Transaction {
+  id            String   @id @default(cuid())
+  txNumber      String   @unique // e.g. TX-20261021-001
+  userId        String
+  user          User     @relation(fields: [userId], references: [id])
+  shiftId       String?
+  shift         Shift?   @relation(fields: [shiftId], references: [id])
+  accountId     String
+  account       Account  @relation(fields: [accountId], references: [id])
+  category      String   // TARIK_TUNAI | SETOR_TUNAI | TRANSFER_BANK | TOPUP_EWALLET | TOKEN_PLN | PULSA_DATA | TAGIHAN_BPJS | TAGIHAN_PDAM | TAGIHAN_PLN | LAINNYA
+  amount        Float    // Nilai transaksi
+  adminBank     Float    @default(0) // Biaya admin bank/provider
+  storeFee      Float    @default(0) // Fee toko/jasa agen
+  netProfit     Float    @default(0) // storeFee - adminBank
+  paymentMethod String   @default("CASH") // CASH | TRANSFER | QRIS
+  status        String   @default("SUCCESS") // SUCCESS | PENDING | FAILED
+  customerRef   String?  // No Rekening, ID Pelanggan, No HP
+  customerName  String?  // Nama pelanggan/nasabah
+  notes         String?
+  billId        String?  // Tagihan asal potongan (harga: 2 struk — kirim BRILink & pembayaran pelanggan)
+  bill          Bill?    @relation(fields: [billId], references: [id])
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model CashMutation {
+  id        String   @id @default(cuid())
+  type      String   // IN (Pemasukan lain) | OUT (Pengeluaran operasional)
+  category  String   // Makan Kasir, Kertas Struk, Pulsa Counter, Listrik, Sewa, Talangan, dll
+  amount    Float
+  accountId String?  // Jika keluar/masuk dari akun non-cash
+  account   Account? @relation(fields: [accountId], references: [id])
+  notes     String?
+  createdAt DateTime @default(now())
+}
+
+model DebtLoan {
+  id        String    @id @default(cuid())
+  type      String    // HUTANG (Agen hutang) | PIUTANG (Nasabah kasbon/talang)
+  partyName String    // Nama orang / nasabah / rekan
+  phone     String?
+  amount    Float
+  remaining Float
+  dueDate   DateTime?
+  status    String    @default("UNPAID") // UNPAID | PARTIAL | PAID
+  notes     String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Customer {
+  id        String           @id @default(cuid())
+  name      String           @unique
+  phone     String?
+  notes     String?
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+  numbers   CustomerNumber[]
+  bills     Bill[]
+}
+
+model CustomerNumber {
+  id          String   @id @default(cuid())
+  customerId  String
+  customer    Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  jenis       String   // PLN | PDAM | BPJS TK | BPJS Kes
+  noPelanggan String   @unique
+  createdAt   DateTime @default(now())
+}
+
+model Bill {
+  id              String    @id @default(cuid())
+  bulan           String    // Periode "2026-10"
+  jenis           String    // PLN | PDAM | BPJS TK | BPJS Kes
+  customerId      String
+  customer        Customer  @relation(fields: [customerId], references: [id])
+  noPelanggan     String
+  status          String    @default("BELUM") // BELUM | TALANGAN | LUNAS
+  tagihan         Int?      // Nilai tagihan (null saat BELUM)
+  admin           Int?      // Admin dibayar pelanggan (untung agen)
+  total           Int?      // tagihan + admin
+  accountId       String?   // Akun sumber pemotongan (BRILink) — null utk data historis
+  account         Account?  @relation(fields: [accountId], references: [id])
+  providerPaidAt  DateTime? // Waktu agen bayar ke provider (BRILink)
+  customerPaidAt  DateTime? // Waktu pelanggan melunasi
+  providerApplied Boolean   @default(false) // Saldo akun provider sudah dipotong utk tagihan ini
+  cashApplied     Boolean   @default(false) // Kas sudah masuk total & struk transaction dibuat
+  catatan         String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  transactions    Transaction[]
+
+  @@unique([bulan, jenis, noPelanggan])
+}

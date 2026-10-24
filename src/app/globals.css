@@ -1,0 +1,285 @@
+/* KasMu Production Release v2.0.0 - Anti-AI Slop Design System */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-primary: #050507;
+  --bg-secondary: #0d0d11;
+  --bg-tertiary: #15151a;
+  --border: #23232a;
+  --border-focus: #f59e0b;
+  --text-primary: #f5f5f5;
+  --text-secondary: #a1a1a1;
+  --text-muted: #717171;
+  --accent: #f59e0b;
+  --accent-hover: #d97706;
+  --success: #10b981;
+  --danger: #ef4444;
+  --warning: #f59e0b;
+  --info: #3b82f6;
+}
+
+.dark {
+  --bg-primary: #050507;
+  --bg-secondary: #0d0d11;
+  --bg-tertiary: #15151a;
+  --border: #23232a;
+  --text-primary: #f5f5f5;
+}
+
+body {
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", monospace;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.2);
+  border-radius: 0;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.4);
+}
+
+/* Custom UI Component Styles */
+.km-input-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.km-input-label {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.km-input-req {
+  color: var(--danger);
+}
+
+.km-input-field {
+  position: relative;
+}
+
+.km-input-inner {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: 0;
+  padding: 8px 10px;
+  transition: border-color 0.1s ease;
+}
+
+.km-input-inner:focus {
+  border-color: var(--border-focus);
+  box-shadow: none;
+}
+
+.km-input-focused .km-input-inner {
+  border-color: var(--border-focus);
+}
+
+.km-input-error .km-input-inner {
+  border-color: var(--danger);
+}
+
+.km-input-error-msg {
+  display: block;
+  margin-top: 2px;
+}
+
+.km-select-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.km-select-label {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.km-select-req {
+  color: var(--danger);
+}
+
+.km-select-field {
+  position: relative;
+}
+
+.km-select-trigger {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: 0;
+  transition: border-color 0.1s ease;
+}
+
+.km-select-trigger:focus {
+  border-color: var(--border-focus);
+  box-shadow: none;
+}
+
+.km-select-open .km-select-trigger {
+  border-color: var(--border-focus);
+}
+
+.km-select-error .km-select-trigger {
+  border-color: var(--danger);
+}
+
+.km-select-list {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 0;
+}
+
+.km-select-option {
+  background: transparent;
+}
+
+.km-select-option:hover {
+  background: var(--bg-tertiary);
+}
+
+.km-select-error-msg {
+  display: block;
+  margin-top: 2px;
+}
+
+.km-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.km-label {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+
+.km-badge {
+  border-radius: 0;
+}
+
+.km-separator {
+  border: none;
+  background: var(--border);
+  height: 1px;
+}
+
+.km-modal-panel {
+  border-radius: 1px;
+}
+
+/* Utility: hide native spinner on number inputs where used as fallback */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.animate-fade-in {
+  animation: fadeIn 0.15s ease-out forwards;
+}
+
+/* ===== TEMA TERANG (html.light) =====
+   Semua rule di bawah hanya berlaku saat <html class="light"> — mode gelap tak tersentuh.
+   Meremap warna hardcode arbitrer secara tematik. */
+
+html.light {
+  --bg-primary: #f1f2f4;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #fafafa;
+  --border: #d4d4d8;
+  --text-primary: #18181b;
+  --text-secondary: #52525b;
+  --text-muted: #71717a;
+}
+
+html.light body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+/* --- Permukaan panel yang di-hardcode --- */
+html.light [class*="bg-[#050507]"] { background-color: #f1f2f4; }
+html.light [class*="bg-[#0a0a0a]"] { background-color: #ffffff; }
+html.light [class*="bg-[#080810]"] { background-color: #ffffff; }
+html.light [class*="bg-[#0d0d11]"] { background-color: #ffffff; }
+html.light [class*="bg-[#15151a]"] { background-color: #f6f6f7; }
+html.light [class*="bg-[#0c1220]"] { background-color: #eef2ff; }
+html.light [class*="hover:bg-[#15151a]"]:hover { background-color: #ececee; }
+
+/* --- Tombol kecil abu-abu --- */
+html.light [class*="bg-slate-800"] { background-color: #e4e4e7; }
+html.light [class*="hover:bg-slate-800"]:hover { background-color: #d6d6da; }
+html.light [class*="bg-slate-700"] { background-color: #d4d4d8; }
+html.light [class*="hover:bg-slate-700"]:hover { background-color: #c8c8ce; }
+
+/* Baris tabel hover (blob gelap tipis -> netral terang) */
+html.light [class*="hover:bg-slate-900/"]:hover { background-color: #f4f4f5; }
+
+/* --- Teks --- */
+html.light .text-white { color: var(--text-primary); }
+html.light .text-slate-200, html.light .text-slate-300 { color: #18181b; }
+html.light .text-slate-400 { color: #475569; }
+html.light .text-slate-500 { color: #52525b; }
+html.light .text-slate-600, html.light .text-slate-700 { color: #71717a; }
+
+/* Tombol berwarna: teksnya tetap putih di tema terang */
+html.light [class*="bg-amber-6"][class*="text-white"],
+html.light [class*="bg-emerald-6"][class*="text-white"],
+html.light [class*="bg-blue-6"][class*="text-white"],
+html.light [class*="bg-red-6"][class*="text-white"],
+html.light [class*="bg-sky-6"][class*="text-white"],
+html.light [class*="bg-slate-9"][class*="text-white"],
+html.light [class*="active:bg-amber-6"][class*="text-white"] { color: #ffffff; }
+
+/* Aksen: versi gelap harian diangkat ke versi yang terbaca di putih */
+html.light .text-amber-400, html.light .text-amber-500 { color: #b45309; }
+html.light .text-emerald-400, html.light .text-emerald-500 { color: #047857; }
+html.light .text-blue-400, html.light .text-blue-500 { color: #1d4ed8; }
+html.light .text-sky-400 { color: #0369a1; }
+
+/* Tint latar status (tadinya /20 di atas latar gelap) */
+html.light [class*="bg-emerald-900"] { background-color: #d1fae5; }
+html.light [class*="bg-amber-900"] { background-color: #fef3c7; }
+html.light [class*="bg-blue-900"] { background-color: #dbeafe; }
+html.light [class*="bg-blue-950"] { background-color: #dbeafe; }
+
+/* --- Garis / border --- */
+html.light .border-slate-700, html.light .border-slate-800 { border-color: #e4e4e7; }
+html.light [class*="border-slate-800/"] { border-color: #ececee; }
+html.light [class*="hover:border-slate-600"]:hover { border-color: #a1a1aa; }
+html.light .divide-slate-800\/50 > :not([hidden]) ~ :not([hidden]) { border-color: #ececee; }
