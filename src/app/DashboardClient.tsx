@@ -41,6 +41,17 @@ const colorFor = (acc: { color?: string | null }, index: number) =>
   acc.color && acc.color !== LEGACY_DEFAULT_COLOR
     ? acc.color
     : PIE_COLORS[index % PIE_COLORS.length];
+// Tooltip Recharts ikut design system: sudut tajam, panel tema, mono
+const tooltipStyle = (isDark: boolean) => ({
+  backgroundColor: isDark ? "#15151a" : "#ffffff",
+  border: `1px solid ${isDark ? "#334155" : "#94a3b8"}`,
+  borderRadius: 0,
+  fontSize: "11px",
+  fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
+  boxShadow: "none",
+  padding: "6px 10px",
+});
+const pieLegendName = (name: any) => String(name ?? "");
 
 interface DashboardClientProps {
   initialData?: any;
@@ -404,6 +415,7 @@ export default function DashboardClient({ initialData, currentUser }: DashboardC
                       innerRadius={44}
                       outerRadius={68}
                       paddingAngle={3}
+                      stroke="none"
                     >
                       {pieAccounts.map((acc: any, index: number) => (
                         <Cell
@@ -413,14 +425,14 @@ export default function DashboardClient({ initialData, currentUser }: DashboardC
                       ))}
                     </Pie>
                     <Tooltip
-                      formatter={(value: any) => [formatRupiah(Number(value)), "Saldo"]}
-                      contentStyle={{
-                        backgroundColor: isDark ? "#0f172a" : "#ffffff",
-                        borderColor: isDark ? "#334155" : "#cbd5e1",
-                        borderRadius: "8px",
-                        color: isDark ? "#ffffff" : "#0f172a",
-                        fontSize: "11px",
-                      }}
+                      formatter={(value: any, name: any) => [
+                        formatRupiah(Number(value)),
+                        pieLegendName(name),
+                      ]}
+                      contentStyle={tooltipStyle(isDark)}
+                      itemStyle={{ color: "#e2e8f0", fontFamily: "inherit" }}
+                      labelStyle={{ display: "none" }}
+                      cursor={{ fill: "rgba(148,163,184,0.05)" }}
                     />
                   </PieChart>
                 </ResponsiveContainer>
@@ -505,13 +517,9 @@ export default function DashboardClient({ initialData, currentUser }: DashboardC
                   />
                   <Tooltip
                     formatter={(val: any) => [formatRupiah(Number(val)), "Profit"]}
-                    contentStyle={{
-                      backgroundColor: isDark ? "#0f172a" : "#ffffff",
-                      borderColor: isDark ? "#334155" : "#cbd5e1",
-                      borderRadius: "8px",
-                      color: isDark ? "#ffffff" : "#0f172a",
-                      fontSize: "11px",
-                    }}
+                    contentStyle={tooltipStyle(isDark)}
+                    itemStyle={{ color: "#f59e0b" }}
+                    cursor={{ stroke: "#334155" }}
                   />
                   <Line
                     type="monotone"
