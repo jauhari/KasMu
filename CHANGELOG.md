@@ -1,5 +1,14 @@
 # KasMu - Changelog
 
+## [2.5.1] - 2026-10-24
+
+### Baru: DateTimePicker Kustom
+
+- **Tanggal & jam pakai picker buatan sendiri** — tampilan kalender panel gelap, aksen amber, font mono, lingkaran tidak bulat (rounded-none). Sesuai RULE: tidak ada lagi elemen bawaan browser (`datetime-local` native dihapus total)
+- Terpasang di: Form Input Transaksi Kasir, Tandai Lunas (Struk & Tagihan)
+- Tombol **NOW** — set tanggal + jam ke waktu sekarang dengan 1 klik
+- Navigasi bulan ◀ ▶, penanda hari ini (bingkai hijau), dan dropdown jam/menit scrollable dalam panel
+
 ## [2.5.0] - 2026-10-24
 
 ### Baru: Form Transaksi Makin Cerdas
