@@ -110,10 +110,8 @@ Satu tagihan = 2 struk, dijaga flag `providerApplied`/`cashApplied` di Bill:
 ## 8. Langkah Lanjut (belum dikerjakan)
 
 1. **User menyesuaikan saldo BRILink** ke nilai riil di Saldo Akun — sekarang makin gampang: modal koreksi menampilkan selisih koreksi otomatis saat mengetik (feat `2cf5451`).
-2. **Tarik tunai historis** belum dicatat → perlukan input manual atau import kedua.
-3. **Pelunasan piutang kasir**: pembayaran parsial via PUT `/api/debt-loans` (CashMutation IN "Pelunasan Piutang") — belum diuji UI oleh user; khusus struk CASH kasir jangan sampai dobel dengan target opname (sudah dijaga di kode, tetap uji).
+2. **Tarik tunai historis** belum dicatat → bisa dicatat manual via Form Input Transaksi Kasir dengan kategori TARIK_TUNAI + backdate tanggal.
+3. **Pelunasan piutang kasir**: UI modal pelunasan sudah dibuat dan validasi backend sudah menolak pelunasan parsial untuk struk CASH (hanya penuh). Perlu diuji user.
 4. Cocokkan kontak: pencocokan struk–kontak tetap via nama persis; autocomplete di form transaksi mendarat kontak baru otomatis — sisa kasus lama masih menumpang nama bebas.
-5. Kolom `mode: "insensitive"` dihapus dari `getBillSourceAccount` (Prisma+SQLite tidak mendukung filter `mode` di versi ini). ✓ sudah — pengingat historis.
-6. Bila error "Unique constraint failed on (billId)" muncul lagi: index `Transaction_billId_key` bisa muncul kembali dari `prisma db push`; DROP manual via `$queryRaw`.
-7. Backup API & restore sudah ada — jalankan backup rutin di server.
-8. DateTimePicker panel & dropdown Select — di layar hp sempit, panel/option list bisa lewat tepi modal; belum terverifikasi di hp, pantau kalau user mulai pakai dari ponsel.
+5. Backup otomatis: script & plist sudah ada (`scripts/backup.mjs` + `scripts/com.kasmu.backup.plist`) — user hanya perlu load sekali di server MacBook. Setelah itu backup harian pukul 02:00 menyimpan 14 salinan terakhir di `backups/`.
+6. DateTimePicker panel & dropdown Select — di layar hp sempit, panel/option list bisa lewat tepi modal; belum terverifikasi di hp, pantau kalau user mulai pakai dari ponsel.

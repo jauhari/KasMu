@@ -19,6 +19,10 @@ export default function HutangPiutangPage() {
   const [amount, setAmount] = useState("");
   const [notes, setNotes] = useState("");
 
+  const [payTarget, setPayTarget] = useState<any>(null);
+  const [payAmount, setPayAmount] = useState("");
+  const [payBusy, setPayBusy] = useState(false);
+
   const loadRecords = async () => {
     try {
       const res = await fetch("/api/debt-loans");
@@ -62,24 +66,35 @@ export default function HutangPiutangPage() {
     }
   };
 
-  const handlePay = async (id: string, currentRemaining: number) => {
-    const payStr = prompt(`Masukkan jumlah pelunasan (Sisa: ${formatRupiah(currentRemaining)}):`, currentRemaining.toString());
-    if (!payStr) return;
-    const pay = parseFloat(payStr);
-    if (!pay || pay <= 0) return;
+  const openPay = (r: any) => {
+    setPayTarget(r);
+    setPayAmount(String(r.remaining));
+  };
 
+  const handlePay = async () => {
+    if (!payTarget) return;
+    const pay = parseFloat(payAmount.replace(/[^0-9.-]/g, "")) || 0;
+    if (pay <= 0 || pay > payTarget.remaining) {
+      toast.error(`Nominal bayar tidak valid (sisa: ${formatRupiah(payTarget.remaining)})`);
+      return;
+    }
+    setPayBusy(true);
     try {
       const res = await fetch("/api/debt-loans", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id, paymentAmount: pay }),
+        body: JSON.stringify({ id: payTarget.id, paymentAmount: pay }),
       });
       const json = await res.json();
       if (!json.success) throw new Error(json.error);
       toast.success("Pelunasan berhasil dicatat");
+      setPayTarget(null);
+      setPayAmount("");
       loadRecords();
     } catch (err: any) {
       toast.error(err.message || "Gagal melunasi");
+    } finally {
+      setPayBusy(false);
     }
   };
 
@@ -165,8 +180,8 @@ export default function HutangPiutangPage() {
                   <td className="px-4 py-3 text-center">
                     {r.status !== "PAID" && (
                       <button
-                        onClick={() => handlePay(r.id, r.remaining)}
-                        className="px-2 py-1 rounded-none bg-blue-900/20 hover:bg-blue-600 hover:text-white text-blue-500 font-semibold text-[10px] transition-colors border border-blue-700/50"
+                        onClick={() => openPay(r)}
+                        className="px-2 py-1 rounded-none bg-amber-900/20 hover:bg-amber-600 hover:text-white text-amber-500 font-semibold text-[10px] transition-colors border border-amber-700/50"
                       >
                         Lunasi
                       </button>
@@ -250,6 +265,56 @@ export default function HutangPiutangPage() {
                   className="px-4 py-1.5 rounded-none bg-amber-600 hover:bg-amber-500 text-white font-semibold text-xs transition-colors shadow-amber-600/20"
                 >
                   Simpan
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {payTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-xl">
+          <div className="bg-[#0c1220] border border-slate-700 rounded-none w-full max-w-sm p-5 text-white shadow-xl space-y-4">
+            <h3 className="text-[10px] uppercase tracking-[0.05em] font-bold">
+              Pelunasan — {payTarget.partyName}
+            </h3>
+            <div className="space-y-4 text-xs">
+              <div className="p-3 border border-slate-700/60 bg-[#0a0a0a]/40 space-y-1">
+                <p className="text-[10px] text-slate-500 uppercase tracking-wide">Sisa tagihan</p>
+                <p className="font-mono text-base font-bold text-rose-400">
+                  {formatRupiah(payTarget.remaining)}
+                </p>
+                {payTarget.notes?.startsWith("Kasir TX:") && (
+                  <p className="text-[10px] text-amber-500/80">
+                    Terhubung dengan struk kasir. Untuk piutang tunai (CASH), pelunasan harus penuh.
+                  </p>
+                )}
+              </div>
+              <Input
+                label="Nominal Pelunasan (Rp)"
+                value={payAmount}
+                onValueChange={setPayAmount}
+                type="number"
+                accounting
+                required
+                placeholder={payTarget.remaining.toString()}
+              />
+              <div className="flex justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setPayTarget(null)}
+                  disabled={payBusy}
+                  className="px-3.5 py-1.5 rounded-none bg-slate-800 hover:bg-slate-700 text-slate-400 font-medium text-xs transition-colors"
+                >
+                  Batal
+                </button>
+                <button
+                  type="button"
+                  onClick={handlePay}
+                  disabled={payBusy}
+                  className="px-4 py-1.5 rounded-none bg-amber-600 hover:bg-amber-500 text-white font-semibold text-xs transition-colors shadow-amber-600/20 disabled:opacity-50"
+                >
+                  {payBusy ? "Menyimpan..." : "Simpan Pelunasan"}
                 </button>
               </div>
             </div>

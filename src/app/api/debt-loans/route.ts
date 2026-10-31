@@ -71,12 +71,21 @@ export async function PUT(req: NextRequest) {
       ? await prisma.transaction.findUnique({ where: { txNumber: linkedNumber } })
       : null;
 
+    // Piutang dari struk CASH kasir: partial payment akan bikin target opname
+    // tidak cocok (uang fisik masuk tapi struk masih HUTANG). Sederhananya:
+    // CASH hutang hanya boleh dilunasi penuh sekaligus.
+    const isCashKasirHutang = !!linkedTx && linkedTx.paymentMethod === "CASH";
+    if (isCashKasirHutang && newRemaining > 0) {
+      return NextResponse.json(
+        { success: false, error: "Piutang tunai (CASH) hanya bisa dilunasi penuh, bukan dicicil" },
+        { status: 400 }
+      );
+    }
     const updated = await prisma.$transaction(async (prismaTx) => {
-      // Untuk struk kasir CASH: kas target baru terbentuk saat status
-      // transaksi jadi SUCCESS — jangan catat CashMutation biar tak dobel.
-      // Untuk piutang biasa (atau struk TRANSFER/QRIS): uang masuk fisik
-      // dicatat sebagai mutasi kas agar opname tetap konsisten.
-      const isCashKasirHutang = !!linkedTx && linkedTx.paymentMethod === "CASH";
+      // Untuk struk kasir CASH: uang masuk fisik dicatat oleh transaksi itu
+      // sendiri saat status jadi SUCCESS (jangan tambah CashMutation, nanti dobel).
+      // Untuk piutang biasa / TRANSFER / QRIS: uang masuk fisik dicatat sebagai
+      // mutasi kas agar target opname tetap konsisten.
       if (!isCashKasirHutang) {
         await prismaTx.cashMutation.create({
           data: {
