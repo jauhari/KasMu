@@ -113,5 +113,5 @@ Satu tagihan = 2 struk, dijaga flag `providerApplied`/`cashApplied` di Bill:
 2. **Tarik tunai historis** belum dicatat → bisa dicatat manual via Form Input Transaksi Kasir dengan kategori TARIK_TUNAI + backdate tanggal.
 3. **Pelunasan piutang kasir**: UI modal pelunasan sudah dibuat dan validasi backend sudah menolak pelunasan parsial untuk struk CASH (hanya penuh). Perlu diuji user.
 4. Cocokkan kontak: pencocokan struk–kontak tetap via nama persis; autocomplete di form transaksi mendarat kontak baru otomatis — sisa kasus lama masih menumpang nama bebas.
-5. Backup otomatis: script & plist sudah ada (`scripts/backup.mjs` + `scripts/com.kasmu.backup.plist`) — user hanya perlu load sekali di server MacBook. Setelah itu backup harian pukul 02:00 menyimpan 14 salinan terakhir di `backups/`.
+5. Backup otomatis: script & plist sudah aktif di server (`scripts/backup.mjs` + `scripts/com.kasmu.backup.plist`). Backup harian pukul 02:00, menyimpan 14 salinan terakhir di `backups/`.
 6. DateTimePicker panel & dropdown Select — di layar hp sempit, panel/option list bisa lewat tepi modal; belum terverifikasi di hp, pantau kalau user mulai pakai dari ponsel.
