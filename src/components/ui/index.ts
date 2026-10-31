@@ -7,4 +7,6 @@ export { Label } from "./label";
 export { Badge } from "./badge";
 export { Separator } from "./separator";
 export { DateTimePicker } from "./date-time-picker";
+export { ConfirmDialog } from "./confirm-dialog";
+export { Textarea } from "./textarea";
 export type { ButtonProps, InputProps, SelectProps, FormProps, ModalProps, LabelProps, BadgeProps } from "./types";

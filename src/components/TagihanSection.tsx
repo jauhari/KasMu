@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { formatRupiah, formatDateTimeID, currentBulanID } from "@/lib/utils";
 import { Zap, Plus, Upload, CheckCircle2, Clock, AlertCircle, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import { Input, Select, Button, Modal, Badge, DateTimePicker } from "@/components/ui";
+import { Input, Select, Button, Modal, Badge, DateTimePicker, ConfirmDialog, Textarea } from "@/components/ui";
 
 const JENIS_OPTIONS = [
   { value: "PLN", label: "PLN" },
@@ -285,6 +285,8 @@ export default function TagihanSection() {
     }
   };
 
+  const [deleteTarget, setDeleteTarget] = useState<BillRow | null>(null);
+
   const requestLunas = (b: BillRow) => {
     if (role === "OWNER") {
       setLunasBill(b);
@@ -295,12 +297,17 @@ export default function TagihanSection() {
   };
 
   const handleDelete = async (b: BillRow) => {
-    if (!confirm(`Hapus tagihan ${b.customer.name} (${b.jenis} ${b.noPelanggan})?`)) return;
+    setDeleteTarget(b);
+  };
+
+  const doDelete = async () => {
+    if (!deleteTarget) return;
     try {
-      const res = await fetch(`/api/bills/${b.id}`, { method: "DELETE" });
+      const res = await fetch(`/api/bills/${deleteTarget.id}`, { method: "DELETE" });
       const json = await res.json();
       if (!json.success) throw new Error(json.error);
       toast.success("Tagihan dihapus");
+      setDeleteTarget(null);
       loadBills();
     } catch (err: any) {
       toast.error(err.message || "Gagal hapus");
@@ -665,12 +672,12 @@ export default function TagihanSection() {
             Dibayar ke Provider, Jam, Pelanggan bayar, Jam, Catatan). Kontak & nomor layanan dibuat otomatis,
             satu kontak bisa punya lebih dari 1 layanan. Import ulang data yang sama tidak akan ganda.
           </p>
-          <textarea
+          <Textarea
+            label="Data CSV"
             value={csvText}
-            onChange={(e) => setCsvText(e.target.value)}
+            onValueChange={setCsvText}
             rows={10}
-            className="w-full bg-[#080810] border border-slate-700 rounded-none p-3 font-mono text-[11px] text-slate-200 outline-none focus:border-amber-600 transition-colors resize-none"
-            placeholder={'"Bulan","Jenis","Nama","No. Pelanggan","Status","Tagihan","Admin","Total",...'}
+            placeholder='"Bulan","Jenis","Nama","No. Pelanggan","Status","Tagihan","Admin","Total",...'
           />
           <div className="flex justify-end gap-3">
             <Button variant="ghost" size="sm" onClick={() => setShowImport(false)}>
@@ -682,6 +689,18 @@ export default function TagihanSection() {
           </div>
         </div>
       </Modal>
+
+      {deleteTarget && (
+        <ConfirmDialog
+          isOpen={!!deleteTarget}
+          onClose={() => setDeleteTarget(null)}
+          onConfirm={doDelete}
+          title="Hapus Tagihan"
+          description={`Tagihan ${deleteTarget.customer.name} (${deleteTarget.jenis} ${deleteTarget.noPelanggan}) akan dihapus beserta struk & mutasi saldonya. Lanjutkan?`}
+          confirmLabel="Hapus"
+          danger
+        />
+      )}
 
       {/* Modal Pelunasan khusus owner: atur waktu pelanggan bayar */}
       <Modal isOpen={!!lunasBill} onClose={() => setLunasBill(null)} title="Tandai Lunas">

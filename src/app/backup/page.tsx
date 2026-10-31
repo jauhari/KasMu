@@ -1,16 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Header from "@/components/Header";
 import QuickTransactionModal from "@/components/QuickTransactionModal";
 import { HardDriveDownload, Upload, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
-import { Button } from "@/components/ui";
+import { Button, ConfirmDialog } from "@/components/ui";
 
 export default function BackupPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [restoring, setRestoring] = useState(false);
   const [fileName, setFileName] = useState<string | null>(null);
+  const [showRestoreConfirm, setShowRestoreConfirm] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleDownloadBackup = () => {
     window.location.href = "/api/backup";
@@ -23,16 +25,14 @@ export default function BackupPage() {
     setFileName(file.name);
   };
 
-  const handleRestoreFile = async () => {
-    const input = document.getElementById("km-restore-file-input") as HTMLInputElement | null;
-    const file = input?.files?.[0];
-    if (!file) return;
+  const resetFile = () => {
+    if (fileInputRef.current) fileInputRef.current.value = "";
+    setFileName(null);
+  };
 
-    if (!confirm("PERINGATAN: Memulihkan backup akan menimpa data yang ada saat ini. Lanjutkan?")) {
-      if (input) input.value = "";
-      setFileName(null);
-      return;
-    }
+  const doRestore = async () => {
+    const file = fileInputRef.current?.files?.[0];
+    if (!file) return;
 
     setRestoring(true);
     const reader = new FileReader();
@@ -56,8 +56,7 @@ export default function BackupPage() {
         toast.error(err.message || "Gagal memproses file backup");
       } finally {
         setRestoring(false);
-        if (input) input.value = "";
-        setFileName(null);
+        resetFile();
       }
     };
     reader.readAsText(file);
@@ -116,16 +115,25 @@ export default function BackupPage() {
             size="sm"
             className="w-full bg-blue-600 hover:bg-blue-500 text-white border-blue-600 shadow-blue-600/20 disabled:opacity-50"
             disabled={restoring}
-            onClick={() => {
-              const input = document.getElementById("km-restore-file-input") as HTMLInputElement | null;
-              input?.click();
-            }}
+            onClick={() => fileInputRef.current?.click()}
           >
             <Upload className="w-3.5 h-3.5" />
             <span>{restoring ? "Memulihkan..." : fileName || "Pilih File Cadangan (.json)"}</span>
           </Button>
+          {fileName && (
+            <Button
+              variant="danger"
+              size="sm"
+              className="w-full"
+              disabled={restoring}
+              onClick={() => setShowRestoreConfirm(true)}
+            >
+              <ShieldCheck className="w-3.5 h-3.5" />
+              <span>Mulai Pemulihan</span>
+            </Button>
+          )}
           <input
-            id="km-restore-file-input"
+            ref={fileInputRef}
             type="file"
             accept=".json"
             onChange={(e) => handleSelectFile(e.target.files)}
@@ -134,6 +142,17 @@ export default function BackupPage() {
           />
         </div>
       </div>
+
+      <ConfirmDialog
+        isOpen={showRestoreConfirm}
+        onClose={() => setShowRestoreConfirm(false)}
+        onConfirm={doRestore}
+        title="Pulihkan dari Cadangan"
+        description={`File "${fileName}" akan menimpa seluruh data yang ada saat ini. Tindakan ini tidak bisa dibatalkan.`}
+        confirmLabel="Ya, Pulihkan"
+        cancelLabel="Batal"
+        danger
+      />
 
       <QuickTransactionModal
         isOpen={isModalOpen}

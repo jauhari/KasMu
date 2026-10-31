@@ -1,5 +1,17 @@
 # KasMu - Changelog
 
+## [2.5.2] - 2026-10-31
+
+### Perbaikan: Habis-habisan Native Browser Controls
+
+- **Tidak ada lagi `confirm()`, `alert()`, `prompt()`** di seluruh aplikasi
+  - Hapus tagihan di **Data Transaksi → Tagihan Pelanggan** pakai modal `ConfirmDialog` kustom
+  - Restore backup di halaman **Backup & Restore** pakai modal konfirmasi kustom + tombol "Mulai Pemulihan" terpisah
+  - Tutup shift di **Opname / Tutup Kasir** pakai modal konfirmasi kustom
+- **`<textarea>` bawaan browser diganti** komponen `Textarea` sendiri (impor CSV di Tagihan)
+- **Input tersembunyi di login dihapus** — PIN & userId sekarang murni React state; fallback pre-hydration keypad tetap bekerja tanpa DOM `<input>`
+- **File picker di backup tetap diakses via tombol kustom** — input file native disembunyikan, pengguna tidak pernah melihat kontrol bawaan browser
+
 ## [2.5.1] - 2026-10-24
 
 ### Baru: DateTimePicker Kustom

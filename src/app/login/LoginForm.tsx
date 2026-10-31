@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { Delete, Lock, Loader2, ArrowRight, Sun, Moon, ShieldCheck } from "lucide-react";
 import { useTheme } from "@/components/ThemeProvider";
 import { Button, Badge } from "@/components/ui";
@@ -34,11 +34,6 @@ export default function LoginForm({ initialUsers }: LoginFormProps) {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Zero-hydration DOM refs for instant pre-hydration response
-  const pinInputRef = useRef<HTMLInputElement>(null);
-  const userIdInputRef = useRef<HTMLInputElement>(null);
-
-  // Initialize client setup
   useEffect(() => {
     (window as any).__kmReactReady = true;
 
@@ -61,8 +56,6 @@ export default function LoginForm({ initialUsers }: LoginFormProps) {
     setSelectedUser(u);
     setPin("");
     setError(null);
-    if (userIdInputRef.current) userIdInputRef.current.value = u.id;
-    if (pinInputRef.current) pinInputRef.current.value = "";
   };
 
   const handleDigit = (digit: string) => {
@@ -72,7 +65,6 @@ export default function LoginForm({ initialUsers }: LoginFormProps) {
     setPin((prev) => {
       if (prev.length >= 6) return prev;
       const next = prev + digit;
-      if (pinInputRef.current) pinInputRef.current.value = next;
       if (next.length === 6) {
         setTimeout(() => executeLogin(next, selectedUser?.id), 50);
       }
@@ -83,18 +75,13 @@ export default function LoginForm({ initialUsers }: LoginFormProps) {
   const handleBackspace = () => {
     if (loading) return;
     setError(null);
-    setPin((prev) => {
-      const next = prev.slice(0, -1);
-      if (pinInputRef.current) pinInputRef.current.value = next;
-      return next;
-    });
+    setPin((prev) => prev.slice(0, -1));
   };
 
   const handleClear = () => {
     if (loading) return;
     setPin("");
     setError(null);
-    if (pinInputRef.current) pinInputRef.current.value = "";
   };
 
   useEffect(() => {
@@ -148,7 +135,6 @@ export default function LoginForm({ initialUsers }: LoginFormProps) {
     } catch (err: any) {
       setError(err.message || "Gagal masuk kasir");
       setPin("");
-      if (pinInputRef.current) pinInputRef.current.value = "";
       setLoading(false);
     }
   };
@@ -209,23 +195,6 @@ export default function LoginForm({ initialUsers }: LoginFormProps) {
         )}
 
         <div className="bg-[#0d0d11] border border-slate-700 rounded-none p-5 shadow-xl space-y-5">
-          {/* Hidden inputs for form submission */}
-          <input
-            id="km-user-id-input"
-            type="hidden"
-            ref={userIdInputRef}
-            value={selectedUser?.id || ""}
-            name="userId"
-          />
-          <input type="hidden" name="from" value={fromUrl} />
-          <input
-            id="km-pin-input"
-            ref={pinInputRef}
-            type="hidden"
-            name="pin"
-            value={pin}
-          />
-
           {/* 6-Digit PIN Display */}
           <div
             className="flex justify-center items-center gap-3 py-2 cursor-pointer select-none"
@@ -273,7 +242,7 @@ export default function LoginForm({ initialUsers }: LoginFormProps) {
 
           {/* Touch-optimized Keypad Grid */}
           <div className="grid grid-cols-3 gap-3 pt-1">
-{["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((num) => (
+            {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((num) => (
               <button
                 key={num}
                 type="button"
@@ -355,22 +324,27 @@ export default function LoginForm({ initialUsers }: LoginFormProps) {
   document.addEventListener('touchstart', function() {}, { passive: true });
 
   function initKeypad() {
-    var form = document.getElementById('km-auth-form');
-    var pinInput = document.getElementById('km-pin-input');
-    var userIdInput = document.getElementById('km-user-id-input');
-    if (!pinInput || !userIdInput) return;
+    var selectedUserId = null;
+    var activeUserBtn = document.querySelector('.km-user-btn.border-amber-600');
+    if (activeUserBtn) selectedUserId = activeUserBtn.getAttribute('data-user-id');
+    var pinValue = '';
 
     var dots = document.querySelectorAll('.km-pin-dot');
     var statusText = document.querySelector('.km-pin-status');
     var submitBtn = document.querySelector('button[type="button"]:last-of-type');
+    var errorText = document.querySelector('.km-error-msg');
 
-    function syncDots(val) {
-      pinInput.value = val;
+    function setError(msg) {
+      if (errorText) errorText.textContent = msg || '';
+      if (statusText) statusText.parentElement.classList.add('text-rose-400');
+    }
+
+    function syncDots() {
       dots.forEach(function(dot, idx) {
-        if (idx < val.length) {
+        if (idx < pinValue.length) {
           dot.textContent = '•';
           dot.className = 'km-pin-dot w-10 h-12 rounded-none border-2 flex items-center justify-center font-mono text-2xl font-bold transition-all duration-150 select-none border-amber-600 bg-[#15151a] text-amber-400 scale-105 shadow-sm';
-        } else if (idx === val.length) {
+        } else if (idx === pinValue.length) {
           dot.textContent = '';
           dot.className = 'km-pin-dot w-10 h-12 rounded-none border-2 flex items-center justify-center font-mono text-2xl font-bold transition-all duration-150 select-none border-amber-500 ring-1 ring-amber-500/30 bg-[#050507]';
         } else {
@@ -379,10 +353,10 @@ export default function LoginForm({ initialUsers }: LoginFormProps) {
         }
       });
       if (statusText) {
-        statusText.textContent = val.length > 0 ? (val.length + ' / 6 digit') : 'Tekan tombol angka atau keyboard';
+        statusText.textContent = pinValue.length > 0 ? (pinValue.length + ' / 6 digit') : 'Tekan tombol angka atau keyboard';
       }
       if (submitBtn) {
-        if (val.length === 6) {
+        if (pinValue.length === 6) {
           submitBtn.className = 'w-full py-3.5 rounded-none font-bold text-sm flex items-center justify-center gap-2 shadow-sm transition-all border border-transparent bg-amber-600 hover:bg-amber-500 active:bg-amber-700 text-white shadow-amber-600/20 cursor-pointer active:scale-95';
           submitBtn.disabled = false;
         } else {
@@ -396,11 +370,10 @@ export default function LoginForm({ initialUsers }: LoginFormProps) {
       btn.addEventListener('click', function() {
         if (window.__kmReactReady) return;
         var digit = btn.getAttribute('data-digit');
-        var curr = pinInput.value || '';
-        if (curr.length < 6) {
-          var next = curr + digit;
-          syncDots(next);
-          if (next.length === 6) {
+        if (pinValue.length < 6) {
+          pinValue = pinValue + digit;
+          syncDots();
+          if (pinValue.length === 6) {
             setTimeout(function() {
               var evt = new Event('submit', { bubbles: true, cancelable: true });
               document.dispatchEvent(evt);
@@ -414,7 +387,8 @@ export default function LoginForm({ initialUsers }: LoginFormProps) {
     if (clearBtn) {
       clearBtn.addEventListener('click', function() {
         if (window.__kmReactReady) return;
-        syncDots('');
+        pinValue = '';
+        syncDots();
       });
     }
 
@@ -422,8 +396,8 @@ export default function LoginForm({ initialUsers }: LoginFormProps) {
     if (backBtn) {
       backBtn.addEventListener('click', function() {
         if (window.__kmReactReady) return;
-        var curr = pinInput.value || '';
-        syncDots(curr.slice(0, -1));
+        pinValue = pinValue.slice(0, -1);
+        syncDots();
       });
     }
 
@@ -431,8 +405,9 @@ export default function LoginForm({ initialUsers }: LoginFormProps) {
       uBtn.addEventListener('click', function() {
         if (window.__kmReactReady) return;
         var uId = uBtn.getAttribute('data-user-id');
-        if (userIdInput && uId) userIdInput.value = uId;
-        syncDots('');
+        if (uId) selectedUserId = uId;
+        pinValue = '';
+        syncDots();
         document.querySelectorAll('.km-user-btn').forEach(function(b) {
           if (b === uBtn) {
             b.className = 'km-user-btn flex-1 py-2 px-2 rounded-none font-medium transition-all text-center truncate cursor-pointer select-none active:scale-95 border-t border-b border-l border-amber-600 bg-[#15151a] text-white shadow-sm font-bold border-r-0';

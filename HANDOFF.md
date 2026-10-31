@@ -1,6 +1,6 @@
 # HANDOFF — KasMu
 
-Dokumen penyerahan kondisi proyek per **21 Oktober 2026**. Baca ini sebelum melanjutkan pekerjaan apa pun.
+Dokumen penyerahan kondisi proyek per **31 Oktober 2026**. Baca ini sebelum melanjutkan pekerjaan apa pun.
 
 ## 1. Gambaran Umum
 
@@ -73,16 +73,22 @@ Satu tagihan = 2 struk, dijaga flag `providerApplied`/`cashApplied` di Bill:
 - `sqlite3` tidak tersedia; cek DB via prisma `$queryRaw` / node script.
 - Selalu `npx tsc --noEmit` lalu `npx next build` sebelum commit/deploy.
 - Script mjs dulu sempat ada salah tulis lucu ("MISMAPANTHAN") — sudah dibersihkan; jaga kualitas string.
-- **RULE UI (wajib)**: tidak ada elemen bawaan browser yang tampak & tidak ada emoji di UI. `datetime-local` native **dibanned** — pakai `DateTimePicker` kustom (`ui/date-time-picker.tsx`). Emoji diganti icon lucide (contoh kasus: 🔍 → RefreshCw). Kontrak komponen dasar:
+- **RULE UI (wajib)**: tidak ada elemen bawaan browser yang tampak & tidak ada emoji di UI. `datetime-local` native **dibanned** — pakai `DateTimePicker` kustom (`ui/date-time-picker.tsx`). Dialog konfirmasi bawaan (`confirm`/`alert`/`prompt`) **dibanned** — pakai `ConfirmDialog` kustom (`ui/confirm-dialog.tsx`). `<textarea>` bawaan **dibanned** — pakai `Textarea` kustom (`ui/textarea.tsx`). File picker boleh pakai `<input type="file">` asalkan **tersembunyi** dan dipicu tombol kustom. Emoji diganti icon lucide (contoh kasus: 🔍 → RefreshCw). Kontrak komponen dasar:
   - `Input` `accounting` = **controlled** & selalu tampil berformat titik ribuan (termasuk saat mengetik); state nilai = **digit mentah tanpa titik**; backspace di depan titik di-handle manual. Tipe `"datetime-local"` sudah dihapus dari InputProps.
   - `Modal` = klik-keluar ditangani di **kontainer overlay** (`target === currentTarget`) + `stopPropagation` di panel; TIDAK ada layer backdrop terpisah (layer terpisah pernah salah tumpuk → modal close sendiri). Panel wajib `relative` di atas overlay. Ukuran tambahan `"2xl"`.
   - `Select` = klik opsi **wajib `stopPropagation`** — opsi di dalam field yang menerima toggle `onClick`; tanpa itu dropdown tertutup lalu terbuka lagi (pernah jadi bug).
+  - `ConfirmDialog` = modal konfirmasi reusable dengan props `title`, `description`, `onConfirm`, `onClose`, `danger` (merah).
+  - `Textarea` = `<textarea>` yang distyle seragam dengan Input (bg gelap, border slate, focus amber, resize-none).
 - Palet grafik dashboard (`DashboardClient`): `PIE_COLORS` amber-first, fallback mengganti warna legacy default `#2563eb` (dianggap "belum ditata"); tooltip ikut `tooltipStyle()` (rounded-none, mono). Line chart stroke amber `#f59e0b`.
 - **Model HUTANG transaksi kasir** (status baru): `Transaction.status = "HUTANG"` → struk HUTANG di-exclude dari opname (filter `status === "SUCCESS"` di 2 tempat), laporan & dashboard otomatis aman. Saat membuat: validasi nama nasabah wajib + tolak TARIK_TUNAI; `netProfit` ditulis 0; dibuat `DebtLoan PIUTANG` amount = amount + storeFee, `notes` memuat anchor **`Kasir TX:<txNumber>`** (jangan dirusak formatnya). Pelunasan via `PUT /api/debt-loans`: bayar parsial → CashMutation IN (untuk struk CASH jangan catat CashMutation — nanti dobel dengan cashDelta saat status jadi SUCCESS); lunas penuh → tx di-PUT jadi SUCCESS + netProfit = storeFee − adminBank.
 - **Form transaksi**: field `totalCollected` (Total Diterima) otomatis menghitung `storeFee = total − amount − adminBank` (effect; masih teraktif selama field terisi). Field `tanggal` ditolak jika di masa depan (+5 menit toleransi).
 - **`/api/version`** membaca `CHANGELOG.md` **saat runtime** (fs) → menambah rilis baru cukup scp CHANGELOG.md, tidak perlu restart. Halaman `/perubahan` (Log Perubahan) menampilkan versi server + waktu build (`fs.stat .next/BUILD_ID`, dikonversi WIB) + seluruh riwayat rilis. Dipakai user untuk pantau deployment.
 
 ## 7. Commit Penting (terbaru dulu)
+
+### Sesi 31 Okt 2026 — rilis v2.5.2 (sudah di server)
+
+- `v2.5.2` refactor: hapus semua native browser controls (`confirm`/`alert`/`prompt`, `<textarea>` bawaan, hidden inputs login) — ganti `ConfirmDialog`, `Textarea`, React state
 
 ### Sesi 24 Okt 2026 — rilis v2.5.x (semua sudah di server)
 

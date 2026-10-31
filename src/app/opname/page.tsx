@@ -13,7 +13,7 @@ import {
   DollarSign,
 } from "lucide-react";
 import { toast } from "sonner";
-import { Input, Button } from "@/components/ui";
+import { Input, Button, ConfirmDialog } from "@/components/ui";
 
 const DENOMINATIONS = [100000, 50000, 20000, 10000, 5000, 2000, 1000, 500];
 
@@ -33,6 +33,7 @@ export default function OpnamePage() {
   });
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [showCloseConfirm, setShowCloseConfirm] = useState(false);
 
   const loadOpnameData = async () => {
     try {
@@ -323,11 +324,7 @@ export default function OpnamePage() {
           <button
             type="button"
             disabled={submitting}
-            onClick={() => {
-              if (confirm("Apakah Anda yakin ingin menyelesaikan dan menutup shift kasir saat ini?")) {
-                handleSubmitReconciliation(true);
-              }
-            }}
+            onClick={() => setShowCloseConfirm(true)}
             className="px-5 py-2 rounded-none bg-amber-600 hover:bg-amber-500 text-white text-xs font-semibold shadow-sm flex items-center gap-1.5 transition-all cursor-pointer shadow-amber-600/20"
           >
             <CheckCircle2 className="w-3.5 h-3.5" />
@@ -335,6 +332,16 @@ export default function OpnamePage() {
           </button>
         </div>
       </div>
+
+      <ConfirmDialog
+        isOpen={showCloseConfirm}
+        onClose={() => setShowCloseConfirm(false)}
+        onConfirm={() => handleSubmitReconciliation(true)}
+        title="Tutup Shift & Kunci Kas"
+        description="Setelah shift ditutup, Anda tidak bisa mengubah opname hari ini. Pastikan fisik kas sudah cocok dengan catatan sebelum melanjutkan."
+        confirmLabel="Ya, Tutup Shift"
+        cancelLabel="Batal"
+      />
 
       <QuickTransactionModal
         isOpen={isModalOpen}
