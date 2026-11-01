@@ -1,5 +1,15 @@
 # KasMu - Changelog
 
+## [2.5.3] - 2026-11-02
+
+### Baru: Mode Aplikasi & Warna Browser
+
+- **Web App Manifest** (`public/manifest.json`) — aplikasi bisa "Add to Home Screen" dan berjalan **standalone** (tanpa address bar/toolbar browser), orientasi portrait, tema gelap.
+- **Apple mobile-web-app meta** ditambahkan: `apple-mobile-web-app-capable`, `apple-mobile-web-app-status-bar-style="black-translucent"`, `apple-mobile-web-app-title="KasMu"`.
+- **Touch icon** `apple-touch-icon.png` dibuat dari icon SVG resmi (180×180 px).
+- **Theme color** browser/status bar menyesuaikan tema aktif: gelap `#050507`, terang `#fafafa` via komponen `ThemeColorMeta`.
+- **Viewport** diperbarui `viewport-fit=cover` agar aplikasi memenuhi layar poni/notch.
+
 ## [2.5.2] - 2026-10-31
 
 ### Perbaikan: Habis-habisan Native Browser Controls

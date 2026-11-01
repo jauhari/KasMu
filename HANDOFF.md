@@ -73,7 +73,8 @@ Satu tagihan = 2 struk, dijaga flag `providerApplied`/`cashApplied` di Bill:
 - `sqlite3` tidak tersedia; cek DB via prisma `$queryRaw` / node script.
 - Selalu `npx tsc --noEmit` lalu `npx next build` sebelum commit/deploy.
 - Script mjs dulu sempat ada salah tulis lucu ("MISMAPANTHAN") — sudah dibersihkan; jaga kualitas string.
-- **RULE UI (wajib)**: tidak ada elemen bawaan browser yang tampak & tidak ada emoji di UI. `datetime-local` native **dibanned** — pakai `DateTimePicker` kustom (`ui/date-time-picker.tsx`). Dialog konfirmasi bawaan (`confirm`/`alert`/`prompt`) **dibanned** — pakai `ConfirmDialog` kustom (`ui/confirm-dialog.tsx`). `<textarea>` bawaan **dibanned** — pakai `Textarea` kustom (`ui/textarea.tsx`). File picker boleh pakai `<input type="file">` asalkan **tersembunyi** dan dipicu tombol kustom. Emoji diganti icon lucide (contoh kasus: 🔍 → RefreshCw). Kontrak komponen dasar:
+- **RULE UI (wajib)**: tidak ada elemen bawaan browser yang tampak & tidak ada emoji di UI. `datetime-local` native **dibanned** — pakai `DateTimePicker` kustom (`ui/date-time-picker.tsx`). Dialog konfirmasi bawaan (`confirm`/`alert`/`prompt`) **dibanned** — pakai `ConfirmDialog` kustom (`ui/confirm-dialog.tsx`). `<textarea>` bawaan **dibanned** — pakai `Textarea` kustom (`ui/textarea.tsx`). File picker boleh pakai `<input type="file">` asalkan **tersembunyi** dan dipicu tombol kustom. Emoji diganti icon lucide (contoh kasus: 🔍 → RefreshCw).
+- **PWA / tampilan home screen**: manifest di `public/manifest.json` (display `standalone`, theme/background `#050507`). Meta Apple web-app-capable + status-bar-style `black-translucent`. Icon PWA = `public/icon.svg` & `public/apple-touch-icon.png`. Theme color browser menyesuaikan tema aktif via `ThemeColorMeta` (`#050507` dark / `#fafafa` light). Viewport pakai `viewport-fit=cover` agar layar poni penuh. Kontrak komponen dasar:
   - `Input` `accounting` = **controlled** & selalu tampil berformat titik ribuan (termasuk saat mengetik); state nilai = **digit mentah tanpa titik**; backspace di depan titik di-handle manual. Tipe `"datetime-local"` sudah dihapus dari InputProps.
   - `Modal` = klik-keluar ditangani di **kontainer overlay** (`target === currentTarget`) + `stopPropagation` di panel; TIDAK ada layer backdrop terpisah (layer terpisah pernah salah tumpuk → modal close sendiri). Panel wajib `relative` di atas overlay. Ukuran tambahan `"2xl"`.
   - `Select` = klik opsi **wajib `stopPropagation`** — opsi di dalam field yang menerima toggle `onClick`; tanpa itu dropdown tertutup lalu terbuka lagi (pernah jadi bug).
@@ -85,6 +86,10 @@ Satu tagihan = 2 struk, dijaga flag `providerApplied`/`cashApplied` di Bill:
 - **`/api/version`** membaca `CHANGELOG.md` **saat runtime** (fs) → menambah rilis baru cukup scp CHANGELOG.md, tidak perlu restart. Halaman `/perubahan` (Log Perubahan) menampilkan versi server + waktu build (`fs.stat .next/BUILD_ID`, dikonversi WIB) + seluruh riwayat rilis. Dipakai user untuk pantau deployment.
 
 ## 7. Commit Penting (terbaru dulu)
+
+### Sesi 2 Nov 2026 — rilis v2.5.3 (sudah di server)
+
+- `v2.5.3` feat: PWA manifest + theme-color + Apple mobile-web-app meta + touch icon; viewport-fit cover
 
 ### Sesi 31 Okt 2026 — rilis v2.5.2 (sudah di server)
 
