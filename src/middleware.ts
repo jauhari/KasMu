@@ -22,7 +22,10 @@ export async function middleware(req: NextRequest) {
     pathname === "/login" ||
     pathname === "/api/auth/login" ||
     pathname === "/api/auth/logout" ||
-    pathname === "/api/auth/users"
+    pathname === "/api/auth/users" ||
+    pathname === "/manifest.json" ||
+    pathname === "/icon.svg" ||
+    pathname === "/apple-touch-icon.png"
   ) {
     return NextResponse.next();
   }
