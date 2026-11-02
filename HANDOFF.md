@@ -87,6 +87,10 @@ Satu tagihan = 2 struk, dijaga flag `providerApplied`/`cashApplied` di Bill:
 
 ## 7. Commit Penting (terbaru dulu)
 
+### Sesi 2 Nov 2026 — rilis v2.5.4 (sudah di server)
+
+- `v2.5.4` fix: format estimasi laba di form transaksi — tampil negatif/merah saat fee toko lebih kecil dari admin bank
+
 ### Sesi 2 Nov 2026 — rilis v2.5.3 (sudah di server)
 
 - `v2.5.3` feat: PWA manifest + theme-color + Apple mobile-web-app meta + touch icon; viewport-fit cover

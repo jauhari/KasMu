@@ -303,8 +303,13 @@ export default function QuickTransactionModal({
           </div>
           <div className="flex items-center justify-end gap-4 pt-2 mt-1 border-t border-slate-700/30 text-[10px]">
             <span className="text-slate-500">Estimasi Laba Bersih:</span>
-            <span className="font-bold font-mono text-emerald-400">
-              +{formatRupiah(profit)}
+            <span
+              className={`font-bold font-mono ${
+                profit > 0 ? "text-emerald-400" : profit < 0 ? "text-rose-400" : "text-slate-400"
+              }`}
+            >
+              {profit > 0 ? "+" : ""}
+              {formatRupiah(profit)}
             </span>
           </div>
         </div>

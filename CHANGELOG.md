@@ -1,5 +1,11 @@
 # KasMu - Changelog
 
+## [2.5.4] - 2026-11-02
+
+### Perbaikan
+
+- **Tampilan estimasi laba di form transaksi** sekarang benar menunjukkan tanda negatif (rugi) dan warna merah saat `Fee Toko < Admin Bank`. Sebelumnya selalu ditambahkan prefix `+`, sehingga rugi Rp 1.000 tampak seperti `+-Rp 1.000`.
+
 ## [2.5.3] - 2026-11-02
 
 ### Baru: Mode Aplikasi & Warna Browser
