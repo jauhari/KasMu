@@ -36,6 +36,7 @@ export async function GET() {
     let totalCashOut = 0;
     let totalFeeToko = 0;
     let totalAdminBank = 0;
+    let totalNetProfit = 0;
 
     activeShift.transactions.forEach((tx) => {
       // Struk HUTANG belum menerima uang fisik — jangan ikut target kas,
@@ -43,6 +44,7 @@ export async function GET() {
       if (tx.status !== "SUCCESS") return;
       totalFeeToko += tx.storeFee;
       totalAdminBank += tx.adminBank;
+      totalNetProfit += tx.netProfit || 0;
 
       const { cashDrawerDelta } = calculateTransactionImpact(
         tx.category,
@@ -67,11 +69,11 @@ export async function GET() {
     });
 
     const otherIncome = cashMutations
-      .filter((m) => m.type === "IN")
+      .filter((m) => m.type === "IN" && m.category !== "Cashback BRILink")
       .reduce((sum, m) => sum + m.amount, 0);
 
     const operationalExpenses = cashMutations
-      .filter((m) => m.type === "OUT")
+      .filter((m) => m.type === "OUT" && m.category !== "Cashback BRILink")
       .reduce((sum, m) => sum + m.amount, 0);
 
     // Target Uang Fisik yang WAJIB ada di laci kasir
@@ -95,7 +97,7 @@ export async function GET() {
       .reduce((sum, d) => sum + d.remaining, 0);
 
     // P&L Hari Ini (Shift ini)
-    const netProfitShift = totalFeeToko - totalAdminBank + otherIncome - operationalExpenses;
+    const netProfitShift = totalNetProfit + otherIncome - operationalExpenses;
 
     return NextResponse.json({
       success: true,
@@ -167,10 +169,10 @@ export async function POST(req: NextRequest) {
       where: { createdAt: { gte: shift.startTime } },
     });
     const otherIncome = cashMutations
-      .filter((m) => m.type === "IN")
+      .filter((m) => m.type === "IN" && m.category !== "Cashback BRILink")
       .reduce((sum, m) => sum + m.amount, 0);
     const operationalExpenses = cashMutations
-      .filter((m) => m.type === "OUT")
+      .filter((m) => m.type === "OUT" && m.category !== "Cashback BRILink")
       .reduce((sum, m) => sum + m.amount, 0);
 
     const targetPhysicalCash =

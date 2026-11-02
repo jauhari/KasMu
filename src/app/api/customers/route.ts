@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { calculateNetProfit } from "@/lib/accounting";
+
 
 export async function GET() {
   try {
@@ -62,7 +62,7 @@ export async function GET() {
 
       const txsThis = nameToTx.get(c.name) || [];
       const txTotal = txsThis.reduce((s, t) => s + t.amount, 0);
-      const txUntung = txsThis.reduce((s, t) => s + calculateNetProfit(t.storeFee, t.adminBank), 0);
+      const txUntung = txsThis.reduce((s, t) => s + (t.netProfit || 0), 0);
 
       return {
         id: c.id,

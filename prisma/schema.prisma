@@ -74,9 +74,11 @@ model Transaction {
   account       Account  @relation(fields: [accountId], references: [id])
   category      String   // TARIK_TUNAI | SETOR_TUNAI | TRANSFER_BANK | TOPUP_EWALLET | TOKEN_PLN | PULSA_DATA | TAGIHAN_BPJS | TAGIHAN_PDAM | TAGIHAN_PLN | LAINNYA
   amount        Float    // Nilai transaksi
-  adminBank     Float    @default(0) // Biaya admin bank/provider
-  storeFee      Float    @default(0) // Fee toko/jasa agen
-  netProfit     Float    @default(0) // storeFee - adminBank
+  adminBank             Float    @default(0) // Fee BRILink / admin bank yang ditagih ke nasabah
+  storeFee              Float    @default(0) // Fee tambahan toko yang ditagih ke nasabah
+  bankCommission        Float    @default(0) // 50% dari adminBank sebagai komisi/cashback BRILink
+  bankCommissionRealized Boolean @default(false) // Apakah komisi BRILink sudah diterima di rekening
+  netProfit             Float    @default(0) // storeFee + bankCommission (estimasi laba saat transaksi)
   paymentMethod String   @default("CASH") // CASH | TRANSFER | QRIS
   status        String   @default("SUCCESS") // SUCCESS | PENDING | FAILED
   customerRef   String?  // No Rekening, ID Pelanggan, No HP

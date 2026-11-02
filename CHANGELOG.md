@@ -1,5 +1,18 @@
 # KasMu - Changelog
 
+## [2.5.5] - 2026-11-03
+
+### Perubahan Besar: Model Fee BRILink & Cashback
+
+- **Fee BRILink** sekarang adalah fee yang ditagih ke nasabah, bukan biaya bank yang mengurangi laba.
+- **Total bayar nasabah** = Nominal + Fee BRILink + Fee Toko.
+- **Saldo rekening/provider berkurang** = Nominal + Fee BRILink (dipotong bank).
+- **Cashback BRILink** = 50% dari Fee BRILink, masuk ke rekening BRILink di periode tertentu.
+- **Estimasi Laba Bersih** = Fee Toko + Cashback BRILink (50%).
+- Form transaksi kini menampilkan rincian: Fee Toko (kas), Cashback BRILink, Estimasi Laba Bersih.
+- Tombol **"Cashback"** di daftar transaksi untuk merealisasikan komisi BRILink ke saldo rekening saat bank sudah mengirim.
+- Laporan & opname menghitung laba dari `netProfit` transaksi; mutasi "Cashback BRILink" dikecualikan dari otherIncome agar tidak double-count.
+
 ## [2.5.4] - 2026-11-02
 
 ### Perbaikan

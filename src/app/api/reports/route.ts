@@ -33,21 +33,22 @@ export async function GET(req: NextRequest) {
     const totalFeeToko = transactions.reduce((s, t) => s + t.storeFee, 0);
     const totalAdminBank = transactions.reduce((s, t) => s + t.adminBank, 0);
     const totalNominal = transactions.reduce((s, t) => s + t.amount, 0);
+    const totalNetProfit = transactions.reduce((s, t) => s + (t.netProfit || 0), 0);
 
     const mutations = await prisma.cashMutation.findMany({
       where: { createdAt: { gte: startDate } },
     });
 
     const otherIncome = mutations
-      .filter((m) => m.type === "IN")
+      .filter((m) => m.type === "IN" && m.category !== "Cashback BRILink")
       .reduce((s, m) => s + m.amount, 0);
 
     const operationalExpenses = mutations
-      .filter((m) => m.type === "OUT")
+      .filter((m) => m.type === "OUT" && m.category !== "Cashback BRILink")
       .reduce((s, m) => s + m.amount, 0);
 
     const totalPendapatan = totalFeeToko + otherIncome;
-    const labaBersih = totalPendapatan - totalAdminBank - operationalExpenses;
+    const labaBersih = totalNetProfit + otherIncome - operationalExpenses;
 
     // Breakdown by category
     const categoryBreakdown: Record<string, { count: number; fee: number; profit: number }> = {};

@@ -82,10 +82,15 @@ Satu tagihan = 2 struk, dijaga flag `providerApplied`/`cashApplied` di Bill:
   - `Textarea` = `<textarea>` yang distyle seragam dengan Input (bg gelap, border slate, focus amber, resize-none).
 - Palet grafik dashboard (`DashboardClient`): `PIE_COLORS` amber-first, fallback mengganti warna legacy default `#2563eb` (dianggap "belum ditata"); tooltip ikut `tooltipStyle()` (rounded-none, mono). Line chart stroke amber `#f59e0b`.
 - **Model HUTANG transaksi kasir** (status baru): `Transaction.status = "HUTANG"` → struk HUTANG di-exclude dari opname (filter `status === "SUCCESS"` di 2 tempat), laporan & dashboard otomatis aman. Saat membuat: validasi nama nasabah wajib + tolak TARIK_TUNAI; `netProfit` ditulis 0; dibuat `DebtLoan PIUTANG` amount = amount + storeFee, `notes` memuat anchor **`Kasir TX:<txNumber>`** (jangan dirusak formatnya). Pelunasan via `PUT /api/debt-loans`: bayar parsial → CashMutation IN (untuk struk CASH jangan catat CashMutation — nanti dobel dengan cashDelta saat status jadi SUCCESS); lunas penuh → tx di-PUT jadi SUCCESS + netProfit = storeFee − adminBank.
+- **Model Fee BRILink / Cashback** (v2.5.5): label "Admin Bank" berganti **"Fee BRILink"**. Total bayar nasabah = `amount + adminBank + storeFee`. Rekening provider berkurang = `amount + adminBank`. Cashback BRILink = `adminBank × 50%`, masuk rekening BRILink di kemudian hari. `netProfit` = `storeFee + (adminBank × 0.5)`. Tombol **Cashback** di `/transaksi` merealisasikan komisi ke saldo rekening (membuat `CashMutation` kategori `Cashback BRILink` yang dikecualikan dari otherIncome agar laba tidak double-count). Data lama tetap pakai `netProfit` tersimpan, tidak dihitung ulang.
 - **Form transaksi**: field `totalCollected` (Total Diterima) otomatis menghitung `storeFee = total − amount − adminBank` (effect; masih teraktif selama field terisi). Field `tanggal` ditolak jika di masa depan (+5 menit toleransi).
 - **`/api/version`** membaca `CHANGELOG.md` **saat runtime** (fs) → menambah rilis baru cukup scp CHANGELOG.md, tidak perlu restart. Halaman `/perubahan` (Log Perubahan) menampilkan versi server + waktu build (`fs.stat .next/BUILD_ID`, dikonversi WIB) + seluruh riwayat rilis. Dipakai user untuk pantau deployment.
 
 ## 7. Commit Penting (terbaru dulu)
+
+### Sesi 3 Nov 2026 — rilis v2.5.5 (sudah di server)
+
+- `v2.5.5` refactor: model fee BRILink + cashback 50% — laba = fee toko + cashback BRILink, total bayar = nominal + fee BRILink + fee toko, tombol realisasi cashback
 
 ### Sesi 2 Nov 2026 — rilis v2.5.4 (sudah di server)
 

@@ -3,8 +3,14 @@ export interface DenominationInput {
   sheetCount: number;
 }
 
+export const BANK_COMMISSION_RATE = 0.5;
+
+export function calculateBankCommission(adminBank: number): number {
+  return Number((adminBank * BANK_COMMISSION_RATE).toFixed(2));
+}
+
 export function calculateNetProfit(storeFee: number, adminBank: number): number {
-  return Number((storeFee - adminBank).toFixed(2));
+  return Number((storeFee + calculateBankCommission(adminBank)).toFixed(2));
 }
 
 export function calculateOpnameTotal(sheets: DenominationInput[]): number {
@@ -49,9 +55,9 @@ export function calculateTransactionImpact(
   }
 
   // SETOR_TUNAI, TRANSFER_BANK, TOPUP_EWALLET, PPOB:
-  // - Customer gives physical cash: +(amount + storeFee)
+  // - Customer pays: nominal + Fee BRILink + Fee Toko
   // - Agent provider balance transferred out: -(amount + adminBank)
-  const cashDelta = paymentMethod === "CASH" ? amount + storeFee : 0;
+  const cashDelta = paymentMethod === "CASH" ? amount + adminBank + storeFee : 0;
   const accountDelta = -(amount + adminBank);
   return { cashDrawerDelta: cashDelta, accountDelta };
 }

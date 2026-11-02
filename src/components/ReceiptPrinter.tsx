@@ -18,7 +18,7 @@ export default function ReceiptModal({ transaction, onClose }: ReceiptProps) {
   const totalBayar =
     transaction.category === "TARIK_TUNAI"
       ? transaction.amount - transaction.storeFee
-      : transaction.amount + transaction.storeFee;
+      : transaction.amount + transaction.adminBank + transaction.storeFee;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-xl animate-in fade-in">

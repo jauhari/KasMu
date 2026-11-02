@@ -7,7 +7,7 @@ import QuickTransactionModal from "@/components/QuickTransactionModal";
 import ReceiptModal from "@/components/ReceiptPrinter";
 import TagihanSection from "@/components/TagihanSection";
 import { formatRupiah } from "@/lib/utils";
-import { Search, Filter, Printer, CircleCheck, ArrowUpDown, RefreshCw } from "lucide-react";
+import { Search, Filter, Printer, CircleCheck, ArrowUpDown, RefreshCw, Wallet } from "lucide-react";
 import { Input, Select, DateTimePicker } from "@/components/ui";
 import { toast } from "sonner";
 
@@ -86,6 +86,18 @@ function TransaksiInner() {
       console.error(e);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleRealizeCommission = async (tx: any) => {
+    try {
+      const res = await fetch(`/api/transactions/${tx.id}/realize-commission`, { method: "POST" });
+      const json = await res.json();
+      if (!json.success) throw new Error(json.error);
+      toast.success(json.message);
+      loadTransactions();
+    } catch (err: any) {
+      toast.error(err.message || "Gagal merealisasi cashback");
     }
   };
 
@@ -290,9 +302,16 @@ function TransaksiInner() {
                               </div>
                             </>
                           ) : (
-                            <div className="text-amber-500 font-semibold">{formatRupiah(tx.storeFee)}</div>
+                            <>
+                              <div className="text-amber-500 font-semibold">{formatRupiah(tx.storeFee)}</div>
+                              <div className="text-[10px] text-slate-600">Fee BRILink {formatRupiah(tx.adminBank)}</div>
+                              {tx.bankCommission > 0 && (
+                                <div className={`text-[10px] ${tx.bankCommissionRealized ? "text-emerald-400" : "text-amber-400"}`}>
+                                  Cashback 50% {tx.bankCommissionRealized ? "✓" : "belum"}: {formatRupiah(tx.bankCommission)}
+                                </div>
+                              )}
+                            </>
                           )}
-                          <div className="text-[10px] text-slate-600">-{formatRupiah(tx.adminBank)}</div>
                         </td>
                         <td className="px-4 py-3 text-right font-bold font-mono text-emerald-400">
                           {tx.netProfit > 0 ? `+${formatRupiah(tx.netProfit)}` : <span className="text-slate-600 font-normal">—</span>}
@@ -322,6 +341,16 @@ function TransaksiInner() {
                               >
                                 <CircleCheck className="w-3.5 h-3.5" />
                                 Lunas
+                              </button>
+                            )}
+                            {tx.bankCommission > 0 && !tx.bankCommissionRealized && (
+                              <button
+                                onClick={() => handleRealizeCommission(tx)}
+                                title="Realisasi cashback BRILink ke rekening"
+                                className="inline-flex items-center gap-1 px-2 py-1.5 rounded-none border border-amber-700/60 text-amber-500 hover:bg-amber-600/10 font-semibold text-[10px] uppercase transition-colors"
+                              >
+                                <Wallet className="w-3.5 h-3.5" />
+                                Cashback
                               </button>
                             )}
                             <button

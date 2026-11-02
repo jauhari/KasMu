@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { X, Check, AlertCircle } from "lucide-react";
 import { formatRupiah } from "@/lib/utils";
+import { calculateNetProfit, calculateBankCommission } from "@/lib/accounting";
 import {
   Button,
   Input,
@@ -83,7 +84,8 @@ export default function QuickTransactionModal({
   const numAmount = parseFloat(amount) || 0;
   const numAdmin = parseFloat(adminBank) || 0;
   const numFee = parseFloat(storeFee) || 0;
-  const profit = numFee - numAdmin;
+  const bankCommission = calculateBankCommission(numAdmin);
+  const profit = calculateNetProfit(numFee, numAdmin);
 
   // ===== FEE OTOMATIS: isi "Total Diterima dari Pelanggan" → Fee Toko =
   // total − nominal transaksi − admin bank. Nikah sekalian saat
@@ -275,7 +277,7 @@ export default function QuickTransactionModal({
               fontMono
             />
             <Input
-              label="Admin Bank"
+              label="Fee BRILink"
               value={adminBank}
               onValueChange={setAdminBank}
               type="number"
@@ -301,16 +303,26 @@ export default function QuickTransactionModal({
               fontMono
             />
           </div>
-          <div className="flex items-center justify-end gap-4 pt-2 mt-1 border-t border-slate-700/30 text-[10px]">
-            <span className="text-slate-500">Estimasi Laba Bersih:</span>
-            <span
-              className={`font-bold font-mono ${
-                profit > 0 ? "text-emerald-400" : profit < 0 ? "text-rose-400" : "text-slate-400"
-              }`}
-            >
-              {profit > 0 ? "+" : ""}
-              {formatRupiah(profit)}
-            </span>
+          <div className="pt-2 mt-1 border-t border-slate-700/30 text-[10px] space-y-1">
+            <div className="flex items-center justify-end gap-4">
+              <span className="text-slate-500">Fee Toko (kas):</span>
+              <span className="font-bold font-mono text-emerald-400">+{formatRupiah(numFee)}</span>
+            </div>
+            <div className="flex items-center justify-end gap-4">
+              <span className="text-slate-500">Cashback BRILink (50%):</span>
+              <span className="font-bold font-mono text-amber-400">+{formatRupiah(bankCommission)}</span>
+            </div>
+            <div className="flex items-center justify-end gap-4">
+              <span className="text-slate-500">Estimasi Laba Bersih:</span>
+              <span
+                className={`font-bold font-mono ${
+                  profit > 0 ? "text-emerald-400" : profit < 0 ? "text-rose-400" : "text-slate-400"
+                }`}
+              >
+                {profit > 0 ? "+" : ""}
+                {formatRupiah(profit)}
+              </span>
+            </div>
           </div>
         </div>
 

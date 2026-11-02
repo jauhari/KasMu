@@ -7,15 +7,15 @@ import {
 } from "../src/lib/accounting";
 
 describe("Accounting Engine Mini-ATM", () => {
-  it("should calculate net profit correctly (Fee Toko - Admin Bank)", () => {
-    // Fee toko Rp 10.000, Admin bank Rp 2.500 -> Profit Rp 7.500
-    expect(calculateNetProfit(10000, 2500)).toBe(7500);
+  it("should calculate net profit correctly (Fee Toko + 50% Fee BRILink)", () => {
+    // Fee toko Rp 10.000, Fee BRILink Rp 2.500 -> Cashback 50% = 1.250 -> Profit Rp 11.250
+    expect(calculateNetProfit(10000, 2500)).toBe(11250);
 
-    // Fee toko Rp 5.000, Admin bank Rp 5.000 -> Profit Rp 0
-    expect(calculateNetProfit(5000, 5000)).toBe(0);
+    // Fee toko Rp 5.000, Fee BRILink Rp 5.000 -> Cashback 50% = 2.500 -> Profit Rp 7.500
+    expect(calculateNetProfit(5000, 5000)).toBe(7500);
 
-    // Free promo or error where admin > fee
-    expect(calculateNetProfit(2000, 2500)).toBe(-500);
+    // Fee toko Rp 2.000, Fee BRILink Rp 2.500 -> Cashback 50% = 1.250 -> Profit Rp 3.250
+    expect(calculateNetProfit(2000, 2500)).toBe(3250);
   });
 
   it("should calculate total physical cash from sheet denominations", () => {
@@ -47,11 +47,11 @@ describe("Accounting Engine Mini-ATM", () => {
   });
 
   it("should calculate Setor Tunai impact on cash drawer and provider balance", () => {
-    // Setor Tunai Rp 1.000.000, Fee Toko 10.000, Admin Bank 2.500
+    // Setor Tunai Rp 1.000.000, Fee BRILink 2.500, Fee Toko 10.000
     const impact = calculateTransactionImpact("SETOR_TUNAI", 1000000, 2500, 10000, "CASH");
-    // Kasir terima uang Rp 1.010.000 (uang transaksi + fee)
-    expect(impact.cashDrawerDelta).toBe(1010000);
-    // Saldo provider berkurang Rp 1.002.500 (uang transaksi + biaya admin dipotong bank)
+    // Nasabah bayar Rp 1.012.500 (nominal + fee BRILink + fee toko)
+    expect(impact.cashDrawerDelta).toBe(1012500);
+    // Saldo provider berkurang Rp 1.002.500 (nominal + fee BRILink dipotong bank)
     expect(impact.accountDelta).toBe(-1002500);
   });
 

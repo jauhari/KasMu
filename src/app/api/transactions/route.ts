@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { calculateNetProfit, calculateTransactionImpact } from "@/lib/accounting";
+import { calculateNetProfit, calculateTransactionImpact, calculateBankCommission } from "@/lib/accounting";
 import { generateTxNumber } from "@/lib/utils";
 
 export async function GET(req: NextRequest) {
@@ -104,7 +104,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: "Akun tidak ditemukan" }, { status: 404 });
     }
 
-    // Hitung profit otomatis: Fee Toko - Admin Bank
+    // Hitung komisi BRILink (50% dari fee BRILink) dan laba estimasi
+    const bankCommission = calculateBankCommission(Number(adminBank));
     const netProfit = calculateNetProfit(Number(storeFee), Number(adminBank));
 
     // Hitung dampak ke saldo provider & cash drawer
@@ -159,6 +160,8 @@ export async function POST(req: NextRequest) {
           amount: Number(amount),
           adminBank: Number(adminBank),
           storeFee: Number(storeFee),
+          bankCommission,
+          bankCommissionRealized: false,
           netProfit: netProfitStored,
           paymentMethod,
           status: txStatus,
