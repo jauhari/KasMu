@@ -71,6 +71,7 @@ Satu tagihan = 2 struk, dijaga flag `providerApplied`/`cashApplied` di Bill:
 
 - Tidak ada `&&` (pakai `;` / `if ($?)`), tidak ada `<` redirect, nested quote mematikan → **jangan inline `node -e` berat**; tulis script `.mjs` (lihat pola `prisma/*.mjs`), scp, jalankan di server, hapus.
 - `sqlite3` tidak tersedia; cek DB via prisma `$queryRaw` / node script.
+- **Struktur server beda dari repo lokal**: repo lokal pakai `src/`, tapi deploy mengirim isi `src/` langsung ke root server (`app/`, `components/`, `lib/` di root). Oleh karena itu `tsconfig.json` di server harus pakai `"@/*": ["./*"]` (bukan `./src/*`). Jangan timpa tsconfig server dengan versi lokal tanpa menyesuaikan paths.
 - Selalu `npx tsc --noEmit` lalu `npx next build` sebelum commit/deploy.
 - Script mjs dulu sempat ada salah tulis lucu ("MISMAPANTHAN") — sudah dibersihkan; jaga kualitas string.
 - **RULE UI (wajib)**: tidak ada elemen bawaan browser yang tampak & tidak ada emoji di UI. `datetime-local` native **dibanned** — pakai `DateTimePicker` kustom (`ui/date-time-picker.tsx`). Dialog konfirmasi bawaan (`confirm`/`alert`/`prompt`) **dibanned** — pakai `ConfirmDialog` kustom (`ui/confirm-dialog.tsx`). `<textarea>` bawaan **dibanned** — pakai `Textarea` kustom (`ui/textarea.tsx`). File picker boleh pakai `<input type="file">` asalkan **tersembunyi** dan dipicu tombol kustom. Emoji diganti icon lucide (contoh kasus: 🔍 → RefreshCw).
