@@ -1,5 +1,12 @@
 # KasMu - Changelog
 
+## [2.5.6] - 2026-11-04
+
+### Perbaikan UX: Pencarian Cerdas & Tombol Salin
+
+- **Pencarian transaksi sekarang live (AJAX debounce 300ms)** — hasil muncul sambil mengetik, tidak perlu tekan tombol Cari.
+- **Tombol salin nomor** muncul di kolom Nasabah / Referensi setiap baris transaksi. Klik icon copy untuk menyalin `customerRef` (no pelanggan / no HP / no rekening) ke clipboard.
+
 ## [2.5.5] - 2026-11-03
 
 ### Perubahan Besar: Model Fee BRILink & Cashback

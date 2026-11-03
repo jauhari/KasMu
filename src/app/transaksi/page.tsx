@@ -7,7 +7,7 @@ import QuickTransactionModal from "@/components/QuickTransactionModal";
 import ReceiptModal from "@/components/ReceiptPrinter";
 import TagihanSection from "@/components/TagihanSection";
 import { formatRupiah } from "@/lib/utils";
-import { Search, Filter, Printer, CircleCheck, ArrowUpDown, RefreshCw, Wallet } from "lucide-react";
+import { Search, Filter, Printer, CircleCheck, ArrowUpDown, RefreshCw, Wallet, Copy, Check } from "lucide-react";
 import { Input, Select, DateTimePicker } from "@/components/ui";
 import { toast } from "sonner";
 
@@ -29,6 +29,7 @@ function TransaksiInner() {
   const [role, setRole] = useState<string>("");
   const [lunasTarget, setLunasTarget] = useState<any>(null);
   const [lunasAt, setLunasAt] = useState("");
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const localNow = () => {
     const n = new Date();
@@ -101,9 +102,23 @@ function TransaksiInner() {
     }
   };
 
+  const handleCopy = async (text: string, id: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedId(id);
+      toast.success("Nomor disalin");
+      setTimeout(() => setCopiedId(null), 1500);
+    } catch {
+      toast.error("Gagal menyalin");
+    }
+  };
+
   useEffect(() => {
-    loadTransactions();
-  }, [selectedCategory]);
+    const timer = setTimeout(() => {
+      loadTransactions();
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [search, selectedCategory]);
 
   const handleLunasStruk = async (tx: any, paidAt?: string) => {
     try {
@@ -288,7 +303,22 @@ function TransaksiInner() {
                         </td>
                         <td className="px-4 py-3">
                           <div className="font-medium text-white">{tx.customerName || "-"}</div>
-                          <div className="text-[10px] text-slate-600 font-mono">{tx.customerRef || "-"}</div>
+                          <div className="flex items-center gap-1.5 text-[10px] text-slate-600 font-mono">
+                            <span>{tx.customerRef || "-"}</span>
+                            {tx.customerRef && (
+                              <button
+                                onClick={() => handleCopy(tx.customerRef, `ref-${tx.id}`)}
+                                title="Salin nomor"
+                                className="p-0.5 hover:text-amber-500 hover:bg-slate-800 transition-colors"
+                              >
+                                {copiedId === `ref-${tx.id}` ? (
+                                  <Check className="w-3 h-3 text-emerald-500" />
+                                ) : (
+                                  <Copy className="w-3 h-3" />
+                                )}
+                              </button>
+                            )}
+                          </div>
                         </td>
                         <td className="px-4 py-3 text-right font-bold font-mono text-white">
                           {formatRupiah(tx.amount)}

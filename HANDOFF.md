@@ -89,6 +89,10 @@ Satu tagihan = 2 struk, dijaga flag `providerApplied`/`cashApplied` di Bill:
 
 ## 7. Commit Penting (terbaru dulu)
 
+### Sesi 4 Nov 2026 — rilis v2.5.6 (sudah di server)
+
+- `v2.5.6` ux: pencarian transaksi live AJAX debounce + tombol salin nomor referensi
+
 ### Sesi 3 Nov 2026 — rilis v2.5.5 (sudah di server)
 
 - `v2.5.5` refactor: model fee BRILink + cashback 50% — laba = fee toko + cashback BRILink, total bayar = nominal + fee BRILink + fee toko, tombol realisasi cashback
