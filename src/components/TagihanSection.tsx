@@ -5,6 +5,7 @@ import { formatRupiah, formatDateTimeID, currentBulanID } from "@/lib/utils";
 import { Zap, Plus, Upload, CheckCircle2, Clock, AlertCircle, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Input, Select, Button, Modal, Badge, DateTimePicker, ConfirmDialog, Textarea } from "@/components/ui";
+import ReceiptOcrButton, { ReceiptThumbnail, OcrExtractResult } from "@/components/ReceiptOcrButton";
 
 const JENIS_OPTIONS = [
   { value: "PLN", label: "PLN" },
@@ -77,6 +78,8 @@ export default function TagihanSection() {
   const [tagihanAdd, setTagihanAdd] = useState("");
   const [adminAdd, setAdminAdd] = useState("");
   const [catatanAdd, setCatatanAdd] = useState("");
+  const [receiptImage, setReceiptImage] = useState<string | null>(null);
+  const [receiptDetails, setReceiptDetails] = useState<Record<string, any>>({});
   const [saving, setSaving] = useState(false);
 
   // modal import
@@ -189,6 +192,24 @@ export default function TagihanSection() {
     setAdminAdd("");
     setCatatanAdd("");
     setAddAccountId("");
+    setReceiptImage(null);
+    setReceiptDetails({});
+  };
+
+  const handleOcrExtract = (data: OcrExtractResult) => {
+    if (data.periodeBulan) setFBulan(data.periodeBulan);
+    if (data.provider === "PLN") setFJenisAdd("PLN");
+    if (data.provider === "PDAM") setFJenisAdd("PDAM");
+    if (data.nama && !customerIdAdd) setCustomerNameAdd(data.nama);
+    if (data.noPelanggan) setNoPelAdd(data.noPelanggan);
+    if (typeof data.tagihan === "number") setTagihanAdd(String(data.tagihan));
+    if (typeof data.admin === "number") setAdminAdd(String(data.admin));
+    if (data.imagePath) setReceiptImage(data.imagePath);
+    setReceiptDetails({
+      ...data.details,
+      noRef: data.noRef || data.details?.noRef,
+      provider: data.provider,
+    });
   };
 
   const handleAdd = async () => {
@@ -212,6 +233,8 @@ export default function TagihanSection() {
           admin: statusAdd === "BELUM" ? undefined : adminAdd.replace(/\./g, ""),
           accountId: statusAdd !== "BELUM" ? addAccountId || undefined : undefined,
           catatan: catatanAdd.trim() || undefined,
+          receiptImage: receiptImage || undefined,
+          receiptDetails: Object.keys(receiptDetails).length > 0 ? receiptDetails : undefined,
         }),
       });
       const json = await res.json();
@@ -552,6 +575,11 @@ export default function TagihanSection() {
       {/* Modal Tambah Tagihan */}
       <Modal isOpen={showAdd} onClose={() => setShowAdd(false)} title="Tambah Tagihan">
         <div className="space-y-4 text-xs">
+          <div className="flex items-center justify-between gap-3">
+            <ReceiptOcrButton onExtract={handleOcrExtract} disabled={saving} />
+            <ReceiptThumbnail path={receiptImage} />
+          </div>
+
           <div className="grid grid-cols-2 gap-3">
             <Input
               label="Periode Bulan"
@@ -649,6 +677,22 @@ export default function TagihanSection() {
               placeholder="Pilih akun"
               required
             />
+          )}
+
+          {Object.keys(receiptDetails).length > 0 && (
+            <div className="bg-[#080810] border border-slate-800 p-3 space-y-1">
+              <p className="text-[10px] uppercase tracking-wider text-slate-500">Detail Struk (OCR)</p>
+              <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-[10px]">
+                {Object.entries(receiptDetails)
+                  .filter(([_, v]) => v !== null && v !== undefined && v !== "")
+                  .map(([k, v]) => (
+                    <div key={k} className="flex gap-2">
+                      <span className="text-slate-600 capitalize">{k.replace(/([A-Z])/g, " $1").trim()}:</span>
+                      <span className="text-slate-300 font-mono truncate">{String(v)}</span>
+                    </div>
+                  ))}
+              </div>
+            </div>
           )}
 
           <Input label="Catatan (opsional)" value={catatanAdd} onValueChange={setCatatanAdd} />

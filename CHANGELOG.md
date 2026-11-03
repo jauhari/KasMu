@@ -1,5 +1,17 @@
 # KasMu - Changelog
 
+## [2.6.0] - 2026-11-04
+
+### Fitur Baru: Foto Struk + OCR AI
+
+- Tombol **"Foto Struk"** di modal **Tambah Tagihan** dan **Input Transaksi Kasir**.
+- Foto struk diupload ke server, dibaca oleh AI Vision (Google Gemini 1.5 Flash), lalu form terisi otomatis.
+- Data struk disimpan sebagai **file di `public/uploads/struk/`**, bukan base64 di database.
+- Field tambahan hasil OCR (tarif/daya, stand meter, periode, no ref, dll.) disimpan di kolom `receiptDetails` (JSON).
+- Path foto struk disimpan di kolom `receiptImage` pada tabel `Bill` dan `Transaction`.
+- Hasil OCR tetap bisa dikoreksi manual sebelum disimpan.
+- URL foto struk bisa dibuka langsung (di-whitelist dari auth middleware) sehingga bisa dilihat dari HP lain.
+
 ## [2.5.6] - 2026-11-04
 
 ### Perbaikan UX: Pencarian Cerdas & Tombol Salin

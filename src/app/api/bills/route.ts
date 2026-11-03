@@ -73,6 +73,8 @@ export async function POST(req: NextRequest) {
       providerPaidAt,
       customerPaidAt,
       catatan,
+      receiptImage,
+      receiptDetails,
     } = body;
 
     if (!bulan || !jenis || !noPelanggan) {
@@ -136,6 +138,8 @@ export async function POST(req: NextRequest) {
       providerPaidAt: providerAt,
       customerPaidAt: customerPaidAt ? new Date(customerPaidAt) : null,
       catatan: catatan || null,
+      receiptImage: receiptImage || null,
+      receiptDetails: receiptDetails || undefined,
     };
     if (accountId) createData.accountId = accountId;
     else {
@@ -160,6 +164,8 @@ export async function POST(req: NextRequest) {
         customerPaidAt: createData.customerPaidAt,
         catatan: createData.catatan,
         accountId: createData.accountId ?? undefined,
+        receiptImage: createData.receiptImage ?? undefined,
+        receiptDetails: createData.receiptDetails ?? undefined,
       },
       create: createData,
     });

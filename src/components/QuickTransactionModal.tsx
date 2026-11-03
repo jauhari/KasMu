@@ -13,6 +13,7 @@ import {
   Separator,
   DateTimePicker,
 } from "@/components/ui";
+import ReceiptOcrButton, { ReceiptThumbnail, OcrExtractResult } from "@/components/ReceiptOcrButton";
 
 interface Account {
   id: string;
@@ -34,6 +35,7 @@ export const CATEGORIES = [
   { value: "TOPUP_EWALLET", label: "Topup E-Wallet" },
   { value: "TOKEN_PLN", label: "Token Listrik PLN" },
   { value: "PULSA_DATA", label: "Pulsa & Data" },
+  { value: "TAGIHAN_PLN", label: "Tagihan Listrik PLN" },
   { value: "TAGIHAN_BPJS", label: "Tagihan BPJS" },
   { value: "TAGIHAN_PDAM", label: "Tagihan Air PDAM" },
   { value: "LAINNYA", label: "Lainnya" },
@@ -63,6 +65,8 @@ export default function QuickTransactionModal({
   const [customerRef, setCustomerRef] = useState("");
   const [totalCollected, setTotalCollected] = useState(""); // total yg ditagih ke pelanggan
   const [notes, setNotes] = useState("");
+  const [receiptImage, setReceiptImage] = useState<string | null>(null);
+  const [receiptDetails, setReceiptDetails] = useState<Record<string, any>>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [customerNames, setCustomerNames] = useState<string[]>([]);
@@ -152,6 +156,30 @@ export default function QuickTransactionModal({
 
   if (!isOpen) return null;
 
+  const handleOcrExtract = (data: OcrExtractResult) => {
+    if (data.provider === "PLN") setCategory("TAGIHAN_PLN");
+    else if (data.provider === "PDAM") setCategory("TAGIHAN_PDAM");
+    else if (data.provider === "BPJS") setCategory("TAGIHAN_BPJS");
+
+    if (data.nama) setCustomerName(data.nama);
+    if (data.noPelanggan) setCustomerRef(data.noPelanggan);
+    if (typeof data.total === "number") {
+      setAmount(String(data.total));
+      setTotalCollected(String(data.total + (parseFloat(storeFee) || 0)));
+    } else if (typeof data.tagihan === "number") {
+      setAmount(String(data.tagihan));
+      setTotalCollected(String(data.tagihan + (parseFloat(storeFee) || 0)));
+    }
+    if (typeof data.admin === "number") setAdminBank(String(data.admin));
+    if (data.noRef) setNotes((prev) => (prev ? `${prev} ` : "") + `No Ref: ${data.noRef}`);
+    if (data.imagePath) setReceiptImage(data.imagePath);
+    setReceiptDetails({
+      ...data.details,
+      noRef: data.noRef || data.details?.noRef,
+      provider: data.provider,
+    });
+  };
+
   const handleSubmit = async () => {
     setError(null);
     if (!accountId || numAmount <= 0) {
@@ -180,6 +208,8 @@ export default function QuickTransactionModal({
           customerName,
           customerRef,
           notes,
+          receiptImage: receiptImage || undefined,
+          receiptDetails: Object.keys(receiptDetails).length > 0 ? receiptDetails : undefined,
         }),
       });
 
@@ -197,6 +227,8 @@ export default function QuickTransactionModal({
       setPaymentStatus("PAID");
       setTanggal(nowLocalInput());
       setNotes("");
+      setReceiptImage(null);
+      setReceiptDetails({});
       setNameTouched(false);
       // Kontak baru → daftarkan otomatis agar riwayat & profit terkumpul
       // di halaman Kontak Pelanggan (409 "sudah ada" diabaikan saja).
@@ -235,6 +267,11 @@ export default function QuickTransactionModal({
       )}
 
       <div className="space-y-3">
+        <div className="flex items-center justify-between gap-3">
+          <ReceiptOcrButton onExtract={handleOcrExtract} disabled={loading} />
+          <ReceiptThumbnail path={receiptImage} />
+        </div>
+
         {/* Baris 1: kategori + provider + metode */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <Select

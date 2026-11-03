@@ -54,6 +54,8 @@ export async function POST(req: NextRequest) {
       paymentStatus, // PAID default | HUTANG (layanan jalan, pelanggan bayar nanti)
       tanggal, // ISO/WIB opsional — waktu riil transaksi (default: sekarang)
       userId,
+      receiptImage,
+      receiptDetails,
     } = body;
 
     if (!accountId || !category || !amount) {
@@ -169,6 +171,8 @@ export async function POST(req: NextRequest) {
           customerName: customerName || null,
           customerRef: customerRef || null,
           notes: notes || null,
+          receiptImage: receiptImage || null,
+          receiptDetails: receiptDetails || undefined,
         },
         include: {
           account: true,
