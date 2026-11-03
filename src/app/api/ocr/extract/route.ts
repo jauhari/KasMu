@@ -5,7 +5,7 @@ import { randomUUID } from "crypto";
 import fs from "fs/promises";
 import path from "path";
 
-const UPLOAD_DIR = path.join(process.cwd(), "public", "uploads", "struk");
+const UPLOAD_DIR = path.join(process.cwd(), "uploads", "struk");
 const MAX_SIZE_MB = 5;
 
 const ALLOWED_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
     const ext = file.type === "image/png" ? "png" : file.type === "image/webp" ? "webp" : "jpg";
     const fileName = `${randomUUID()}.${ext}`;
     const filePath = path.join(UPLOAD_DIR, fileName);
-    const publicPath = `/uploads/struk/${fileName}`;
+    const publicPath = `/api/uploads/struk/${fileName}`;
 
     await fs.mkdir(UPLOAD_DIR, { recursive: true });
 

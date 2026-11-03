@@ -19,7 +19,7 @@ export async function middleware(req: NextRequest) {
   // 1. Whitelist paths yang boleh diakses tanpa login
   if (
     pathname.startsWith("/_next") ||
-    pathname.startsWith("/uploads/") ||
+    pathname.startsWith("/api/uploads/") ||
     pathname === "/login" ||
     pathname === "/api/auth/login" ||
     pathname === "/api/auth/logout" ||
