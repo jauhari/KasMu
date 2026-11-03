@@ -163,12 +163,13 @@ export default function QuickTransactionModal({
 
     if (data.nama) setCustomerName(data.nama);
     if (data.noPelanggan) setCustomerRef(data.noPelanggan);
-    if (typeof data.total === "number") {
-      setAmount(String(data.total));
-      setTotalCollected(String(data.total + (parseFloat(storeFee) || 0)));
-    } else if (typeof data.tagihan === "number") {
+    // Nominal transaksi = tagihan murni (belum admin/fee toko)
+    if (typeof data.tagihan === "number") {
       setAmount(String(data.tagihan));
-      setTotalCollected(String(data.tagihan + (parseFloat(storeFee) || 0)));
+    } else if (typeof data.total === "number" && typeof data.admin === "number") {
+      setAmount(String(data.total - data.admin));
+    } else if (typeof data.total === "number") {
+      setAmount(String(data.total));
     }
     if (typeof data.admin === "number") setAdminBank(String(data.admin));
     if (data.noRef) setNotes((prev) => (prev ? `${prev} ` : "") + `No Ref: ${data.noRef}`);
