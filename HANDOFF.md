@@ -90,6 +90,10 @@ Satu tagihan = 2 struk, dijaga flag `providerApplied`/`cashApplied` di Bill:
 
 ## 7. Commit Penting (terbaru dulu)
 
+### Sesi 4 Nov 2026 — rilis v2.6.2 (sudah di server)
+
+- `v2.6.2` ui: sidebar & badge user dibuat square/kotak agar konsisten dengan tema square boxed
+
 ### Sesi 4 Nov 2026 — rilis v2.6.1 (sudah di server)
 
 - `v2.6.1` ux: fee default otomatis per kategori di transaksi kasir

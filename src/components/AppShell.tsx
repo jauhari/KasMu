@@ -89,7 +89,7 @@ export default function AppShell({ children, initialUser }: AppShellProps) {
           {/* User Badge */}
           {currentUser && (
             <span
-              className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full border ${
+              className={`text-[11px] font-semibold px-2.5 py-0.5 border ${
                 isOwner
                   ? "bg-amber-900/20 text-amber-400 border border-amber-700/50"
                   : "bg-[#15151a] text-slate-400 border border-slate-700"

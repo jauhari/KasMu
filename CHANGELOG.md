@@ -1,5 +1,12 @@
 # KasMu - Changelog
 
+## [2.6.2] - 2026-11-04
+
+### Perbaikan UI: Konsistensi Bentuk Square di Sidebar
+
+- Menu navigasi sidebar (desktop & mobile drawer) sekarang kotak / square (`rounded-none`), tidak lagi rounded-xl.
+- Badge user di sidebar bawah dan mobile header juga diubah dari rounded-full menjadi square supaya konsisten dengan tema "square boxed".
+
 ## [2.6.1] - 2026-11-04
 
 ### Perbaikan: Fee Default Otomatis per Kategori
