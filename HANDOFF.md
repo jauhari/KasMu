@@ -90,9 +90,13 @@ Satu tagihan = 2 struk, dijaga flag `providerApplied`/`cashApplied` di Bill:
 
 ## 7. Commit Penting (terbaru dulu)
 
+### Sesi 4 Nov 2026 — rilis v2.6.1 (sudah di server)
+
+- `v2.6.1` ux: fee default otomatis per kategori di transaksi kasir
+
 ### Sesi 4 Nov 2026 — rilis v2.6.0 (sudah di server)
 
-- `v2.6.0` fitur: foto struk + OCR AI (Gemini 1.5 Flash) untuk tagihan & transaksi kasir, file struk di `public/uploads/struk/`
+- `v2.6.0` fitur: foto struk + OCR AI (Gemini 1.5 Flash) untuk tagihan & transaksi kasir, file struk di `uploads/struk/`
 
 ### Sesi 4 Nov 2026 — rilis v2.5.6 (sudah di server)
 

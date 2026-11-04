@@ -1,5 +1,19 @@
 # KasMu - Changelog
 
+## [2.6.1] - 2026-11-04
+
+### Perbaikan: Fee Default Otomatis per Kategori
+
+- Form **Input Transaksi Kasir** sekarang otomatis mengisi Fee BRILink & Fee Toko default saat kategori berubah.
+- Mapping default:
+  - **Listrik (Token PLN / Tagihan PLN)** & **Pulsa/Data**: Fee BRILink 3.000, Fee Toko 3.000
+  - **PDAM** & **BPJS**: Fee BRILink 2.500, Fee Toko 3.000
+  - **Transfer Bank (sesama BRI)**: Fee BRILink 5.000, Fee Toko 0
+  - **Setor Tunai**: Fee BRILink 2.500, Fee Toko 10.000
+  - **Tarik Tunai**: Fee BRILink 0, Fee Toko 5.000
+  - **Topup E-Wallet**: Fee BRILink 500, Fee Toko 3.000
+- Nilai fee tetap bisa diedit manual setelah kategori dipilih.
+
 ## [2.6.0] - 2026-11-04
 
 ### Fitur Baru: Foto Struk + OCR AI
