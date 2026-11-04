@@ -74,10 +74,11 @@ export default function ReceiptOcrButton({ onExtract, disabled, size = "sm" }: R
       />
       <Button
         type="button"
-        variant="outline"
+        variant="solid"
         size={size}
         disabled={disabled || loading}
         onClick={() => inputRef.current?.click()}
+        className="bg-amber-600 hover:bg-amber-500 text-white border-amber-600"
       >
         {loading ? (
           <Loader2 className="w-3.5 h-3.5 animate-spin" />
