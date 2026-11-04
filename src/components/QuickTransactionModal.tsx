@@ -115,21 +115,26 @@ export default function QuickTransactionModal({
       .catch(console.error);
   }, [isOpen]);
 
-  useEffect(() => {
-    if (category === "SETOR_TUNAI") {
-      setAdminBank("2500");
-      setStoreFee("10000");
-    } else if (category === "TARIK_TUNAI") {
-      setAdminBank("0");
-      setStoreFee("5000");
-    } else if (category === "TOPUP_EWALLET") {
-      setAdminBank("500");
-      setStoreFee("3000");
-    } else if (category === "TOKEN_PLN" || category === "PULSA_DATA") {
-      setAdminBank("1000");
-      setStoreFee("3000");
+  // Fee default otomatis sesuai kategori layanan (bisa diedit manual)
+  const applyDefaultFees = (cat: string) => {
+    const defaults: Record<string, { adminBank: string; storeFee: string }> = {
+      SETOR_TUNAI: { adminBank: "2500", storeFee: "10000" },
+      TARIK_TUNAI: { adminBank: "0", storeFee: "5000" },
+      TRANSFER_BANK: { adminBank: "5000", storeFee: "0" },
+      TOPUP_EWALLET: { adminBank: "500", storeFee: "3000" },
+      TOKEN_PLN: { adminBank: "3000", storeFee: "3000" },
+      PULSA_DATA: { adminBank: "3000", storeFee: "3000" },
+      TAGIHAN_PLN: { adminBank: "3000", storeFee: "3000" },
+      TAGIHAN_BPJS: { adminBank: "2500", storeFee: "3000" },
+      TAGIHAN_PDAM: { adminBank: "2500", storeFee: "3000" },
+      LAINNYA: { adminBank: "0", storeFee: "0" },
+    };
+    const def = defaults[cat];
+    if (def) {
+      setAdminBank(def.adminBank);
+      setStoreFee(def.storeFee);
     }
-  }, [category]);
+  };
 
   useEffect(() => {
     if (!isOpen) return;
@@ -278,7 +283,10 @@ export default function QuickTransactionModal({
           <Select
             label="Kategori Layanan"
             value={category}
-            onValueChange={setCategory}
+            onValueChange={(v) => {
+              setCategory(v);
+              applyDefaultFees(v);
+            }}
             options={CATEGORIES}
             required
           />
