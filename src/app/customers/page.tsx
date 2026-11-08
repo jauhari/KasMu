@@ -3,9 +3,9 @@
 import { useState, useEffect, useCallback } from "react";
 import Header from "@/components/Header";
 import { formatRupiah, formatDateTimeID } from "@/lib/utils";
-import { Contact, Zap, Receipt, ChevronRight, X } from "lucide-react";
+import { Contact, Zap, Receipt, ChevronRight, X, Copy, Check } from "lucide-react";
 import { toast } from "sonner";
-import { Input, Button, Badge } from "@/components/ui";
+import { Input, Button, Badge, Select } from "@/components/ui";
 
 interface Aggregate {
   id: string;
@@ -51,14 +51,19 @@ export default function CustomersPage() {
   const [rows, setRows] = useState<Aggregate[]>([]);
   const [loading, setLoading] = useState(true);
   const [q, setQ] = useState("");
+  const [jenis, setJenis] = useState("");
+  const [copiedId, setCopiedId] = useState<string | null>(null);
   const [detail, setDetail] = useState<Aggregate | null>(null);
   const [detailBills, setDetailBills] = useState<DetailBill[]>([]);
   const [detailTxs, setDetailTxs] = useState<DetailTx[]>([]);
   const [detailLoading, setDetailLoading] = useState(false);
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (search?: string, filterJenis?: string) => {
     try {
-      const res = await fetch("/api/customers");
+      const params = new URLSearchParams();
+      if (search?.trim()) params.set("search", search.trim());
+      if (filterJenis) params.set("jenis", filterJenis);
+      const res = await fetch(`/api/customers?${params.toString()}`);
       const json = await res.json();
       if (json.success) setRows(json.data);
     } catch (e) {
@@ -70,8 +75,21 @@ export default function CustomersPage() {
   }, []);
 
   useEffect(() => {
-    load();
-  }, [load]);
+    setLoading(true);
+    const timer = setTimeout(() => load(q, jenis), 300);
+    return () => clearTimeout(timer);
+  }, [load, q, jenis]);
+
+  const handleCopy = async (text: string, id: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedId(id);
+      toast.success("Nomor disalin");
+      setTimeout(() => setCopiedId(null), 1500);
+    } catch {
+      toast.error("Gagal menyalin");
+    }
+  };
 
   const openDetail = async (c: Aggregate) => {
     setDetail(c);
@@ -98,18 +116,14 @@ export default function CustomersPage() {
     }
   };
 
-  const filtered = rows.filter(
-    (c) => !q.trim() || c.name.toLowerCase().includes(q.trim().toLowerCase())
-  );
-
   // Total untung yang SUDAH CAIR (konsisten dengan dashboard):
   // admin dari tagihan lunas + untung struk kasir.
-  const totalUntungCair = filtered.reduce(
+  const totalUntungCair = rows.reduce(
     (s, c) => s + c.tagihan.admin + c.transaksi.untung,
     0
   );
   // Potensi untung talangan yang pelanggan belum bayar — ditampilkan terpisah.
-  const totalPotensiTalangan = filtered.reduce(
+  const totalPotensiTalangan = rows.reduce(
     (s, c) => s + (c.tagihan.adminTalangan || 0),
     0
   );
@@ -123,7 +137,20 @@ export default function CustomersPage() {
 
       <div className="flex flex-wrap items-end gap-3">
         <div className="flex-1 min-w-40">
-          <Input value={q} onValueChange={setQ} placeholder="Cari nama kontak..." />
+          <Input value={q} onValueChange={setQ} placeholder="Cari nama atau nomor pelanggan..." />
+        </div>
+        <div className="w-40">
+          <Select
+            value={jenis}
+            onValueChange={setJenis}
+            options={[
+              { value: "", label: "Semua Layanan" },
+              { value: "PLN", label: "PLN" },
+              { value: "PDAM", label: "PDAM" },
+              { value: "BPJS TK", label: "BPJS TK" },
+              { value: "BPJS Kes", label: "BPJS Kes" },
+            ]}
+          />
         </div>
         <div className="bg-[#0d0d11] border border-slate-700 rounded-none p-3 text-xs">
           <span className="text-slate-500 text-[10px] uppercase tracking-wider">
@@ -160,14 +187,14 @@ export default function CustomersPage() {
                   Memuat kontak...
                 </td>
               </tr>
-            ) : filtered.length === 0 ? (
+            ) : rows.length === 0 ? (
               <tr>
                 <td colSpan={9} className="px-4 py-10 text-center text-slate-600">
                   Belum ada kontak. Kontak dibuat otomatis saat import tagihan atau tambah tagihan.
                 </td>
               </tr>
             ) : (
-              filtered.map((c) => (
+              rows.map((c) => (
                 <tr
                   key={c.id}
                   onClick={() => openDetail(c)}
@@ -182,17 +209,31 @@ export default function CustomersPage() {
                     </div>
                   </td>
                   <td className="px-3 py-2.5">
-                    <div className="flex flex-wrap gap-1">
+                    <div className="flex flex-col gap-1">
                       {c.numbers.length === 0 && (
                         <span className="text-slate-600 text-[10px]">—</span>
                       )}
                       {c.numbers.map((n) => (
-                        <span
-                          key={n.id}
-                          className="text-[9px] px-1.5 py-0.5 border border-slate-700 text-slate-400 font-mono"
-                        >
-                          {n.jenis}
-                        </span>
+                        <div key={n.id} className="flex items-center gap-1.5 text-[10px]">
+                          <span className="px-1.5 py-0.5 border border-slate-700 text-slate-400 font-mono">
+                            {n.jenis}
+                          </span>
+                          <span className="font-mono text-slate-300">{n.noPelanggan}</span>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleCopy(n.noPelanggan, `num-${n.id}`);
+                            }}
+                            title="Salin nomor"
+                            className="p-0.5 text-slate-600 hover:text-amber-500 hover:bg-slate-800 transition-colors"
+                          >
+                            {copiedId === `num-${n.id}` ? (
+                              <Check className="w-3 h-3 text-emerald-500" />
+                            ) : (
+                              <Copy className="w-3 h-3" />
+                            )}
+                          </button>
+                        </div>
                       ))}
                     </div>
                   </td>

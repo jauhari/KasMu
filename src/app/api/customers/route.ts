@@ -2,9 +2,35 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
+    const sp = req.nextUrl.searchParams;
+    const search = sp.get("search")?.trim();
+    const jenis = sp.get("jenis")?.trim();
+
+    const where: any = {};
+    const andConditions: any[] = [];
+
+    if (jenis) {
+      andConditions.push({ numbers: { some: { jenis } } });
+    }
+
+    if (search) {
+      andConditions.push({
+        OR: [
+          { name: { contains: search } },
+          { numbers: { some: { noPelanggan: { contains: search } } } },
+          { numbers: { some: { jenis: { contains: search } } } },
+        ],
+      });
+    }
+
+    if (andConditions.length > 0) {
+      where.AND = andConditions;
+    }
+
     const customers = await prisma.customer.findMany({
+      where,
       include: {
         numbers: true,
         bills: {

@@ -1,5 +1,15 @@
 # KasMu - Changelog
 
+## [2.6.3] - 2026-11-09
+
+### Perbaikan UX: Pencarian Kontak Pelanggan
+
+- Pencarian di halaman **Kontak Pelanggan** sekarang bisa mencari berdasarkan **nama, nomor pelanggan, atau jenis layanan** (PLN, PDAM, BPJS).
+- Penambahan filter dropdown **Semua Layanan / PLN / PDAM / BPJS TK / BPJS Kes**.
+- Pencarian berjalan live dengan debounce 300ms.
+- Kolom **Layanan** sekarang menampilkan nomor pelanggan di samping jenis layanan, lengkap dengan tombol **salin** nomor.
+- API `/api/customers` mendukung parameter `search` dan `jenis`.
+
 ## [2.6.2] - 2026-11-04
 
 ### Perbaikan UI: Konsistensi Bentuk Square di Sidebar
