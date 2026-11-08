@@ -1,5 +1,13 @@
 # KasMu - Changelog
 
+## [2.6.4] - 2026-11-09
+
+### Perbaikan UI: Angka Rupiah Lebih Mudah Dibaca
+
+- Angka-angka rupiah di halaman **Kontak Pelanggan** dan modal detail diperbesar dan ditebalkan.
+- Nilai tagihan, untung, talangan, dan transaksi sekarang pakai `font-mono` + warna putih/amber/emerald yang lebih kontras.
+- Ukuran font angka di kartu ringkasan modal detail naik dari `text-sm` menjadi `text-lg`.
+
 ## [2.6.3] - 2026-11-09
 
 ### Perbaikan UX: Pencarian Kontak Pelanggan

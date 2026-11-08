@@ -243,10 +243,10 @@ export default function CustomersPage() {
                       {c.tagihan.lunas} lunas · {c.tagihan.talangan} talangan
                     </span>
                   </td>
-                  <td className="px-3 py-2.5 text-right font-mono text-slate-300">
+                  <td className="px-3 py-2.5 text-right font-mono font-semibold text-white">
                     {formatRupiah(c.tagihan.nilai)}
                   </td>
-                  <td className="px-3 py-2.5 text-right font-mono text-emerald-400 font-bold">
+                  <td className="px-3 py-2.5 text-right font-mono font-bold text-emerald-400">
                     {formatRupiah(c.tagihan.admin)}
                     {(c.tagihan.adminTalangan || 0) > 0 && (
                       <span className="text-[9px] text-amber-400 block leading-tight font-normal">
@@ -254,13 +254,13 @@ export default function CustomersPage() {
                       </span>
                     )}
                   </td>
-                  <td className="px-3 py-2.5 text-right font-mono text-amber-400">
+                  <td className="px-3 py-2.5 text-right font-mono font-semibold text-amber-400">
                     {c.tagihan.outstanding > 0 ? formatRupiah(c.tagihan.outstanding) : "-"}
                   </td>
-                  <td className="px-3 py-2.5 text-center font-mono">
+                  <td className="px-3 py-2.5 text-center font-mono font-semibold text-white">
                     {c.transaksi.count > 0 ? c.transaksi.count : "-"}
                   </td>
-                  <td className="px-3 py-2.5 text-right font-mono text-emerald-400">
+                  <td className="px-3 py-2.5 text-right font-mono font-semibold text-emerald-400">
                     {c.transaksi.count > 0 ? formatRupiah(c.transaksi.untung) : "-"}
                   </td>
                   <td className="px-3 py-2.5 text-right">
@@ -299,11 +299,11 @@ export default function CustomersPage() {
             <div className="grid grid-cols-3 gap-3 p-4 border-b border-slate-800">
               <div className="bg-[#080810] border border-slate-800 p-3">
                 <p className="text-[9px] uppercase tracking-wider text-slate-500">Nilai Tagihan</p>
-                <p className="font-mono font-bold text-white text-sm">{formatRupiah(detail.tagihan.nilai)}</p>
+                <p className="font-mono font-bold text-white text-lg">{formatRupiah(detail.tagihan.nilai)}</p>
               </div>
               <div className="bg-[#080810] border border-slate-800 p-3">
                 <p className="text-[9px] uppercase tracking-wider text-slate-500">Untung Sudah Cair</p>
-                <p className="font-mono font-bold text-emerald-400 text-sm">
+                <p className="font-mono font-bold text-emerald-400 text-lg">
                   {formatRupiah(detail.tagihan.admin + detail.transaksi.untung)}
                 </p>
                 {(detail.tagihan.adminTalangan || 0) > 0 && (
@@ -314,7 +314,7 @@ export default function CustomersPage() {
               </div>
               <div className="bg-[#080810] border border-slate-800 p-3">
                 <p className="text-[9px] uppercase tracking-wider text-slate-500">Talangan Hutang</p>
-                <p className="font-mono font-bold text-amber-400 text-sm">
+                <p className="font-mono font-bold text-amber-400 text-lg">
                   {formatRupiah(detail.tagihan.outstanding)}
                 </p>
               </div>
@@ -346,7 +346,7 @@ export default function CustomersPage() {
                               </span>
                             </div>
                             <div className="flex items-center gap-3">
-                              <span className="font-mono text-slate-300">
+                              <span className="font-mono font-semibold text-white text-sm">
                                 {b.total !== null ? formatRupiah(b.total) : "-"}
                               </span>
                               {b.status === "LUNAS" && <Badge variant="success">Lunas</Badge>}
@@ -381,8 +381,8 @@ export default function CustomersPage() {
                               </span>
                             </div>
                             <div className="flex items-center gap-3">
-                              <span className="font-mono text-slate-300">{formatRupiah(t.amount)}</span>
-                              <span className="font-mono text-emerald-400">
+                              <span className="font-mono font-semibold text-white text-sm">{formatRupiah(t.amount)}</span>
+                              <span className="font-mono font-semibold text-emerald-400 text-sm">
                                 +{formatRupiah(t.netProfit)}
                               </span>
                             </div>

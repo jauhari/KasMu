@@ -90,6 +90,10 @@ Satu tagihan = 2 struk, dijaga flag `providerApplied`/`cashApplied` di Bill:
 
 ## 7. Commit Penting (terbaru dulu)
 
+### Sesi 9 Nov 2026 — rilis v2.6.4 (sudah di server)
+
+- `v2.6.4` ui: angka rupiah di halaman kontak & modal detail diperbesar/ditebalkan untuk kemudahan membaca
+
 ### Sesi 9 Nov 2026 — rilis v2.6.3 (sudah di server)
 
 - `v2.6.3` ux: pencarian kontak pelanggan by nama/no/jenis layanan + filter jenis + copy nomor
