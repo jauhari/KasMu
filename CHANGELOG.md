@@ -1,5 +1,14 @@
 # KasMu - Changelog
 
+## [2.7.0] - 2026-11-09
+
+### Fitur Baru: Tambah Kontak & Tambah Nomor Layanan
+
+- Tombol **+ Tambah Kontak** di halaman Kontak Pelanggan.
+- Modal tambah kontak baru dengan nama, no HP, dan nomor layanan pertama (opsional).
+- Di modal detail kontak, tombol **+ Tambah Nomor** untuk menambah nomor layanan baru (PLN, PDAM, BPJS TK, BPJS Kes, Pulsa, Token Listrik) ke kontak yang sudah ada.
+- API baru: `POST /api/customers/[id]/numbers` untuk menambah nomor layanan ke kontak existing.
+
 ## [2.6.5] - 2026-11-09
 
 ### Perbaikan UI: Nomor Pelanggan Lebih Stand Out

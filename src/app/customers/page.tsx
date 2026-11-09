@@ -5,7 +5,7 @@ import Header from "@/components/Header";
 import { formatRupiah, formatDateTimeID } from "@/lib/utils";
 import { Contact, Zap, Receipt, ChevronRight, X, Copy, Check } from "lucide-react";
 import { toast } from "sonner";
-import { Input, Button, Badge, Select } from "@/components/ui";
+import { Input, Button, Badge, Select, Modal } from "@/components/ui";
 
 interface Aggregate {
   id: string;
@@ -54,6 +54,20 @@ export default function CustomersPage() {
   const [jenis, setJenis] = useState("");
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [detail, setDetail] = useState<Aggregate | null>(null);
+
+  // Modal tambah kontak baru
+  const [showAddContact, setShowAddContact] = useState(false);
+  const [newContactName, setNewContactName] = useState("");
+  const [newContactPhone, setNewContactPhone] = useState("");
+  const [newContactJenis, setNewContactJenis] = useState("PLN");
+  const [newContactNumber, setNewContactNumber] = useState("");
+  const [addingContact, setAddingContact] = useState(false);
+
+  // Modal tambah nomor layanan ke kontak yang sudah ada
+  const [showAddNumber, setShowAddNumber] = useState(false);
+  const [addNumberJenis, setAddNumberJenis] = useState("PLN");
+  const [addNumberValue, setAddNumberValue] = useState("");
+  const [addingNumber, setAddingNumber] = useState(false);
   const [detailBills, setDetailBills] = useState<DetailBill[]>([]);
   const [detailTxs, setDetailTxs] = useState<DetailTx[]>([]);
   const [detailLoading, setDetailLoading] = useState(false);
@@ -88,6 +102,71 @@ export default function CustomersPage() {
       setTimeout(() => setCopiedId(null), 1500);
     } catch {
       toast.error("Gagal menyalin");
+    }
+  };
+
+  const handleAddContact = async () => {
+    if (!newContactName.trim()) {
+      toast.error("Nama kontak wajib diisi");
+      return;
+    }
+    setAddingContact(true);
+    try {
+      const numbers = newContactNumber.trim()
+        ? [{ jenis: newContactJenis, noPelanggan: newContactNumber.trim() }]
+        : [];
+      const res = await fetch("/api/customers", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: newContactName.trim(),
+          phone: newContactPhone.trim() || undefined,
+          numbers,
+        }),
+      });
+      const json = await res.json();
+      if (!json.success) throw new Error(json.error);
+      toast.success("Kontak baru tersimpan");
+      setShowAddContact(false);
+      load(q, jenis);
+    } catch (err: any) {
+      toast.error(err.message || "Gagal menyimpan kontak");
+    } finally {
+      setAddingContact(false);
+    }
+  };
+
+  const handleAddNumber = async () => {
+    if (!detail) return;
+    if (!addNumberValue.trim()) {
+      toast.error("Nomor pelanggan wajib diisi");
+      return;
+    }
+    setAddingNumber(true);
+    try {
+      const res = await fetch(`/api/customers/${detail.id}/numbers`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          jenis: addNumberJenis,
+          noPelanggan: addNumberValue.trim(),
+        }),
+      });
+      const json = await res.json();
+      if (!json.success) throw new Error(json.error);
+      toast.success("Nomor layanan ditambahkan");
+      setShowAddNumber(false);
+      // refresh detail
+      const updated = rows.find((r) => r.id === detail.id);
+      if (updated) {
+        const newNumbers = [...updated.numbers, { id: json.data.id, jenis: json.data.jenis, noPelanggan: json.data.noPelanggan }];
+        setDetail({ ...detail, numbers: newNumbers });
+      }
+      load(q, jenis);
+    } catch (err: any) {
+      toast.error(err.message || "Gagal menambah nomor");
+    } finally {
+      setAddingNumber(false);
     }
   };
 
@@ -152,6 +231,19 @@ export default function CustomersPage() {
             ]}
           />
         </div>
+        <Button
+          variant="solid"
+          size="sm"
+          onClick={() => {
+            setNewContactName("");
+            setNewContactPhone("");
+            setNewContactJenis("PLN");
+            setNewContactNumber("");
+            setShowAddContact(true);
+          }}
+        >
+          + Tambah Kontak
+        </Button>
         <div className="bg-[#0d0d11] border border-slate-700 rounded-none p-3 text-xs">
           <span className="text-slate-500 text-[10px] uppercase tracking-wider">
             Total Untung Sudah Cair
@@ -316,6 +408,19 @@ export default function CustomersPage() {
                     ))}
                   </div>
                 )}
+                <div className="mt-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setAddNumberJenis("PLN");
+                      setAddNumberValue("");
+                      setShowAddNumber(true);
+                    }}
+                  >
+                    + Tambah Nomor
+                  </Button>
+                </div>
               </div>
               <button
                 onClick={() => setDetail(null)}
@@ -426,6 +531,84 @@ export default function CustomersPage() {
           </div>
         </div>
       )}
+
+      {/* Modal Tambah Kontak Baru */}
+      <Modal isOpen={showAddContact} onClose={() => setShowAddContact(false)} title="Tambah Kontak Baru">
+        <div className="space-y-4 text-xs">
+          <Input
+            label="Nama Kontak"
+            value={newContactName}
+            onValueChange={setNewContactName}
+            required
+          />
+          <Input
+            label="No. HP (opsional)"
+            value={newContactPhone}
+            onValueChange={setNewContactPhone}
+          />
+          <div className="grid grid-cols-2 gap-3">
+            <Select
+              label="Jenis Layanan"
+              value={newContactJenis}
+              onValueChange={setNewContactJenis}
+              options={[
+                { value: "PLN", label: "PLN" },
+                { value: "PDAM", label: "PDAM" },
+                { value: "BPJS TK", label: "BPJS TK" },
+                { value: "BPJS Kes", label: "BPJS Kes" },
+              ]}
+            />
+            <Input
+              label="No. Pelanggan (opsional)"
+              value={newContactNumber}
+              onValueChange={setNewContactNumber}
+              fontMono
+            />
+          </div>
+          <div className="flex justify-end gap-3 pt-2">
+            <Button variant="ghost" size="sm" onClick={() => setShowAddContact(false)}>
+              Batal
+            </Button>
+            <Button variant="solid" size="sm" onClick={handleAddContact} disabled={addingContact}>
+              {addingContact ? "Menyimpan..." : "Simpan"}
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Modal Tambah Nomor Layanan */}
+      <Modal isOpen={showAddNumber} onClose={() => setShowAddNumber(false)} title="Tambah Nomor Layanan">
+        <div className="space-y-4 text-xs">
+          <Select
+            label="Jenis Layanan"
+            value={addNumberJenis}
+            onValueChange={setAddNumberJenis}
+            options={[
+              { value: "PLN", label: "PLN" },
+              { value: "PDAM", label: "PDAM" },
+              { value: "BPJS TK", label: "BPJS TK" },
+              { value: "BPJS Kes", label: "BPJS Kes" },
+              { value: "PULSA", label: "Pulsa" },
+              { value: "TOKEN", label: "Token Listrik" },
+            ]}
+          />
+          <Input
+            label="No. Pelanggan"
+            value={addNumberValue}
+            onValueChange={setAddNumberValue}
+            fontMono
+            required
+          />
+          <div className="flex justify-end gap-3 pt-2">
+            <Button variant="ghost" size="sm" onClick={() => setShowAddNumber(false)}>
+              Batal
+            </Button>
+            <Button variant="solid" size="sm" onClick={handleAddNumber} disabled={addingNumber}>
+              {addingNumber ? "Menyimpan..." : "Simpan"}
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }
