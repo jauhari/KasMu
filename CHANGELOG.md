@@ -1,5 +1,13 @@
 # KasMu - Changelog
 
+## [2.6.5] - 2026-11-09
+
+### Perbaikan UI: Nomor Pelanggan Lebih Stand Out
+
+- Nomor pelanggan di tabel **Kontak Pelanggan** diperbesar, ditebalkan, dan pakai font monospace dengan warna putih.
+- Di modal detail kontak, nomor pelanggan ditampilkan dalam kotak tersendiri dengan warna amber yang besar, lengkap dengan tombol salin.
+- Icon copy diperbesar agar mudah diklik.
+
 ## [2.6.4] - 2026-11-09
 
 ### Perbaikan UI: Angka Rupiah Lebih Mudah Dibaca
