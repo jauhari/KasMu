@@ -376,50 +376,16 @@ export default function CustomersPage() {
           />
           <div className="relative bg-[#0c1220] border border-slate-700 rounded-none w-full max-w-2xl max-h-[85vh] flex flex-col shadow-2xl">
             <div className="px-5 py-4 border-b border-slate-700 flex items-center justify-between shrink-0">
-              <div className="space-y-1">
-                <h3 className="text-sm font-bold text-white">{detail.name}</h3>
-                {detail.numbers.length === 0 ? (
-                  <p className="text-[10px] text-slate-500 font-mono">Tanpa nomor layanan</p>
-                ) : (
-                  <div className="flex flex-wrap gap-2">
-                    {detail.numbers.map((n) => (
-                      <div
-                        key={n.id}
-                        className="flex items-center gap-2 bg-[#15151a] border border-slate-700 px-2 py-1"
-                      >
-                        <span className="text-[9px] uppercase tracking-wider text-slate-500 font-mono">
-                          {n.jenis}
-                        </span>
-                        <span className="font-mono font-bold text-amber-400 text-sm tracking-wider">
-                          {n.noPelanggan}
-                        </span>
-                        <button
-                          onClick={() => handleCopy(n.noPelanggan, `detail-${n.id}`)}
-                          title="Salin nomor"
-                          className="p-0.5 text-slate-600 hover:text-amber-500 hover:bg-slate-800 transition-colors"
-                        >
-                          {copiedId === `detail-${n.id}` ? (
-                            <Check className="w-3.5 h-3.5 text-emerald-500" />
-                          ) : (
-                            <Copy className="w-3.5 h-3.5" />
-                          )}
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-                <div className="mt-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      setAddNumberJenis("PLN");
-                      setAddNumberValue("");
-                      setShowAddNumber(true);
-                    }}
-                  >
-                    + Tambah Nomor
-                  </Button>
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 bg-[#15151a] border border-slate-600 flex items-center justify-center shrink-0 font-bold text-xs text-slate-300">
+                  {detail.name.slice(0, 2).replace(/[^a-zA-Z0-9]/g, "").toUpperCase() || "?"}
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-white">{detail.name}</h3>
+                  <p className="text-[10px] text-slate-500">
+                    {detail.numbers.length} nomor layanan · {detail.tagihan.total} tagihan ·{" "}
+                    {detail.transaksi.count} transaksi kasir
+                  </p>
                 </div>
               </div>
               <button
@@ -428,6 +394,63 @@ export default function CustomersPage() {
               >
                 <X className="w-4 h-4" />
               </button>
+            </div>
+
+            {/* Section Nomor Layanan */}
+            <div className="px-5 py-4 border-b border-slate-800 shrink-0">
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">
+                  Nomor Layanan
+                </p>
+                <Button
+                  variant="solid"
+                  size="sm"
+                  onClick={() => {
+                    setAddNumberJenis("PLN");
+                    setAddNumberValue("");
+                    setShowAddNumber(true);
+                  }}
+                >
+                  + Tambah Nomor
+                </Button>
+              </div>
+              {detail.numbers.length === 0 ? (
+                <div className="bg-[#080810] border border-dashed border-slate-700 px-3 py-4 text-center">
+                  <p className="text-slate-400 text-xs font-semibold">Belum ada nomor layanan</p>
+                  <p className="text-slate-600 text-[10px] mt-1">
+                    Klik tombol "+ Tambah Nomor" untuk menambah nomor PLN, PDAM, BPJS, dll.
+                  </p>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-2">
+                  {detail.numbers.map((n) => (
+                    <div
+                      key={n.id}
+                      className="flex items-center justify-between bg-[#080810] border border-slate-700 px-3 py-2.5"
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <span className="px-2 py-0.5 border border-slate-700 bg-[#15151a] text-slate-400 text-[10px] font-mono font-semibold uppercase tracking-wider shrink-0">
+                          {n.jenis}
+                        </span>
+                        <span className="font-mono font-bold text-amber-400 text-base tracking-wider truncate">
+                          {n.noPelanggan}
+                        </span>
+                      </div>
+                      <button
+                        onClick={() => handleCopy(n.noPelanggan, `detail-${n.id}`)}
+                        title="Salin nomor"
+                        className="p-2 text-slate-500 hover:text-amber-500 hover:bg-slate-800 transition-colors shrink-0"
+                      >
+                        {copiedId === `detail-${n.id}` ? (
+                          <Check className="w-4 h-4 text-emerald-500" />
+                        ) : (
+                          <Copy className="w-4 h-4" />
+                        )}
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div className="grid grid-cols-3 gap-3 p-4 border-b border-slate-800">
@@ -556,6 +579,8 @@ export default function CustomersPage() {
                 { value: "PDAM", label: "PDAM" },
                 { value: "BPJS TK", label: "BPJS TK" },
                 { value: "BPJS Kes", label: "BPJS Kes" },
+                { value: "PULSA", label: "Pulsa" },
+                { value: "TOKEN", label: "Token Listrik" },
               ]}
             />
             <Input

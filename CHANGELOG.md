@@ -1,5 +1,16 @@
 # KasMu - Changelog
 
+## [2.7.1] - 2026-11-11
+
+### Perbaikan UX: Modal Detail Kontak Dirapikan
+
+- **Nomor Layanan** sekarang jadi section tersendiri di modal detail kontak (bukan selipan di header).
+- Setiap nomor ditampilkan dalam satu baris penuh: badge jenis layanan + nomor besar warna amber + tombol salin.
+- Tombol **+ Tambah Nomor** dipindah ke header section "Nomor Layanan" — posisi selalu sama, mudah ditemukan.
+- Kontak tanpa nomor sekarang menampilkan kotak panduan: "Belum ada nomor layanan — klik + Tambah Nomor".
+- Header modal dirapikan: avatar inisial + nama + ringkasan (jumlah nomor/tagihan/transaksi).
+- Dropdown jenis layanan di form tambah kontak juga ditambah opsi **Pulsa** dan **Token Listrik**.
+
 ## [2.7.0] - 2026-11-09
 
 ### Fitur Baru: Tambah Kontak & Tambah Nomor Layanan
