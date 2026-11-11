@@ -13,9 +13,13 @@ Dokumen penyerahan kondisi proyek per **31 Oktober 2026**. Baca ini sebelum mela
 
 ```powershell
 # PowerShell (Windows dev), kunci SSH:
-scp -i "$env:USERPROFILE\.ssh\id_ed25519_macbook_server" -r src/. dhw@100.78.120.29:/Users/dhw/sites/kasmu.jauhari.net/src/
-scp -i "$env:USERPROFILE\.ssh\id_ed25519_macbook_server" prisma/schema.prisma CHANGELOG.md dhw@100.78.120.29:/Users/dhw/sites/kasmu.jauhari.net/prisma/
+# Kode lokal ada di src/, tapi SALIN ISI src/. ke ROOT server (app/, components/, lib/).
+scp -i "$env:USERPROFILE\.ssh\id_ed25519_macbook_server" -r src/. public/. CHANGELOG.md HANDOFF.md package.json tailwind.config.ts dhw@100.78.120.29:/Users/dhw/sites/kasmu.jauhari.net/
 ```
+
+> **JANGAN** scp ke `/src/` di server. Folder `src/` di server adalah sisa lama dan sudah dihapus.
+> **WAJIB** sertakan `tailwind.config.ts`. Server memakai kode di root (`./app`, `./components`), jadi config Tailwind harus memindai path root juga. Kalau lupa, CSS produksi tidak berisi class baru (gejala: layout pecah / perubahan tidak muncul walau JS baru).
+> Cek cepat setelah build: CSS di `.next/static/css/` harus mengandung `md\:hidden`, `h-\[42px\]`, dan `@media (min-width:768px)`.
 
 Rebuild + restart di server:
 
