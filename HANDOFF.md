@@ -94,6 +94,10 @@ Satu tagihan = 2 struk, dijaga flag `providerApplied`/`cashApplied` di Bill:
 
 ## 7. Commit Penting (terbaru dulu)
 
+### Sesi 11 Nov 2026 — rilis v2.9.0 (sudah di server)
+
+- `v2.9.0` fitur: tombol + Tambah Transaksi di detail kontak, form kasir terisi otomatis (nama, no pelanggan, kategori, fee)
+
 ### Sesi 11 Nov 2026 — rilis v2.8.1 (PERBAIKAN KRITIS CSS)
 
 - `v2.8.1` **root cause “perubahan tidak muncul”**: tailwind.config.ts di server hanya scan `./src/**` (folder basi); kode asli di root `app/`, `components/`. Semua class baru tidak pernah dibuat.

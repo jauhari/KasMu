@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { X, Check, AlertCircle } from "lucide-react";
 import { formatRupiah } from "@/lib/utils";
 import { calculateNetProfit, calculateBankCommission } from "@/lib/accounting";
@@ -26,6 +26,12 @@ interface QuickTransactionModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
+  /** Prefill dari halaman Kontak Pelanggan. */
+  preset?: {
+    customerName?: string;
+    customerRef?: string;
+    category?: string;
+  };
 }
 
 export const CATEGORIES = [
@@ -51,6 +57,7 @@ export default function QuickTransactionModal({
   isOpen,
   onClose,
   onSuccess,
+  preset,
 }: QuickTransactionModalProps) {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [accountId, setAccountId] = useState("");
@@ -81,8 +88,30 @@ export default function QuickTransactionModal({
   };
 
   // Setiap kali modal dibuka, tanggal default = sekarang
+  // dan prefill kontak (jika dibuka dari detail kontak pelanggan).
+  const presetRef = useRef(preset);
+  presetRef.current = preset;
   useEffect(() => {
-    if (isOpen) setTanggal(nowLocalInput());
+    if (!isOpen) return;
+    setTanggal(nowLocalInput());
+    const p = presetRef.current;
+    if (p) {
+      if (p.customerName) setCustomerName(p.customerName);
+      if (p.customerRef) {
+        setCustomerRef(p.customerRef);
+      }
+      if (p.category) {
+        setCategory(p.category);
+        applyDefaultFees(p.category);
+      }
+    } else {
+      // Dibuka dari menu umum (bukan dari detail kontak) → form bersih.
+      setCategory("SETOR_TUNAI");
+      applyDefaultFees("SETOR_TUNAI");
+      setCustomerName("");
+      setCustomerRef("");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
   const numAmount = parseFloat(amount) || 0;

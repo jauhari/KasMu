@@ -1,5 +1,18 @@
 # KasMu - Changelog
 
+## [2.9.0] - 2026-11-11
+
+### Fitur Baru: Tambah Transaksi Langsung dari Detail Kontak
+
+- Tombol **+ Tambah Transaksi** di footer modal detail kontak.
+- Form transaksi kasir otomatis terisi:
+  - **Nama nasabah** = nama kontak
+  - **No pelanggan** = nomor layanan pertama kontak
+  - **Kategori** menyesuaikan jenis layanan (PLN → Tagihan Listrik PLN, PDAM → Tagihan Air PDAM, BPJS → Tagihan BPJS, Pulsa/Token sesuai)
+  - **Fee BRILink & Fee Toko** otomatis sesuai kategori (tetap bisa diubah)
+- Setelah transaksi disimpan, riwayat tagihan/transaksi di modal detail langsung diperbarui.
+- Saat form dibuka dari menu umum (bukan dari kontak), form kembali ke default Setor Tunai dengan nama kosong.
+
 ## [2.8.1] - 2026-11-11
 
 ### Perbaikan Kritis: CSS Server Tidak Memuat Class Baru

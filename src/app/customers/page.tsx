@@ -6,6 +6,7 @@ import { formatRupiah, formatDateTimeID } from "@/lib/utils";
 import { Contact, Zap, Receipt, X, Copy, Check } from "lucide-react";
 import { toast } from "sonner";
 import { Input, Button, Badge, Select, Modal } from "@/components/ui";
+import QuickTransactionModal from "@/components/QuickTransactionModal";
 
 interface Aggregate {
   id: string;
@@ -71,6 +72,7 @@ export default function CustomersPage() {
   const [detailBills, setDetailBills] = useState<DetailBill[]>([]);
   const [detailTxs, setDetailTxs] = useState<DetailTx[]>([]);
   const [detailLoading, setDetailLoading] = useState(false);
+  const [showQuickTx, setShowQuickTx] = useState(false);
 
   const load = useCallback(async (search?: string, filterJenis?: string) => {
     try {
@@ -206,6 +208,23 @@ export default function CustomersPage() {
     (s, c) => s + (c.tagihan.adminTalangan || 0),
     0
   );
+
+  // Prefill form transaksi kasir dari kontak yang sedang dibuka.
+  const txPreset = detail
+    ? {
+        customerName: detail.name,
+        customerRef: detail.numbers[0]?.noPelanggan || undefined,
+        category: (() => {
+          const jenis = detail.numbers[0]?.jenis || "";
+          if (jenis === "PLN") return "TAGIHAN_PLN";
+          if (jenis === "PDAM") return "TAGIHAN_PDAM";
+          if (jenis.startsWith("BPJS")) return "TAGIHAN_BPJS";
+          if (jenis === "PULSA") return "PULSA_DATA";
+          if (jenis === "TOKEN") return "TOKEN_PLN";
+          return undefined;
+        })(),
+      }
+    : undefined;
 
   return (
     <div className="space-y-6">
@@ -669,11 +688,34 @@ export default function CustomersPage() {
                 </>
               )}
             </div>
+
+            {/* Footer aksi modal detail */}
+            <div className="px-4 py-3 border-t border-slate-700 bg-[#0a0a0a]/40 flex items-center justify-between gap-3 shrink-0">
+              <p className="text-[10px] text-slate-500 hidden sm:block">
+                Transaksi kasir akan otomatis terhubung ke kontak ini.
+              </p>
+              <Button
+                variant="solid"
+                size="md"
+                className="h-[38px] px-4 ml-auto whitespace-nowrap"
+                onClick={() => setShowQuickTx(true)}
+              >
+                + Tambah Transaksi
+              </Button>
+            </div>
           </div>
         </div>
       )}
 
-      {/* Modal Tambah Kontak Baru */}
+      <QuickTransactionModal
+        isOpen={showQuickTx}
+        onClose={() => setShowQuickTx(false)}
+        preset={txPreset}
+        onSuccess={() => {
+          load(q, jenis);
+          if (detail) openDetail(detail);
+        }}
+      />
       <Modal isOpen={showAddContact} onClose={() => setShowAddContact(false)} title="Tambah Kontak Baru">
         <div className="space-y-4 text-xs">
           <Input
