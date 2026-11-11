@@ -94,6 +94,10 @@ Satu tagihan = 2 struk, dijaga flag `providerApplied`/`cashApplied` di Bill:
 
 ## 7. Commit Penting (terbaru dulu)
 
+### Sesi 11 Nov 2026 — rilis v2.9.1 (sudah di server)
+
+- `v2.9.1` fitur owner: edit & hapus transaksi kasir + koreksi saldo/hutang/cashback otomatis
+
 ### Sesi 11 Nov 2026 — rilis v2.9.0 (sudah di server)
 
 - `v2.9.0` fitur: tombol + Tambah Transaksi di detail kontak, form kasir terisi otomatis (nama, no pelanggan, kategori, fee)

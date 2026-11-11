@@ -1,5 +1,18 @@
 # KasMu - Changelog
 
+## [2.9.1] - 2026-11-11
+
+### Fitur Baru: Edit & Hapus Transaksi (khusus Owner)
+
+- Tombol **Edit** (pensil) dan **Hapus** (tempat sampah) di kolom Aksi halaman Buku Transaksi, hanya untuk Owner.
+- **Edit**: kategori, nominal, Fee BRILink, Fee Toko, metode bayar, tanggal, nama nasabah, nomor referensi, catatan. Saldo provider otomatis dikoreksi berdasarkan selisih dampak transaksi lama vs baru; laba & cashback dihitung ulang.
+- **Hapus**: transaksi dihapus permanen, saldo provider dikembalikan, piutang terkait dihapus, cashback yang sudah dicairkan ditarik kembali dari saldo.
+- Pengaman:
+  - Transaksi yang terhubung ke tagihan pelanggan tidak bisa diedit/dihapus dari sini (gunakan tab Tagihan Pelanggan).
+  - Hutang yang sudah dibayar sebagian diblokir — selesaikan di menu Hutang/Piutang.
+  - Nominal/fee terkunci jika cashback BRILink sudah direalisasi (nama, tanggal, catatan tetap bisa).
+- API baru: `PATCH` dan `DELETE /api/transactions/[id]` (validasi role OWNER).
+
 ## [2.9.0] - 2026-11-11
 
 ### Fitur Baru: Tambah Transaksi Langsung dari Detail Kontak

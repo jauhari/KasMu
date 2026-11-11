@@ -6,9 +6,10 @@ import Header from "@/components/Header";
 import QuickTransactionModal from "@/components/QuickTransactionModal";
 import ReceiptModal from "@/components/ReceiptPrinter";
 import TagihanSection from "@/components/TagihanSection";
+import EditTransactionModal from "@/components/EditTransactionModal";
 import { formatRupiah } from "@/lib/utils";
-import { Search, Filter, Printer, CircleCheck, ArrowUpDown, RefreshCw, Wallet, Copy, Check } from "lucide-react";
-import { Input, Select, DateTimePicker } from "@/components/ui";
+import { Search, Filter, Printer, CircleCheck, ArrowUpDown, RefreshCw, Wallet, Copy, Check, Pencil, Trash2 } from "lucide-react";
+import { Input, Select, DateTimePicker, ConfirmDialog } from "@/components/ui";
 import { toast } from "sonner";
 
 type Tab = "struk" | "tagihan";
@@ -30,6 +31,9 @@ function TransaksiInner() {
   const [lunasTarget, setLunasTarget] = useState<any>(null);
   const [lunasAt, setLunasAt] = useState("");
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [editTarget, setEditTarget] = useState<any | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<any | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const localNow = () => {
     const n = new Date();
@@ -99,6 +103,23 @@ function TransaksiInner() {
       loadTransactions();
     } catch (err: any) {
       toast.error(err.message || "Gagal merealisasi cashback");
+    }
+  };
+
+  const handleDeleteTransaction = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    try {
+      const res = await fetch(`/api/transactions/${deleteTarget.id}`, { method: "DELETE" });
+      const json = await res.json();
+      if (!json.success) throw new Error(json.error);
+      toast.success(json.message || "Transaksi dihapus");
+      setDeleteTarget(null);
+      loadTransactions();
+    } catch (err: any) {
+      toast.error(err.message || "Gagal menghapus transaksi");
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -390,6 +411,24 @@ function TransaksiInner() {
                             >
                               <Printer className="w-3.5 h-3.5" />
                             </button>
+                            {role === "OWNER" && !tx.billId && (
+                              <>
+                                <button
+                                  onClick={() => setEditTarget(tx)}
+                                  title="Edit transaksi (Owner)"
+                                  className="p-1.5 rounded-none bg-slate-800 hover:bg-amber-600/20 text-slate-400 hover:text-amber-400 transition-colors"
+                                >
+                                  <Pencil className="w-3.5 h-3.5" />
+                                </button>
+                                <button
+                                  onClick={() => setDeleteTarget(tx)}
+                                  title="Hapus transaksi (Owner)"
+                                  className="p-1.5 rounded-none bg-slate-800 hover:bg-rose-600/20 text-slate-400 hover:text-rose-400 transition-colors"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </>
+                            )}
                           </div>
                         </td>
                       </tr>
@@ -409,6 +448,29 @@ function TransaksiInner() {
           <ReceiptModal
             transaction={selectedTxForReceipt}
             onClose={() => setSelectedTxForReceipt(null)}
+          />
+
+          <EditTransactionModal
+            isOpen={!!editTarget}
+            tx={editTarget}
+            onClose={() => setEditTarget(null)}
+            onSuccess={loadTransactions}
+          />
+
+          <ConfirmDialog
+            isOpen={!!deleteTarget}
+            onClose={() => setDeleteTarget(null)}
+            onConfirm={handleDeleteTransaction}
+            title="Hapus Transaksi?"
+            danger
+            confirmLabel={deleting ? "Menghapus..." : "Ya, Hapus"}
+            description={
+              deleteTarget
+                ? `Transaksi ${deleteTarget.txNumber} sebesar ${formatRupiah(
+                    deleteTarget.amount
+                  )} (${deleteTarget.customerName || "tanpa nama"}) akan dihapus permanen. Saldo provider dan catatan hutang terkait akan dikoreksi otomatis. Tindakan ini tidak bisa dibatalkan.`
+                : ""
+            }
           />
 
           {lunasTarget && (
