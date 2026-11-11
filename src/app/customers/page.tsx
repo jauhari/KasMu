@@ -214,61 +214,69 @@ export default function CustomersPage() {
         subtitle="Riwayat nilai & keuntungan per kontak: tagihan BRILink + transaksi kasir"
       />
 
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="flex-1 min-w-56">
-          <Input value={q} onValueChange={setQ} placeholder="Cari nama atau nomor pelanggan..." />
-        </div>
-        <div className="w-44">
-          <Select
-            value={jenis}
-            onValueChange={setJenis}
-            options={[
-              { value: "", label: "Semua Layanan" },
-              { value: "PLN", label: "PLN" },
-              { value: "PDAM", label: "PDAM" },
-              { value: "BPJS TK", label: "BPJS TK" },
-              { value: "BPJS Kes", label: "BPJS Kes" },
-            ]}
-          />
-        </div>
-        <Button
-          variant="solid"
-          size="sm"
-          onClick={() => {
-            setNewContactName("");
-            setNewContactPhone("");
-            setNewContactJenis("PLN");
-            setNewContactNumber("");
-            setShowAddContact(true);
-          }}
-        >
-          + Tambah Kontak
-        </Button>
-      </div>
-
-      <div className="bg-[#0d0d11] border border-slate-700 rounded-none px-4 py-3 flex flex-wrap items-center gap-x-6 gap-y-1 text-xs">
-        <div className="flex items-baseline gap-2">
-          <span className="text-slate-500 text-[10px] uppercase tracking-wider">
-            Total Untung Sudah Cair
-          </span>
-          <span className="font-mono font-bold text-emerald-400 text-base">
-            {formatRupiah(totalUntungCair)}
-          </span>
-        </div>
-        {totalPotensiTalangan > 0 && (
-          <div className="flex items-baseline gap-2">
-            <span className="text-slate-500 text-[10px] uppercase tracking-wider">
-              Potensi Talangan
-            </span>
-            <span className="font-mono font-semibold text-amber-400 text-base">
-              {formatRupiah(totalPotensiTalangan)}
-            </span>
-            <span className="text-[10px] text-slate-600">(belum dibayar)</span>
+      {/* Toolbar */}
+      <div className="bg-[#0d0d11] border border-slate-700 rounded-none">
+        <div className="flex flex-col md:flex-row md:items-end gap-3 p-4">
+          <div className="flex-1 min-w-0">
+            <Input
+              label="Cari Kontak"
+              value={q}
+              onValueChange={setQ}
+              placeholder="Nama atau nomor pelanggan…"
+            />
           </div>
-        )}
+          <div className="w-full md:w-48 shrink-0">
+            <Select
+              label="Layanan"
+              value={jenis}
+              onValueChange={setJenis}
+              options={[
+                { value: "", label: "Semua Layanan" },
+                { value: "PLN", label: "PLN" },
+                { value: "PDAM", label: "PDAM" },
+                { value: "BPJS TK", label: "BPJS TK" },
+                { value: "BPJS Kes", label: "BPJS Kes" },
+              ]}
+            />
+          </div>
+          <Button
+            variant="solid"
+            size="md"
+            className="h-[42px] px-5 shrink-0 w-full md:w-auto"
+            onClick={() => {
+              setNewContactName("");
+              setNewContactPhone("");
+              setNewContactJenis("PLN");
+              setNewContactNumber("");
+              setShowAddContact(true);
+            }}
+          >
+            + Tambah Kontak
+          </Button>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 border-t border-slate-800 divide-y sm:divide-y-0 sm:divide-x divide-slate-800">
+          <div className="px-4 py-3">
+            <p className="text-[9px] uppercase tracking-widest text-slate-500">
+              Total Untung Sudah Cair
+            </p>
+            <p className="font-mono font-bold text-emerald-400 text-lg leading-tight">
+              {formatRupiah(totalUntungCair)}
+            </p>
+          </div>
+          <div className="px-4 py-3">
+            <p className="text-[9px] uppercase tracking-widest text-slate-500">
+              Potensi Untung Talangan
+            </p>
+            <p className="font-mono font-bold text-amber-400 text-lg leading-tight">
+              {formatRupiah(totalPotensiTalangan)}
+            </p>
+            <p className="text-[9px] text-slate-600">dari tagihan talangan yang belum dibayar</p>
+          </div>
+        </div>
       </div>
 
-      <div className="bg-[#0d0d11] border border-slate-700 rounded-none overflow-x-auto">
+      <div className="hidden md:block bg-[#0d0d11] border border-slate-700 rounded-none overflow-x-auto">
         <table className="w-full text-xs min-w-[880px]">
           <thead>
             <tr className="border-b border-slate-700 text-left text-[10px] uppercase tracking-wider text-slate-500">
@@ -308,7 +316,7 @@ export default function CustomersPage() {
                       <div className="w-7 h-7 bg-[#15151a] border border-slate-700 flex items-center justify-center shrink-0 font-bold text-[10px] text-slate-300">
                         {c.name.slice(0, 2).replace(/[^a-zA-Z0-9]/g, "").toUpperCase() || "?"}
                       </div>
-                      <span className="font-semibold text-white">{c.name}</span>
+                      <span className="font-semibold text-white whitespace-nowrap">{c.name}</span>
                     </div>
                   </td>
                   <td className="px-3 py-2.5">
@@ -317,7 +325,7 @@ export default function CustomersPage() {
                         <span className="text-slate-600 text-[10px]">—</span>
                       )}
                       {c.numbers.map((n) => (
-                        <div key={n.id} className="flex items-center gap-2 text-xs">
+                        <div key={n.id} className="flex items-center gap-2 text-xs whitespace-nowrap">
                           <span className="px-2 py-1 border border-slate-700 bg-[#15151a] text-slate-400 font-mono font-semibold">
                             {n.jenis}
                           </span>
@@ -374,7 +382,7 @@ export default function CustomersPage() {
                         e.stopPropagation();
                         openDetail(c);
                       }}
-                      className="px-2.5 py-1.5 border border-slate-600 text-[10px] font-semibold text-slate-200 hover:bg-amber-500 hover:border-amber-500 hover:text-black transition-colors"
+                      className="px-3 py-1.5 bg-[#15151a] border border-slate-700 text-[10px] font-semibold uppercase tracking-wider text-slate-300 hover:border-amber-500 hover:text-amber-400 transition-colors"
                     >
                       Kelola
                     </button>
@@ -384,6 +392,97 @@ export default function CustomersPage() {
             )}
           </tbody>
         </table>
+      </div>
+
+      {/* Daftar kartu (mobile) */}
+      <div className="md:hidden space-y-2">
+        {loading ? (
+          <div className="bg-[#0d0d11] border border-slate-700 px-4 py-10 text-center text-xs text-slate-500">
+            Memuat kontak...
+          </div>
+        ) : rows.length === 0 ? (
+          <div className="bg-[#0d0d11] border border-slate-700 px-4 py-10 text-center text-xs text-slate-500">
+            Belum ada kontak.
+          </div>
+        ) : (
+          rows.map((c) => (
+            <div key={c.id} className="bg-[#0d0d11] border border-slate-700">
+              <div className="flex items-center justify-between gap-2 px-3 py-3 border-b border-slate-800">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="w-8 h-8 bg-[#15151a] border border-slate-700 flex items-center justify-center shrink-0 font-bold text-[10px] text-slate-300">
+                    {c.name.slice(0, 2).replace(/[^a-zA-Z0-9]/g, "").toUpperCase() || "?"}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="font-semibold text-white text-sm truncate">{c.name}</p>
+                    <p className="text-[10px] text-slate-500">
+                      {c.tagihan.total} tagihan · {c.transaksi.count} transaksi kasir
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => openDetail(c)}
+                  className="px-2.5 py-1.5 bg-[#15151a] border border-slate-700 text-[10px] font-semibold uppercase tracking-wider text-slate-300 hover:border-amber-500 hover:text-amber-400 transition-colors shrink-0"
+                >
+                  Kelola
+                </button>
+              </div>
+
+              <div className="px-3 py-2.5 space-y-1.5">
+                {c.numbers.length === 0 ? (
+                  <p className="text-[10px] text-slate-600">Belum ada nomor layanan</p>
+                ) : (
+                  c.numbers.map((n) => (
+                    <div
+                      key={n.id}
+                      className="flex items-center justify-between gap-2 bg-[#080810] border border-slate-800 px-2.5 py-2"
+                    >
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className="px-1.5 py-0.5 border border-slate-700 bg-[#15151a] text-[9px] font-mono font-semibold uppercase tracking-wider text-slate-400 shrink-0">
+                          {n.jenis}
+                        </span>
+                        <span className="font-mono font-bold text-amber-400 text-sm tracking-wide truncate">
+                          {n.noPelanggan}
+                        </span>
+                      </div>
+                      <button
+                        onClick={() => handleCopy(n.noPelanggan, `m-num-${n.id}`)}
+                        className="p-1.5 text-slate-500 hover:text-amber-500 shrink-0"
+                        title="Salin nomor"
+                      >
+                        {copiedId === `m-num-${n.id}` ? (
+                          <Check className="w-4 h-4 text-emerald-500" />
+                        ) : (
+                          <Copy className="w-4 h-4" />
+                        )}
+                      </button>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              <div className="grid grid-cols-3 divide-x divide-slate-800 border-t border-slate-800">
+                <div className="px-2.5 py-2">
+                  <p className="text-[9px] uppercase tracking-wider text-slate-500">Untung</p>
+                  <p className="font-mono font-bold text-emerald-400 text-xs">
+                    {formatRupiah(c.tagihan.admin + c.transaksi.untung)}
+                  </p>
+                </div>
+                <div className="px-2.5 py-2">
+                  <p className="text-[9px] uppercase tracking-wider text-slate-500">Talangan</p>
+                  <p className="font-mono font-bold text-amber-400 text-xs">
+                    {c.tagihan.outstanding > 0 ? formatRupiah(c.tagihan.outstanding) : "-"}
+                  </p>
+                </div>
+                <div className="px-2.5 py-2">
+                  <p className="text-[9px] uppercase tracking-wider text-slate-500">Nilai</p>
+                  <p className="font-mono font-bold text-white text-xs">
+                    {formatRupiah(c.tagihan.nilai)}
+                  </p>
+                </div>
+              </div>
+            </div>
+          ))
+        )}
       </div>
 
       {/* Modal Detail Kontak */}

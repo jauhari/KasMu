@@ -90,6 +90,10 @@ Satu tagihan = 2 struk, dijaga flag `providerApplied`/`cashApplied` di Bill:
 
 ## 7. Commit Penting (terbaru dulu)
 
+### Sesi 11 Nov 2026 — rilis v2.8.0 (sudah di server)
+
+- `v2.8.0` ui: redesign halaman kontak — toolbar panel rapi, kartu mobile, dropdown select global tidak terpotong, tinggi input konsisten 42px
+
 ### Sesi 11 Nov 2026 — rilis v2.7.3 (sudah di server)
 
 - `v2.7.3` ux: toolbar kontak dirapikan — filter sejajar, kartu total untung dipisah baris sendiri

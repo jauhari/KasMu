@@ -1,5 +1,16 @@
 # KasMu - Changelog
 
+## [2.8.0] - 2026-11-11
+
+### Redesign UI: Halaman Kontak Pelanggan
+
+- **Toolbar jadi satu panel rapi**: pencarian, filter layanan, dan tombol Tambah Kontak sejajar dengan tinggi seragam (42px).
+- **Kartu ringkasan** di bawah toolbar: Total Untung Sudah Cair + Potensi Untung Talangan (label diperjelas).
+- **Tampilan kartu untuk HP**: tabel 880px yang harus di-scroll horizontal diganti daftar kartu berisi nama, nomor layanan (dengan tombol salin), ringkasan untung/talangan/nilai, dan tombol Kelola.
+- **Dropdown Select diperbaiki global**: daftar opsi tidak lagi terpotong selebar tombol; teks opsi tidak terlipat (`min-w-full w-max`, `whitespace-nowrap`).
+- **Konsistensi tinggi input**: padding input disamakan dengan trigger select (42px) di seluruh aplikasi, lebih nyaman di layar sentuh.
+- Nama kontak dan nomor layanan di tabel tidak lagi terlipat ke baris baru.
+
 ## [2.7.3] - 2026-11-11
 
 ### Perbaikan UX: Toolbar Kontak Pelanggan Dirapikan

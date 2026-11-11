@@ -54,7 +54,7 @@ export function Select({
         onClick={() => setOpen((o) => !o)}
       >
         <div
-          className="km-select-trigger w-full bg-transparent text-sm font-mono text-slate-900 dark:text-slate-100 border-b border-slate-400/30 focus:border-amber-600 dark:focus:border-amber-500 outline-none px-1 py-2.5 cursor-pointer"
+          className="km-select-trigger w-full bg-transparent text-sm font-mono text-slate-900 dark:text-slate-100 border-b border-slate-400/30 focus:border-amber-600 dark:focus:border-amber-500 outline-none px-3 py-2.5 cursor-pointer flex items-center justify-between gap-2"
         >
           <span className="km-select-display truncate">{displayValue}</span>
           <span className="km-select-caret ml-1 text-[10px] text-slate-400">
@@ -62,11 +62,11 @@ export function Select({
           </span>
         </div>
         {open && (
-          <div className="km-select-list absolute z-50 w-full bg-white dark:bg-[#0c1220] border border-slate-400/60 mt-0.5 max-h-48 overflow-y-auto shadow-lg">
+          <div className="km-select-list absolute z-50 min-w-full w-max max-w-[16rem] bg-white dark:bg-[#0c1220] border border-slate-400/60 mt-0.5 max-h-48 overflow-y-auto shadow-lg">
             {options.map((opt: { value: string; label: string }) => (
               <div
                 key={opt.value}
-                className={`km-select-option px-3 py-2 text-xs font-mono cursor-pointer hover:bg-amber-50 dark:hover:bg-amber-900/20 ${
+                className={`km-select-option px-3 py-2 text-xs font-mono whitespace-nowrap cursor-pointer hover:bg-amber-50 dark:hover:bg-amber-900/20 ${
                   opt.value === value
                     ? "bg-amber-50 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400 font-bold"
                     : "text-slate-700 dark:text-slate-300 border-b border-slate-200/50 dark:border-slate-800/50 last:border-0"
