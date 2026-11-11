@@ -94,6 +94,10 @@ Satu tagihan = 2 struk, dijaga flag `providerApplied`/`cashApplied` di Bill:
 
 ## 7. Commit Penting (terbaru dulu)
 
+### Sesi 11 Nov 2026 — rilis v2.10.0 (sudah di server)
+
+- `v2.10.0` fitur: menu Export di halaman Kontak — CSV direktori nomor PLN/PDAM/BPJS, CSV semua kontak lengkap, salin daftar nomor. Mengikuti filter aktif; CSV `;` + BOM UTF-8 untuk Excel Indonesia. Helper baru `src/lib/export.ts`.
+
 ### Sesi 11 Nov 2026 — rilis v2.9.2 (sudah di server)
 
 - `v2.9.2` penyatuan sistem warna: ramp netral hangat, sidebar amber, modal netral, toast gelap, grafik amber

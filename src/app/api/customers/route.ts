@@ -93,6 +93,8 @@ export async function GET(req: NextRequest) {
       return {
         id: c.id,
         name: c.name,
+        phone: c.phone,
+        notes: c.notes,
         numbers: c.numbers.map((n) => ({ id: n.id, jenis: n.jenis, noPelanggan: n.noPelanggan })),
         tagihan: {
           total: bills.length,

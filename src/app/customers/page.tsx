@@ -1,16 +1,19 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Header from "@/components/Header";
 import { formatRupiah, formatDateTimeID } from "@/lib/utils";
-import { Contact, Zap, Receipt, X, Copy, Check } from "lucide-react";
+import { Contact, Zap, Receipt, X, Copy, Check, Download, ChevronDown, FileSpreadsheet, ClipboardList } from "lucide-react";
 import { toast } from "sonner";
 import { Input, Button, Badge, Select, Modal } from "@/components/ui";
 import QuickTransactionModal from "@/components/QuickTransactionModal";
+import { downloadCsv, safeFilename } from "@/lib/export";
 
 interface Aggregate {
   id: string;
   name: string;
+  phone?: string | null;
+  notes?: string | null;
   numbers: { id: string; jenis: string; noPelanggan: string }[];
   tagihan: {
     total: number;
@@ -73,6 +76,26 @@ export default function CustomersPage() {
   const [detailTxs, setDetailTxs] = useState<DetailTx[]>([]);
   const [detailLoading, setDetailLoading] = useState(false);
   const [showQuickTx, setShowQuickTx] = useState(false);
+  const [exportOpen, setExportOpen] = useState(false);
+  const exportRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!exportOpen) return;
+    const onDown = (e: MouseEvent) => {
+      if (exportRef.current && !exportRef.current.contains(e.target as Node)) {
+        setExportOpen(false);
+      }
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setExportOpen(false);
+    };
+    document.addEventListener("mousedown", onDown);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDown);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [exportOpen]);
 
   const load = useCallback(async (search?: string, filterJenis?: string) => {
     try {
@@ -209,6 +232,92 @@ export default function CustomersPage() {
     0
   );
 
+  // ===== Ekspor kontak =====
+  // Nomor layanan yang dianggap "utilitas" untuk ekspor direktori.
+  const isUtilityJenis = (j: string) => j === "PLN" || j === "PDAM" || j.startsWith("BPJS");
+
+  const utilityNumberCount = rows.reduce(
+    (s, c) => s + c.numbers.filter((n) => isUtilityJenis(n.jenis)).length,
+    0
+  );
+
+  const handleExportDirectory = () => {
+    const header = ["Nama Kontak", "No HP", "Jenis Layanan", "Nomor Pelanggan", "Catatan"];
+    const body: (string | number)[][] = [];
+    for (const c of rows) {
+      for (const n of c.numbers.filter((x) => isUtilityJenis(x.jenis))) {
+        body.push([c.name, c.phone || "", n.jenis, n.noPelanggan, c.notes || ""]);
+      }
+    }
+    if (body.length === 0) {
+      toast.error("Tidak ada nomor PLN/PDAM/BPJS untuk diekspor");
+      return;
+    }
+    downloadCsv(safeFilename("kontak-pln-pdam-bpjs", "csv"), [header, ...body]);
+    toast.success(`${body.length} nomor diekspor ke CSV`);
+    setExportOpen(false);
+  };
+
+  const handleExportFull = () => {
+    const header = [
+      "Nama Kontak",
+      "No HP",
+      "Jenis Layanan",
+      "Nomor Pelanggan",
+      "Total Tagihan",
+      "Lunas",
+      "Talangan",
+      "Nilai Tagihan",
+      "Untung Admin Cair",
+      "Potensi Untung Talangan",
+      "Transaksi Kasir",
+      "Untung Kasir",
+      "Catatan",
+    ];
+    const body = rows.map((c) => [
+      c.name,
+      c.phone || "",
+      c.numbers.map((n) => n.jenis).join(" | "),
+      c.numbers.map((n) => n.noPelanggan).join(" | "),
+      c.tagihan.total,
+      c.tagihan.lunas,
+      c.tagihan.talangan,
+      c.tagihan.nilai,
+      c.tagihan.admin,
+      c.tagihan.adminTalangan,
+      c.transaksi.count,
+      c.transaksi.untung,
+      c.notes || "",
+    ]);
+    if (body.length === 0) {
+      toast.error("Belum ada kontak untuk diekspor");
+      return;
+    }
+    downloadCsv(safeFilename("kontak-pelanggan-lengkap", "csv"), [header, ...body]);
+    toast.success(`${body.length} kontak diekspor ke CSV`);
+    setExportOpen(false);
+  };
+
+  const handleCopyNumbers = async () => {
+    const lines: string[] = [];
+    for (const c of rows) {
+      for (const n of c.numbers.filter((x) => isUtilityJenis(x.jenis))) {
+        lines.push(`${c.name} — ${n.jenis}: ${n.noPelanggan}`);
+      }
+    }
+    if (lines.length === 0) {
+      toast.error("Tidak ada nomor PLN/PDAM/BPJS untuk disalin");
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(lines.join("\n"));
+      toast.success(`${lines.length} nomor disalin`);
+      setExportOpen(false);
+    } catch {
+      toast.error("Gagal menyalin");
+    }
+  };
+
   // Prefill form transaksi kasir dari kontak yang sedang dibuka.
   const txPreset = detail
     ? {
@@ -242,7 +351,7 @@ export default function CustomersPage() {
             onValueChange={setQ}
             placeholder="Nama atau nomor pelanggan…"
           />
-          <div className="flex items-end gap-3">
+          <div className="flex flex-col sm:flex-row sm:items-end gap-3">
             <div className="flex-1 min-w-0">
               <Select
                 label="Layanan"
@@ -257,20 +366,111 @@ export default function CustomersPage() {
                 ]}
               />
             </div>
-            <Button
-              variant="solid"
-              size="md"
-              className="h-[42px] px-5 shrink-0 whitespace-nowrap"
-              onClick={() => {
-                setNewContactName("");
-                setNewContactPhone("");
-                setNewContactJenis("PLN");
-                setNewContactNumber("");
-                setShowAddContact(true);
-              }}
-            >
-              + Tambah Kontak
-            </Button>
+
+            <div className="flex items-stretch gap-2 shrink-0">
+              {/* Menu Export */}
+              <div className="relative flex-1 sm:flex-none" ref={exportRef}>
+                <button
+                  type="button"
+                  onClick={() => setExportOpen((o) => !o)}
+                  aria-haspopup="menu"
+                  aria-expanded={exportOpen}
+                  className={`h-[42px] w-full sm:w-auto px-4 inline-flex items-center justify-center gap-2 border text-[11px] font-bold uppercase tracking-wider transition-colors ${
+                    exportOpen
+                      ? "border-amber-500 text-amber-400 bg-amber-500/10"
+                      : "border-slate-700 text-slate-300 bg-[#17171c] hover:border-amber-500 hover:text-amber-400"
+                  }`}
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Export</span>
+                  <ChevronDown
+                    className={`w-3.5 h-3.5 transition-transform ${exportOpen ? "rotate-180" : ""}`}
+                  />
+                </button>
+
+                {exportOpen && (
+                  <div
+                    role="menu"
+                    className="absolute left-0 sm:left-auto sm:right-0 top-full mt-1 z-50 w-[19rem] max-w-[calc(100vw-2rem)] bg-[#121216] border border-slate-700 shadow-2xl"
+                  >
+                    <div className="px-3 py-2 border-b border-slate-800">
+                      <p className="text-[9px] uppercase tracking-widest text-slate-500">
+                        Ekspor sesuai filter aktif
+                      </p>
+                      <p className="text-[10px] text-slate-400 mt-0.5">
+                        {rows.length} kontak · {utilityNumberCount} nomor PLN/PDAM/BPJS
+                      </p>
+                    </div>
+
+                    <button
+                      type="button"
+                      role="menuitem"
+                      onClick={handleExportDirectory}
+                      className="w-full text-left px-3 py-2.5 flex items-start gap-2.5 hover:bg-[#17171c] transition-colors border-b border-slate-800/60"
+                    >
+                      <FileSpreadsheet className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+                      <span className="min-w-0">
+                        <span className="block text-[11px] font-semibold text-white">
+                          CSV — Direktori nomor
+                        </span>
+                        <span className="block text-[10px] text-slate-500 leading-snug">
+                          Nama, no HP, jenis, nomor pelanggan. Hanya PLN/PDAM/BPJS.
+                        </span>
+                      </span>
+                    </button>
+
+                    <button
+                      type="button"
+                      role="menuitem"
+                      onClick={handleExportFull}
+                      className="w-full text-left px-3 py-2.5 flex items-start gap-2.5 hover:bg-[#17171c] transition-colors border-b border-slate-800/60"
+                    >
+                      <FileSpreadsheet className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
+                      <span className="min-w-0">
+                        <span className="block text-[11px] font-semibold text-white">
+                          CSV — Semua kontak (lengkap)
+                        </span>
+                        <span className="block text-[10px] text-slate-500 leading-snug">
+                          Termasuk tagihan, untung admin, dan transaksi kasir.
+                        </span>
+                      </span>
+                    </button>
+
+                    <button
+                      type="button"
+                      role="menuitem"
+                      onClick={handleCopyNumbers}
+                      className="w-full text-left px-3 py-2.5 flex items-start gap-2.5 hover:bg-[#17171c] transition-colors"
+                    >
+                      <ClipboardList className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
+                      <span className="min-w-0">
+                        <span className="block text-[11px] font-semibold text-white">
+                          Salin daftar nomor
+                        </span>
+                        <span className="block text-[10px] text-slate-500 leading-snug">
+                          Tempel ke WhatsApp atau catatan. PLN/PDAM/BPJS saja.
+                        </span>
+                      </span>
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              <Button
+                variant="solid"
+                size="md"
+                className="h-[42px] px-5 shrink-0 whitespace-nowrap"
+                onClick={() => {
+                  setNewContactName("");
+                  setNewContactPhone("");
+                  setNewContactJenis("PLN");
+                  setNewContactNumber("");
+                  setShowAddContact(true);
+                }}
+              >
+                + Tambah Kontak
+              </Button>
+            </div>
           </div>
         </div>
 

@@ -1,5 +1,24 @@
 # KasMu - Changelog
 
+## [2.10.0] - 2026-11-11
+
+### Fitur Baru: Menu Export Kontak
+
+Tombol **Export** di toolbar halaman Kontak Pelanggan, berisi tiga aksi:
+
+- **CSV — Direktori nomor**: satu baris per nomor layanan, hanya PLN/PDAM/BPJS. Kolom: Nama Kontak, No HP, Jenis Layanan, Nomor Pelanggan, Catatan. Ini format yang dipakai untuk daftar setoran/keliling.
+- **CSV — Semua kontak (lengkap)**: satu baris per kontak, termasuk ringkasan tagihan (total, lunas, talangan, nilai), untung admin cair, potensi untung talangan, jumlah transaksi kasir, dan untung kasir.
+- **Salin daftar nomor**: menyalin `Nama — JENIS: nomor` ke clipboard, siap tempel ke WhatsApp.
+
+Detail teknis:
+
+- Ekspor **mengikuti filter yang sedang aktif** (pencarian + jenis layanan). Menu menampilkan jumlah kontak dan jumlah nomor yang akan diekspor sebelum diklik.
+- CSV memakai pemisah `;` + BOM UTF-8, sehingga langsung rapi saat dibuka di Excel dengan regional Indonesia (koma sebagai desimal).
+- Nama file otomatis berisi tanggal, contoh `kontak-pln-pdam-bpjs-11-11-2026.csv`.
+- Helper baru `src/lib/export.ts` (`toCsv`, `downloadCsv`, `downloadText`, `safeFilename`) — tanpa dependensi tambahan.
+- `GET /api/customers` kini juga mengembalikan `phone` dan `notes`.
+- Menu dropdown responsif: di layar sempit menempel ke kiri tombol agar tidak terpotong.
+
 ## [2.9.2] - 2026-11-11
 
 ### Penyatuan Sistem Warna (Color Harmonization)
