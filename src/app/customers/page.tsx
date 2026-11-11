@@ -214,11 +214,11 @@ export default function CustomersPage() {
         subtitle="Riwayat nilai & keuntungan per kontak: tagihan BRILink + transaksi kasir"
       />
 
-      <div className="flex flex-wrap items-end gap-3">
-        <div className="flex-1 min-w-40">
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="flex-1 min-w-56">
           <Input value={q} onValueChange={setQ} placeholder="Cari nama atau nomor pelanggan..." />
         </div>
-        <div className="w-40">
+        <div className="w-44">
           <Select
             value={jenis}
             onValueChange={setJenis}
@@ -244,17 +244,28 @@ export default function CustomersPage() {
         >
           + Tambah Kontak
         </Button>
-        <div className="bg-[#0d0d11] border border-slate-700 rounded-none p-3 text-xs">
+      </div>
+
+      <div className="bg-[#0d0d11] border border-slate-700 rounded-none px-4 py-3 flex flex-wrap items-center gap-x-6 gap-y-1 text-xs">
+        <div className="flex items-baseline gap-2">
           <span className="text-slate-500 text-[10px] uppercase tracking-wider">
             Total Untung Sudah Cair
           </span>
-          <p className="font-mono font-bold text-emerald-400 text-base">{formatRupiah(totalUntungCair)}</p>
-          {totalPotensiTalangan > 0 && (
-            <p className="text-[10px] text-amber-400 mt-1">
-              + {formatRupiah(totalPotensiTalangan)} potensi talangan (belum dibayar)
-            </p>
-          )}
+          <span className="font-mono font-bold text-emerald-400 text-base">
+            {formatRupiah(totalUntungCair)}
+          </span>
         </div>
+        {totalPotensiTalangan > 0 && (
+          <div className="flex items-baseline gap-2">
+            <span className="text-slate-500 text-[10px] uppercase tracking-wider">
+              Potensi Talangan
+            </span>
+            <span className="font-mono font-semibold text-amber-400 text-base">
+              {formatRupiah(totalPotensiTalangan)}
+            </span>
+            <span className="text-[10px] text-slate-600">(belum dibayar)</span>
+          </div>
+        )}
       </div>
 
       <div className="bg-[#0d0d11] border border-slate-700 rounded-none overflow-x-auto">

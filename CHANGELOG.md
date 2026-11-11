@@ -1,5 +1,12 @@
 # KasMu - Changelog
 
+## [2.7.3] - 2026-11-11
+
+### Perbaikan UX: Toolbar Kontak Pelanggan Dirapikan
+
+- Toolbar dipisah jadi dua baris: baris atas berisi **pencarian + filter layanan + tombol Tambah Kontak** sejajar rapi, baris bawah berisi kartu ringkasan **Total Untung Sudah Cair** dan **Potensi Talangan** dalam satu kotak horizontal.
+- Kotak ringkasan tidak lagi melayang di kanan atas menyebabkan layout pecah di layar sempit.
+
 ## [2.7.2] - 2026-11-11
 
 ### Perbaikan UX: Tombol "Kelola" di Setiap Baris Kontak
