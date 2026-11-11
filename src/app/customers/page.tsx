@@ -216,43 +216,43 @@ export default function CustomersPage() {
 
       {/* Toolbar */}
       <div className="bg-[#0d0d11] border border-slate-700 rounded-none">
-        <div className="flex flex-col md:flex-row md:items-end gap-3 p-4">
-          <div className="flex-1 min-w-0">
-            <Input
-              label="Cari Kontak"
-              value={q}
-              onValueChange={setQ}
-              placeholder="Nama atau nomor pelanggan…"
-            />
+        <div className="p-4 space-y-3">
+          <Input
+            label="Cari Kontak"
+            value={q}
+            onValueChange={setQ}
+            placeholder="Nama atau nomor pelanggan…"
+          />
+          <div className="flex items-end gap-3">
+            <div className="flex-1 min-w-0">
+              <Select
+                label="Layanan"
+                value={jenis}
+                onValueChange={setJenis}
+                options={[
+                  { value: "", label: "Semua Layanan" },
+                  { value: "PLN", label: "PLN" },
+                  { value: "PDAM", label: "PDAM" },
+                  { value: "BPJS TK", label: "BPJS TK" },
+                  { value: "BPJS Kes", label: "BPJS Kes" },
+                ]}
+              />
+            </div>
+            <Button
+              variant="solid"
+              size="md"
+              className="h-[42px] px-5 shrink-0 whitespace-nowrap"
+              onClick={() => {
+                setNewContactName("");
+                setNewContactPhone("");
+                setNewContactJenis("PLN");
+                setNewContactNumber("");
+                setShowAddContact(true);
+              }}
+            >
+              + Tambah Kontak
+            </Button>
           </div>
-          <div className="w-full md:w-48 shrink-0">
-            <Select
-              label="Layanan"
-              value={jenis}
-              onValueChange={setJenis}
-              options={[
-                { value: "", label: "Semua Layanan" },
-                { value: "PLN", label: "PLN" },
-                { value: "PDAM", label: "PDAM" },
-                { value: "BPJS TK", label: "BPJS TK" },
-                { value: "BPJS Kes", label: "BPJS Kes" },
-              ]}
-            />
-          </div>
-          <Button
-            variant="solid"
-            size="md"
-            className="h-[42px] px-5 shrink-0 w-full md:w-auto"
-            onClick={() => {
-              setNewContactName("");
-              setNewContactPhone("");
-              setNewContactJenis("PLN");
-              setNewContactNumber("");
-              setShowAddContact(true);
-            }}
-          >
-            + Tambah Kontak
-          </Button>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 border-t border-slate-800 divide-y sm:divide-y-0 sm:divide-x divide-slate-800">

@@ -1,5 +1,14 @@
 # KasMu - Changelog
 
+## [2.8.1] - 2026-11-11
+
+### Perbaikan Kritis: CSS Server Tidak Memuat Class Baru
+
+- **Akar masalah**: `tailwind.config.ts` hanya memindai `./src/**`, padahal di server kode aplikasi berada di root (`app/`, `components/`). Tailwind jadi memindai folder `src/` lama sisa deploy sebelumnya → semua class baru (`md:`, ukuran, warna) tidak pernah masuk ke CSS produksi.
+- `content` sekarang mencakup kedua lokasi (`src/**` untuk lokal, `app/**` + `components/**` + `lib/**` untuk server).
+- Folder `src/` basi di server dihapus.
+- Toolbar kontak dibuat tanpa media query responsif (dua baris tetap) agar tidak bisa pecah di lebar apa pun.
+
 ## [2.8.0] - 2026-11-11
 
 ### Redesign UI: Halaman Kontak Pelanggan
