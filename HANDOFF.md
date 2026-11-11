@@ -90,6 +90,10 @@ Satu tagihan = 2 struk, dijaga flag `providerApplied`/`cashApplied` di Bill:
 
 ## 7. Commit Penting (terbaru dulu)
 
+### Sesi 11 Nov 2026 — rilis v2.7.2 (sudah di server)
+
+- `v2.7.2` ux: tombol Kelola eksplisit di setiap baris kontak untuk buka detail
+
 ### Sesi 11 Nov 2026 — rilis v2.7.1 (sudah di server)
 
 - `v2.7.1` ux: modal detail kontak dirapikan — nomor layanan jadi section sendiri, tombol + Tambah Nomor selalu terlihat

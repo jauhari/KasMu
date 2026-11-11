@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import Header from "@/components/Header";
 import { formatRupiah, formatDateTimeID } from "@/lib/utils";
-import { Contact, Zap, Receipt, ChevronRight, X, Copy, Check } from "lucide-react";
+import { Contact, Zap, Receipt, X, Copy, Check } from "lucide-react";
 import { toast } from "sonner";
 import { Input, Button, Badge, Select, Modal } from "@/components/ui";
 
@@ -358,7 +358,15 @@ export default function CustomersPage() {
                     {c.transaksi.count > 0 ? formatRupiah(c.transaksi.untung) : "-"}
                   </td>
                   <td className="px-3 py-2.5 text-right">
-                    <ChevronRight className="w-3.5 h-3.5 text-slate-600" />
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openDetail(c);
+                      }}
+                      className="px-2.5 py-1.5 border border-slate-600 text-[10px] font-semibold text-slate-200 hover:bg-amber-500 hover:border-amber-500 hover:text-black transition-colors"
+                    >
+                      Kelola
+                    </button>
                   </td>
                 </tr>
               ))

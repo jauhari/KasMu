@@ -1,5 +1,12 @@
 # KasMu - Changelog
 
+## [2.7.2] - 2026-11-11
+
+### Perbaikan UX: Tombol "Kelola" di Setiap Baris Kontak
+
+- Setiap baris kontak sekarang punya tombol **Kelola** yang jelas (highlight amber saat hover) untuk membuka detail kontak — tidak perlu menebak bahwa baris harus diklik.
+- Panah `>` di ujung kanan baris diganti tombol Kelola.
+
 ## [2.7.1] - 2026-11-11
 
 ### Perbaikan UX: Modal Detail Kontak Dirapikan
