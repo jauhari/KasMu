@@ -33,8 +33,8 @@ import {
 import { useTheme } from "@/components/ThemeProvider";
 import Link from "next/link";
 
-// Palet grafik selaras desain terminal-amber (aksen utama = amber)
-const PIE_COLORS = ["#f59e0b", "#0ea5e9", "#10b981", "#8b5cf6", "#f43f5e", "#38bdf8"];
+// Palet grafik selaras desain terminal-amber: satu ramp hangat, bukan pelangi.
+const PIE_COLORS = ["#fbbf24", "#b45309", "#f59e0b", "#78716c", "#d97706", "#a8a29e"];
 // Warna default lama dari data awal — dianggap "belum ditata" dan diganti palet tema
 const LEGACY_DEFAULT_COLOR = "#2563eb";
 const colorFor = (acc: { color?: string | null }, index: number) =>
@@ -43,8 +43,8 @@ const colorFor = (acc: { color?: string | null }, index: number) =>
     : PIE_COLORS[index % PIE_COLORS.length];
 // Tooltip Recharts ikut design system: sudut tajam, panel tema, mono
 const tooltipStyle = (isDark: boolean) => ({
-  backgroundColor: isDark ? "#15151a" : "#ffffff",
-  border: `1px solid ${isDark ? "#334155" : "#94a3b8"}`,
+  backgroundColor: isDark ? "#17171c" : "#ffffff",
+  border: `1px solid ${isDark ? "#3b3b45" : "#94a3b8"}`,
   borderRadius: 0,
   fontSize: "11px",
   fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
@@ -122,12 +122,12 @@ export default function DashboardClient({ initialData, currentUser }: DashboardC
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-3">
         <div className="text-slate-600 text-xs flex items-center gap-2">
-          <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+          <div className="w-4 h-4 border-2 border-amber-600 border-t-transparent rounded-full animate-spin"></div>
           <span>Memuat data KasMu...</span>
         </div>
         <button
           onClick={loadData}
-          className="text-[11px] text-blue-500 underline hover:opacity-80 transition-opacity cursor-pointer"
+          className="text-[11px] text-amber-500 underline hover:opacity-80 transition-opacity cursor-pointer"
         >
           Muat ulang manual
         </button>
@@ -170,7 +170,7 @@ export default function DashboardClient({ initialData, currentUser }: DashboardC
         /* OWNER KPI CARDS */
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
           {/* Card 1: Profit Hari Ini */}
-          <div className="bg-[#0d0d11] border border-slate-700 rounded-none p-3 sm:p-4 transition-colors">
+          <div className="bg-[#0e0e12] border border-slate-700 rounded-none p-3 sm:p-4 transition-colors">
             <div className="flex items-center justify-between text-slate-600 mb-1">
               <span className="text-[10px] sm:text-[11px] font-semibold tracking-wider uppercase truncate">Profit Hari Ini</span>
               <TrendingUp className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
@@ -184,10 +184,10 @@ export default function DashboardClient({ initialData, currentUser }: DashboardC
           </div>
 
           {/* Card 2: Profit Bulanan */}
-          <div className="bg-[#0d0d11] border border-slate-700 rounded-none p-3 sm:p-4 transition-colors">
+          <div className="bg-[#0e0e12] border border-slate-700 rounded-none p-3 sm:p-4 transition-colors">
             <div className="flex items-center justify-between text-slate-600 mb-1">
               <span className="text-[10px] sm:text-[11px] font-semibold tracking-wider uppercase truncate">Profit Bulanan</span>
-              <Wallet className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-500 shrink-0" />
+              <Wallet className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-500 shrink-0" />
             </div>
             <div className="text-base sm:text-2xl font-bold font-mono tracking-tight text-white truncate">
               {formatRupiah(kpi.profitMonth)}
@@ -198,10 +198,10 @@ export default function DashboardClient({ initialData, currentUser }: DashboardC
           </div>
 
           {/* Card 3: Total Transaksi Hari Ini */}
-          <div className="bg-[#0d0d11] border border-slate-700 rounded-none p-3 sm:p-4 transition-colors">
+          <div className="bg-[#0e0e12] border border-slate-700 rounded-none p-3 sm:p-4 transition-colors">
             <div className="flex items-center justify-between text-slate-600 mb-1">
               <span className="text-[10px] sm:text-[11px] font-semibold tracking-wider uppercase truncate">Transaksi Hari Ini</span>
-              <Activity className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-indigo-600 dark:text-indigo-400 shrink-0" />
+              <Activity className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-500 shrink-0" />
             </div>
             <div className="text-base sm:text-2xl font-bold font-mono tracking-tight text-white truncate">
               {formatNumber(kpi.countToday)}
@@ -212,7 +212,7 @@ export default function DashboardClient({ initialData, currentUser }: DashboardC
           </div>
 
           {/* Card 4: Biaya Operasional */}
-          <div className="bg-[#0d0d11] border border-slate-700 rounded-none p-3 sm:p-4 transition-colors">
+          <div className="bg-[#0e0e12] border border-slate-700 rounded-none p-3 sm:p-4 transition-colors">
             <div className="flex items-center justify-between text-slate-600 mb-1">
               <span className="text-[10px] sm:text-[11px] font-semibold tracking-wider uppercase truncate">Biaya Operasional</span>
               <ArrowDownUp className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-600 dark:text-amber-400 shrink-0" />
@@ -235,21 +235,21 @@ export default function DashboardClient({ initialData, currentUser }: DashboardC
         /* KASIR / STAFF KPI CARDS (Safe & Operation-Focused) */
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
           {/* Card 1: Transaksi Saya */}
-          <div className="bg-[#0d0d11] border border-slate-700 rounded-none p-3 sm:p-4 transition-colors">
+          <div className="bg-[#0e0e12] border border-slate-700 rounded-none p-3 sm:p-4 transition-colors">
             <div className="flex items-center justify-between text-slate-600 mb-1">
               <span className="text-[10px] sm:text-[11px] font-semibold tracking-wider uppercase truncate">Transaksi Saya</span>
-              <Receipt className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-500 shrink-0" />
+              <Receipt className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-500 shrink-0" />
             </div>
             <div className="text-base sm:text-2xl font-bold font-mono tracking-tight text-white truncate">
               {formatNumber(kpi.myCountToday || kpi.countToday)} Trx
             </div>
-            <p className="text-[10px] sm:text-[11px] text-blue-500 mt-0.5 font-medium truncate">
+            <p className="text-[10px] sm:text-[11px] text-slate-500 mt-0.5 font-medium truncate">
               Nasabah dilayani shift ini
             </p>
           </div>
 
           {/* Card 2: Volume Transaksi Saya */}
-          <div className="bg-[#0d0d11] border border-slate-700 rounded-none p-3 sm:p-4 transition-colors">
+          <div className="bg-[#0e0e12] border border-slate-700 rounded-none p-3 sm:p-4 transition-colors">
             <div className="flex items-center justify-between text-slate-600 mb-1">
               <span className="text-[10px] sm:text-[11px] font-semibold tracking-wider uppercase truncate">Volume Transaksi</span>
               <ArrowDownUp className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
@@ -263,10 +263,10 @@ export default function DashboardClient({ initialData, currentUser }: DashboardC
           </div>
 
           {/* Card 3: Total Transaksi Semua Kasir */}
-          <div className="bg-[#0d0d11] border border-slate-700 rounded-none p-3 sm:p-4 transition-colors">
+          <div className="bg-[#0e0e12] border border-slate-700 rounded-none p-3 sm:p-4 transition-colors">
             <div className="flex items-center justify-between text-slate-600 mb-1">
               <span className="text-[10px] sm:text-[11px] font-semibold tracking-wider uppercase truncate">Semua Loket</span>
-              <Activity className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-indigo-600 dark:text-indigo-400 shrink-0" />
+              <Activity className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-500 shrink-0" />
             </div>
             <div className="text-base sm:text-2xl font-bold font-mono tracking-tight text-white truncate">
               {formatNumber(kpi.countToday)} Trx
@@ -277,7 +277,7 @@ export default function DashboardClient({ initialData, currentUser }: DashboardC
           </div>
 
           {/* Card 4: Status Kas Laci */}
-          <div className="bg-[#0d0d11] border border-slate-700 rounded-none p-3 sm:p-4 transition-colors">
+          <div className="bg-[#0e0e12] border border-slate-700 rounded-none p-3 sm:p-4 transition-colors">
             <div className="flex items-center justify-between text-slate-600 mb-1">
               <span className="text-[10px] sm:text-[11px] font-semibold tracking-wider uppercase truncate">Kas Laci</span>
               <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-500 shrink-0" />
@@ -287,7 +287,7 @@ export default function DashboardClient({ initialData, currentUser }: DashboardC
             </div>
             <Link
               href="/opname"
-              className="text-[10px] sm:text-[11px] text-blue-500 hover:underline mt-0.5 block font-medium truncate"
+              className="text-[10px] sm:text-[11px] text-amber-500 hover:underline mt-0.5 block font-medium truncate"
             >
               Hitung fisik laci →
             </Link>
@@ -300,14 +300,14 @@ export default function DashboardClient({ initialData, currentUser }: DashboardC
         <div className="grid grid-cols-2 gap-2.5 sm:gap-4">
           <button
             onClick={() => setIsModalOpen(true)}
-            className="flex items-center justify-center gap-2 p-3 sm:p-3.5 rounded-none bg-gradient-to-r from-amber-600 to-orange-500 hover:from-amber-500 hover:to-amber-400 text-white font-bold text-xs sm:text-sm active:scale-98 transition-all cursor-pointer shadow-amber-600/20"
+            className="flex items-center justify-center gap-2 p-3 sm:p-3.5 rounded-none bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs sm:text-sm active:scale-98 transition-colors cursor-pointer shadow-amber-600/20"
           >
             <Plus className="w-4 h-4 stroke-[2.5]" />
             <span>Catat Transaksi Baru (F2)</span>
           </button>
           <Link
             href="/opname"
-            className="flex items-center justify-center gap-2 p-3 sm:p-3.5 rounded-none bg-[#0d0d11] border border-slate-700 hover:bg-[#15151a]/50 text-slate-400 hover:text-white font-bold text-xs sm:text-sm active:scale-98 transition-all"
+            className="flex items-center justify-center gap-2 p-3 sm:p-3.5 rounded-none bg-[#0e0e12] border border-slate-700 hover:bg-[#17171c]/50 text-slate-400 hover:text-white font-bold text-xs sm:text-sm active:scale-98 transition-all"
           >
             <Lock className="w-4 h-4 text-amber-500" />
             <span>Hitung Opname Kas Laci</span>
@@ -318,7 +318,7 @@ export default function DashboardClient({ initialData, currentUser }: DashboardC
       {/* === 2. MIDDLE ROW: TRANSAKSI TERAKHIR & (OWNER: SALDO AKUN / KASIR: SHORTCUTS) === */}
       <div className={`grid grid-cols-1 ${isOwner ? "lg:grid-cols-2" : ""} gap-4 sm:gap-6`}>
         {/* Left: Transaksi Terakhir */}
-        <div className="bg-[#0d0d11] border border-slate-700 rounded-none p-4 sm:p-5 transition-colors">
+        <div className="bg-[#0e0e12] border border-slate-700 rounded-none p-4 sm:p-5 transition-colors">
           <div className="flex items-center justify-between mb-3 pb-3 border-b border-slate-100 dark:border-slate-800/80">
             <div>
               <h3 className="text-xs sm:text-sm font-bold text-white">Transaksi Terakhir</h3>
@@ -326,7 +326,7 @@ export default function DashboardClient({ initialData, currentUser }: DashboardC
                 {isOwner ? "Aktivitas layanan perbankan hari ini" : "Transaksi perbankan kasir terbaru"}
               </p>
             </div>
-            <Link href="/transaksi" className="text-xs font-semibold text-blue-500 hover:underline">
+            <Link href="/transaksi" className="text-xs font-semibold text-amber-500 hover:text-amber-400 hover:underline">
               Lihat Semua
             </Link>
           </div>
@@ -338,7 +338,7 @@ export default function DashboardClient({ initialData, currentUser }: DashboardC
               latestTxs.map((tx: any) => (
                 <div
                   key={tx.id}
-                  className="flex items-center justify-between p-2.5 rounded-none border border-slate-700/60 hover:bg-[#15151a]/50 transition-colors group text-xs"
+                  className="flex items-center justify-between p-2.5 rounded-none border border-slate-700/60 hover:bg-[#17171c]/50 transition-colors group text-xs"
                 >
                   <div className="min-w-0 pr-2">
                     <div className="font-semibold text-slate-200 flex items-center gap-1.5 truncate">
@@ -369,7 +369,7 @@ export default function DashboardClient({ initialData, currentUser }: DashboardC
                     <button
                       onClick={() => setSelectedTxForReceipt(tx)}
                       title="Cetak Struk"
-                      className="p-1.5 rounded-none bg-[#15151a] hover:bg-slate-800 text-slate-500 hover:text-white transition-colors cursor-pointer"
+                      className="p-1.5 rounded-none bg-[#17171c] hover:bg-slate-800 text-slate-500 hover:text-white transition-colors cursor-pointer"
                     >
                       <Printer className="w-3.5 h-3.5" />
                     </button>
@@ -382,7 +382,7 @@ export default function DashboardClient({ initialData, currentUser }: DashboardC
 
         {/* Right: Komposisi Saldo Akun (OWNER ONLY) */}
         {isOwner && (
-          <div className="bg-[#0d0d11] border border-slate-700 rounded-none p-4 sm:p-5 transition-colors flex flex-col justify-between">
+          <div className="bg-[#0e0e12] border border-slate-700 rounded-none p-4 sm:p-5 transition-colors flex flex-col justify-between">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800/80 mb-2">
               <div>
                 <h3 className="text-xs sm:text-sm font-bold text-white">Komposisi Saldo Akun</h3>
@@ -390,7 +390,7 @@ export default function DashboardClient({ initialData, currentUser }: DashboardC
               </div>
               <div className="text-right">
                 <span className="text-[9px] sm:text-[10px] text-slate-400 uppercase tracking-wider block">Total Modal</span>
-                <span className="text-sm sm:text-base font-bold font-mono text-blue-500">
+                <span className="text-sm sm:text-base font-bold font-mono text-amber-400">
                   {formatRupiah(totalBalance)}
                 </span>
               </div>
@@ -404,7 +404,7 @@ export default function DashboardClient({ initialData, currentUser }: DashboardC
                     : "Belum ada saldo positif untuk ditampilkan"}
                 </p>
               ) : mounted ? (
-                <ResponsiveContainer width="100%" height="100%">
+                <ResponsiveContainer width="100%" height="100%" key={isDark ? "pie-dark" : "pie-light"}>
                   <PieChart>
                     <Pie
                       data={pieAccounts}
@@ -464,29 +464,29 @@ export default function DashboardClient({ initialData, currentUser }: DashboardC
 
       {/* === 3. BOTTOM: GRAFIK PERTUMBUHAN PROFIT (OWNER ONLY) === */}
       {isOwner && (
-        <div className="bg-[#0d0d11] border border-slate-700 rounded-none p-4 sm:p-5 transition-colors">
+        <div className="bg-[#0e0e12] border border-slate-700 rounded-none p-4 sm:p-5 transition-colors">
           <div className="flex items-center justify-between mb-3 pb-3 border-b border-slate-100 dark:border-slate-800/80">
             <div>
               <h3 className="text-xs sm:text-sm font-bold text-white">Tren Pertumbuhan Profit</h3>
               <p className="text-[10px] sm:text-xs text-slate-600">Grafik laba bersih operasional harian</p>
             </div>
-            <div className="flex items-center gap-1 bg-[#15151a] p-0.5 rounded-none border border-slate-700 text-[10px] sm:text-xs">
+            <div className="flex items-center gap-1 bg-[#17171c] p-0.5 rounded-none border border-slate-700 text-[10px] sm:text-xs">
               <button
                 onClick={() => setChartView("weekly")}
-                className={`px-2 py-0.5 sm:px-2.5 sm:py-1 rounded font-medium transition-all cursor-pointer ${
+                className={`px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-none font-medium transition-colors cursor-pointer ${
                   chartView === "weekly"
-                    ? "bg-[#15151a] text-blue-500 font-bold"
-                    : "text-slate-500 hover:text-slate-900 dark:hover:text-slate-200"
+                    ? "bg-amber-600 text-white font-bold"
+                    : "text-slate-500 hover:text-slate-200"
                 }`}
               >
                 7 Hari
               </button>
               <button
                 onClick={() => setChartView("monthly")}
-                className={`px-2 py-0.5 sm:px-2.5 sm:py-1 rounded font-medium transition-all cursor-pointer ${
+                className={`px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-none font-medium transition-colors cursor-pointer ${
                   chartView === "monthly"
-                    ? "bg-[#15151a] text-blue-500 font-bold"
-                    : "text-slate-500 hover:text-slate-900 dark:hover:text-slate-200"
+                    ? "bg-amber-600 text-white font-bold"
+                    : "text-slate-500 hover:text-slate-200"
                 }`}
               >
                 30 Hari
@@ -542,8 +542,8 @@ export default function DashboardClient({ initialData, currentUser }: DashboardC
 
       {/* Kasir Operational Quick Help (Only for Staff / Kasir) */}
       {!isOwner && (
-        <div className="bg-blue-50/50 dark:bg-blue-950/20 border border-blue-200/50 dark:border-blue-900/40 rounded-none p-4 flex items-start gap-3">
-          <HelpCircle className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
+        <div className="bg-amber-500/5 border border-amber-700/30 rounded-none p-4 flex items-start gap-3">
+          <HelpCircle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
           <div className="text-xs text-slate-400 space-y-1">
             <p className="font-semibold text-white">Panduan Shift Kasir:</p>
             <p>1. Selalu catat transaksi segera setelah nasabah menyetorkan atau menarik uang tunai.</p>

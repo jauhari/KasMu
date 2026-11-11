@@ -440,22 +440,22 @@ export default function TagihanSection() {
 
       {/* Summary */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <div className="bg-[#0d0d11] border border-slate-700 rounded-none p-4">
+        <div className="bg-[#0e0e12] border border-slate-700 rounded-none p-4">
           <p className="text-[10px] uppercase tracking-wider text-slate-500">Total Tagihan</p>
           <p className="text-lg font-bold font-mono text-white">{formatRupiah(totals.tagihan)}</p>
           <p className="text-[10px] text-slate-600">{totals.count} tagihan</p>
         </div>
-        <div className="bg-[#0d0d11] border border-slate-700 rounded-none p-4">
+        <div className="bg-[#0e0e12] border border-slate-700 rounded-none p-4">
           <p className="text-[10px] uppercase tracking-wider text-slate-500">Untung Admin</p>
           <p className="text-lg font-bold font-mono text-emerald-400">{formatRupiah(totals.admin)}</p>
           <p className="text-[10px] text-slate-600">{totals.lunas} lunas / {totals.talangan} talangan / {totals.belum} belum</p>
         </div>
-        <div className="bg-[#0d0d11] border border-slate-700 rounded-none p-4">
+        <div className="bg-[#0e0e12] border border-slate-700 rounded-none p-4">
           <p className="text-[10px] uppercase tracking-wider text-slate-500">Talangan Belum Dibayar</p>
           <p className="text-lg font-bold font-mono text-amber-400">{formatRupiah(totals.talanganOutstanding)}</p>
           <p className="text-[10px] text-slate-600">{totals.talangan} pelanggan belum bayar</p>
         </div>
-        <div className="bg-[#0d0d11] border border-slate-700 rounded-none p-4">
+        <div className="bg-[#0e0e12] border border-slate-700 rounded-none p-4">
           <p className="text-[10px] uppercase tracking-wider text-slate-500">Terenkani (Total)</p>
           <p className="text-lg font-bold font-mono text-white">{formatRupiah(totals.total)}</p>
           <p className="text-[10px] text-slate-600">tagihan + admin</p>
@@ -463,7 +463,7 @@ export default function TagihanSection() {
       </div>
 
       {/* Table */}
-      <div className="bg-[#0d0d11] border border-slate-700 rounded-none overflow-x-auto">
+      <div className="bg-[#0e0e12] border border-slate-700 rounded-none overflow-x-auto">
         <table className="w-full text-xs min-w-[900px]">
           <thead>
             <tr className="border-b border-slate-700 text-left text-[10px] uppercase tracking-wider text-slate-500">
@@ -496,7 +496,7 @@ export default function TagihanSection() {
                 <tr key={b.id} className="border-b border-slate-800/60 hover:bg-slate-900/40 transition-colors">
                   <td className="px-4 py-2.5">
                     <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 bg-[#15151a] border border-slate-700 flex items-center justify-center shrink-0">
+                      <div className="w-6 h-6 bg-[#17171c] border border-slate-700 flex items-center justify-center shrink-0">
                         <Zap className="w-3 h-3 text-amber-400" />
                       </div>
                       <div>
@@ -680,7 +680,7 @@ export default function TagihanSection() {
           )}
 
           {Object.keys(receiptDetails).length > 0 && (
-            <div className="bg-[#080810] border border-slate-800 p-3 space-y-1">
+            <div className="bg-[#0b0b0f] border border-slate-800 p-3 space-y-1">
               <p className="text-[10px] uppercase tracking-wider text-slate-500">Detail Struk (OCR)</p>
               <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-[10px]">
                 {Object.entries(receiptDetails)
@@ -750,7 +750,7 @@ export default function TagihanSection() {
       <Modal isOpen={!!lunasBill} onClose={() => setLunasBill(null)} title="Tandai Lunas">
         {lunasBill && (
           <div className="space-y-4 text-xs">
-            <div className="bg-[#080810] border border-slate-800 p-3 space-y-1">
+            <div className="bg-[#0b0b0f] border border-slate-800 p-3 space-y-1">
               <p className="font-semibold text-white">
                 {lunasBill.jenis} — {lunasBill.customer.name}
               </p>
@@ -786,7 +786,7 @@ export default function TagihanSection() {
       <Modal isOpen={!!kirimBill} onClose={() => setKirimBill(null)} title="Kirim Bayaran Provider">
         {kirimBill && (
           <div className="space-y-4 text-xs">
-            <div className="bg-[#080810] border border-slate-800 p-3 space-y-1">
+            <div className="bg-[#0b0b0f] border border-slate-800 p-3 space-y-1">
               <p className="font-semibold text-white">
                 {kirimBill.jenis} — {kirimBill.customer.name}
               </p>

@@ -140,13 +140,13 @@ export default function LoginForm({ initialUsers }: LoginFormProps) {
   };
 
   return (
-    <div className="min-h-screen w-full bg-[#050507] flex flex-col justify-center items-center p-4 transition-colors relative selection:bg-amber-600 selection:text-white">
+    <div className="min-h-screen w-full bg-[#08080a] flex flex-col justify-center items-center p-4 transition-colors relative selection:bg-amber-600 selection:text-white">
       <div className="absolute top-4 right-4 z-10">
         <button
           type="button"
           onClick={toggleTheme}
           aria-label="Ganti Tema Tampilan"
-          className="p-2 border border-slate-700 text-slate-400 hover:text-white hover:border-slate-500 transition-colors bg-[#0d0d11] active:scale-95"
+          className="p-2 border border-slate-700 text-slate-400 hover:text-white hover:border-slate-500 transition-colors bg-[#0e0e12] active:scale-95"
         >
           {theme === "dark" ? <Sun className="w-4 h-4 text-amber-500" /> : <Moon className="w-4 h-4 text-blue-500" />}
         </button>
@@ -154,7 +154,7 @@ export default function LoginForm({ initialUsers }: LoginFormProps) {
 
       <div className="w-full max-w-sm space-y-5">
         <div className="text-center space-y-2">
-          <div className="inline-flex items-center justify-center w-12 h-12 border border-slate-700 text-white font-bold text-xl bg-[#0d0d11] shadow-lg shadow-amber-500/10">
+          <div className="inline-flex items-center justify-center w-12 h-12 border border-slate-700 text-white font-bold text-xl bg-[#0e0e12] shadow-lg shadow-amber-500/10">
             KM
           </div>
           <h1 className="text-xl font-bold tracking-tight text-white flex items-center justify-center gap-2">
@@ -169,7 +169,7 @@ export default function LoginForm({ initialUsers }: LoginFormProps) {
         </div>
 
         {users.length > 0 && (
-          <div className="flex bg-[#0d0d11] p-0.5 rounded-none border border-slate-700 text-xs">
+          <div className="flex bg-[#0e0e12] p-0.5 rounded-none border border-slate-700 text-xs">
             {users.map((u) => {
               const isSelected = selectedUser?.id === u.id;
               return (
@@ -180,7 +180,7 @@ export default function LoginForm({ initialUsers }: LoginFormProps) {
                   onClick={() => handleSelectUser(u)}
                   className={`km-user-btn flex-1 py-2 px-2 rounded-none font-medium transition-all text-center truncate cursor-pointer select-none active:scale-95 border-t border-b border-l ${
                     isSelected
-                      ? "border-amber-600 bg-[#15151a] text-white shadow-sm font-bold border-r-0"
+                      ? "border-amber-600 bg-[#17171c] text-white shadow-sm font-bold border-r-0"
                       : "text-slate-500 hover:text-white hover:border-slate-600"
                   } ${u.id === users[users.length - 1].id ? "border-r" : "border-r-0"}`}
                 >
@@ -194,7 +194,7 @@ export default function LoginForm({ initialUsers }: LoginFormProps) {
           </div>
         )}
 
-        <div className="bg-[#0d0d11] border border-slate-700 rounded-none p-5 shadow-xl space-y-5">
+        <div className="bg-[#0e0e12] border border-slate-700 rounded-none p-5 shadow-xl space-y-5">
           {/* 6-Digit PIN Display */}
           <div
             className="flex justify-center items-center gap-3 py-2 cursor-pointer select-none"
@@ -209,10 +209,10 @@ export default function LoginForm({ initialUsers }: LoginFormProps) {
                   data-idx={index}
                   className={`km-pin-dot w-10 h-12 rounded-none border-2 flex items-center justify-center font-mono text-2xl font-bold transition-all duration-150 select-none ${
                     isFilled
-                      ? "border-amber-600 bg-[#15151a] text-amber-400 scale-105 shadow-sm"
+                      ? "border-amber-600 bg-[#17171c] text-amber-400 scale-105 shadow-sm"
                       : isCurrent
-                      ? "border-amber-500 ring-1 ring-amber-500/30 bg-[#050507]"
-                      : "border-slate-700 bg-[#0d0d11] text-transparent"
+                      ? "border-amber-500 ring-1 ring-amber-500/30 bg-[#08080a]"
+                      : "border-slate-700 bg-[#0e0e12] text-transparent"
                   }`}
                 >
                   {isFilled ? "•" : ""}
@@ -249,7 +249,7 @@ export default function LoginForm({ initialUsers }: LoginFormProps) {
                 data-digit={num}
                 onClick={() => handleDigit(num)}
                 disabled={loading}
-                className="h-14 rounded-none bg-[#0d0d11] hover:bg-[#15151a] active:bg-amber-600 active:text-white text-white font-mono text-2xl font-bold border border-slate-700 active:scale-95 transition-all flex items-center justify-center cursor-pointer select-none shadow-sm"
+                className="h-14 rounded-none bg-[#0e0e12] hover:bg-[#17171c] active:bg-amber-600 active:text-white text-white font-mono text-2xl font-bold border border-slate-700 active:scale-95 transition-all flex items-center justify-center cursor-pointer select-none shadow-sm"
               >
                 {num}
               </button>
@@ -260,7 +260,7 @@ export default function LoginForm({ initialUsers }: LoginFormProps) {
               data-action="clear"
               onClick={handleClear}
               disabled={loading}
-              className="h-14 rounded-none bg-[#0d0d11] hover:bg-[#15151a] active:bg-slate-700 text-slate-500 font-bold border border-slate-700 active:scale-95 transition-all flex items-center justify-center cursor-pointer select-none"
+              className="h-14 rounded-none bg-[#0e0e12] hover:bg-[#17171c] active:bg-slate-700 text-slate-500 font-bold border border-slate-700 active:scale-95 transition-all flex items-center justify-center cursor-pointer select-none"
             >
               HAPUS
             </button>
@@ -270,7 +270,7 @@ export default function LoginForm({ initialUsers }: LoginFormProps) {
               data-digit="0"
               onClick={() => handleDigit("0")}
               disabled={loading}
-              className="h-14 rounded-none bg-[#0d0d11] hover:bg-[#15151a] active:bg-amber-600 active:text-white text-white font-mono text-2xl font-bold border border-slate-700 active:scale-95 transition-all flex items-center justify-center cursor-pointer select-none shadow-sm"
+              className="h-14 rounded-none bg-[#0e0e12] hover:bg-[#17171c] active:bg-amber-600 active:text-white text-white font-mono text-2xl font-bold border border-slate-700 active:scale-95 transition-all flex items-center justify-center cursor-pointer select-none shadow-sm"
             >
               0
             </button>
@@ -280,7 +280,7 @@ export default function LoginForm({ initialUsers }: LoginFormProps) {
               data-action="backspace"
               onClick={handleBackspace}
               disabled={loading}
-              className="h-14 rounded-none bg-[#0d0d11] hover:bg-[#15151a] active:bg-slate-700 text-slate-400 border border-slate-700 active:scale-95 transition-all flex items-center justify-center cursor-pointer select-none"
+              className="h-14 rounded-none bg-[#0e0e12] hover:bg-[#17171c] active:bg-slate-700 text-slate-400 border border-slate-700 active:scale-95 transition-all flex items-center justify-center cursor-pointer select-none"
             >
               <Delete className="w-5 h-5" />
             </button>
@@ -294,7 +294,7 @@ export default function LoginForm({ initialUsers }: LoginFormProps) {
             className={`w-full py-3.5 rounded-none font-bold text-sm flex items-center justify-center gap-2 shadow-sm transition-all border border-transparent ${
               pin.length === 6 && !loading
                 ? "bg-amber-600 hover:bg-amber-500 active:bg-amber-700 text-white shadow-amber-600/20 cursor-pointer active:scale-95"
-                : "bg-[#0d0d11] text-slate-600 border-slate-700 cursor-not-allowed"
+                : "bg-[#0e0e12] text-slate-600 border-slate-700 cursor-not-allowed"
             }`}
           >
             {loading ? (
@@ -343,13 +343,13 @@ export default function LoginForm({ initialUsers }: LoginFormProps) {
       dots.forEach(function(dot, idx) {
         if (idx < pinValue.length) {
           dot.textContent = '•';
-          dot.className = 'km-pin-dot w-10 h-12 rounded-none border-2 flex items-center justify-center font-mono text-2xl font-bold transition-all duration-150 select-none border-amber-600 bg-[#15151a] text-amber-400 scale-105 shadow-sm';
+          dot.className = 'km-pin-dot w-10 h-12 rounded-none border-2 flex items-center justify-center font-mono text-2xl font-bold transition-all duration-150 select-none border-amber-600 bg-[#17171c] text-amber-400 scale-105 shadow-sm';
         } else if (idx === pinValue.length) {
           dot.textContent = '';
-          dot.className = 'km-pin-dot w-10 h-12 rounded-none border-2 flex items-center justify-center font-mono text-2xl font-bold transition-all duration-150 select-none border-amber-500 ring-1 ring-amber-500/30 bg-[#050507]';
+          dot.className = 'km-pin-dot w-10 h-12 rounded-none border-2 flex items-center justify-center font-mono text-2xl font-bold transition-all duration-150 select-none border-amber-500 ring-1 ring-amber-500/30 bg-[#08080a]';
         } else {
           dot.textContent = '';
-          dot.className = 'km-pin-dot w-10 h-12 rounded-none border-2 flex items-center justify-center font-mono text-2xl font-bold transition-all duration-150 select-none border-slate-700 bg-[#0d0d11] text-transparent';
+          dot.className = 'km-pin-dot w-10 h-12 rounded-none border-2 flex items-center justify-center font-mono text-2xl font-bold transition-all duration-150 select-none border-slate-700 bg-[#0e0e12] text-transparent';
         }
       });
       if (statusText) {
@@ -360,7 +360,7 @@ export default function LoginForm({ initialUsers }: LoginFormProps) {
           submitBtn.className = 'w-full py-3.5 rounded-none font-bold text-sm flex items-center justify-center gap-2 shadow-sm transition-all border border-transparent bg-amber-600 hover:bg-amber-500 active:bg-amber-700 text-white shadow-amber-600/20 cursor-pointer active:scale-95';
           submitBtn.disabled = false;
         } else {
-          submitBtn.className = 'w-full py-3.5 rounded-none font-bold text-sm flex items-center justify-center gap-2 shadow-sm transition-all border border-transparent bg-[#0d0d11] text-slate-600 border-slate-700 cursor-not-allowed';
+          submitBtn.className = 'w-full py-3.5 rounded-none font-bold text-sm flex items-center justify-center gap-2 shadow-sm transition-all border border-transparent bg-[#0e0e12] text-slate-600 border-slate-700 cursor-not-allowed';
           submitBtn.disabled = true;
         }
       }
@@ -410,7 +410,7 @@ export default function LoginForm({ initialUsers }: LoginFormProps) {
         syncDots();
         document.querySelectorAll('.km-user-btn').forEach(function(b) {
           if (b === uBtn) {
-            b.className = 'km-user-btn flex-1 py-2 px-2 rounded-none font-medium transition-all text-center truncate cursor-pointer select-none active:scale-95 border-t border-b border-l border-amber-600 bg-[#15151a] text-white shadow-sm font-bold border-r-0';
+            b.className = 'km-user-btn flex-1 py-2 px-2 rounded-none font-medium transition-all text-center truncate cursor-pointer select-none active:scale-95 border-t border-b border-l border-amber-600 bg-[#17171c] text-white shadow-sm font-bold border-r-0';
           } else {
             b.className = 'km-user-btn flex-1 py-2 px-2 rounded-none font-medium transition-all text-center truncate cursor-pointer select-none active:scale-95 border-t border-b border-l text-slate-500 hover:text-white hover:border-slate-600 border-r-0';
           }

@@ -21,8 +21,8 @@ export default function ReceiptModal({ transaction, onClose }: ReceiptProps) {
       : transaction.amount + transaction.adminBank + transaction.storeFee;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-xl animate-in fade-in">
-      <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6 w-full max-w-sm text-slate-100 shadow-2xl space-y-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-in fade-in">
+      <div className="bg-slate-900 border border-slate-700 rounded-none p-6 w-full max-w-sm text-slate-100 shadow-2xl space-y-4">
         <div className="flex justify-between items-center pb-2 border-b border-slate-800">
           <span className="text-sm font-bold text-slate-300">Struk Transaksi Mini-ATM</span>
           <button onClick={onClose} className="text-slate-400 hover:text-white">
@@ -33,7 +33,7 @@ export default function ReceiptModal({ transaction, onClose }: ReceiptProps) {
         {/* Thermal Receipt Paper Layout */}
         <div
           id="printable-receipt"
-          className="bg-white text-black p-5 rounded-lg shadow font-mono text-xs space-y-2 select-text"
+          className="bg-white text-black p-5 rounded-none shadow font-mono text-xs space-y-2 select-text"
         >
           <div className="text-center space-y-0.5 border-b border-dashed border-gray-400 pb-2">
             <div className="font-extrabold text-sm uppercase">KASMU MINI-ATM</div>
@@ -95,13 +95,13 @@ export default function ReceiptModal({ transaction, onClose }: ReceiptProps) {
         <div className="flex gap-2 pt-2">
           <button
             onClick={onClose}
-            className="flex-1 py-2 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 text-xs font-semibold"
+            className="flex-1 py-2 rounded-none bg-slate-800 text-slate-300 hover:bg-slate-700 text-xs font-semibold"
           >
             Tutup
           </button>
           <button
             onClick={handlePrint}
-            className="flex-1 py-2 rounded-xl bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-lg shadow-orange-600/30"
+            className="flex-1 py-2 rounded-none bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-lg shadow-amber-600/30"
           >
             <Printer className="w-3.5 h-3.5" />
             <span>Cetak Thermal</span>

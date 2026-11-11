@@ -34,7 +34,7 @@ export function Textarea({
         onChange={(e) => onValueChange?.(e.target.value)}
         placeholder={placeholder}
         rows={rows}
-        className="w-full bg-[#080810] border border-slate-700 rounded-none p-3 font-mono text-[11px] text-slate-200 outline-none focus:border-amber-600 transition-colors resize-none"
+        className="w-full bg-[#0b0b0f] border border-slate-700 rounded-none p-3 font-mono text-[11px] text-slate-200 outline-none focus:border-amber-600 transition-colors resize-none"
       />
     </div>
   );

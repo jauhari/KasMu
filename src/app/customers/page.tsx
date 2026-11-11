@@ -234,7 +234,7 @@ export default function CustomersPage() {
       />
 
       {/* Toolbar */}
-      <div className="bg-[#0d0d11] border border-slate-700 rounded-none">
+      <div className="bg-[#0e0e12] border border-slate-700 rounded-none">
         <div className="p-4 space-y-3">
           <Input
             label="Cari Kontak"
@@ -295,7 +295,7 @@ export default function CustomersPage() {
         </div>
       </div>
 
-      <div className="hidden md:block bg-[#0d0d11] border border-slate-700 rounded-none overflow-x-auto">
+      <div className="hidden md:block bg-[#0e0e12] border border-slate-700 rounded-none overflow-x-auto">
         <table className="w-full text-xs min-w-[880px]">
           <thead>
             <tr className="border-b border-slate-700 text-left text-[10px] uppercase tracking-wider text-slate-500">
@@ -332,7 +332,7 @@ export default function CustomersPage() {
                 >
                   <td className="px-4 py-2.5">
                     <div className="flex items-center gap-2">
-                      <div className="w-7 h-7 bg-[#15151a] border border-slate-700 flex items-center justify-center shrink-0 font-bold text-[10px] text-slate-300">
+                      <div className="w-7 h-7 bg-[#17171c] border border-slate-700 flex items-center justify-center shrink-0 font-bold text-[10px] text-slate-300">
                         {c.name.slice(0, 2).replace(/[^a-zA-Z0-9]/g, "").toUpperCase() || "?"}
                       </div>
                       <span className="font-semibold text-white whitespace-nowrap">{c.name}</span>
@@ -345,7 +345,7 @@ export default function CustomersPage() {
                       )}
                       {c.numbers.map((n) => (
                         <div key={n.id} className="flex items-center gap-2 text-xs whitespace-nowrap">
-                          <span className="px-2 py-1 border border-slate-700 bg-[#15151a] text-slate-400 font-mono font-semibold">
+                          <span className="px-2 py-1 border border-slate-700 bg-[#17171c] text-slate-400 font-mono font-semibold">
                             {n.jenis}
                           </span>
                           <span className="font-mono font-bold text-white tracking-wide text-sm">
@@ -401,7 +401,7 @@ export default function CustomersPage() {
                         e.stopPropagation();
                         openDetail(c);
                       }}
-                      className="px-3 py-1.5 bg-[#15151a] border border-slate-700 text-[10px] font-semibold uppercase tracking-wider text-slate-300 hover:border-amber-500 hover:text-amber-400 transition-colors"
+                      className="px-3 py-1.5 bg-[#17171c] border border-slate-700 text-[10px] font-semibold uppercase tracking-wider text-slate-300 hover:border-amber-500 hover:text-amber-400 transition-colors"
                     >
                       Kelola
                     </button>
@@ -416,19 +416,19 @@ export default function CustomersPage() {
       {/* Daftar kartu (mobile) */}
       <div className="md:hidden space-y-2">
         {loading ? (
-          <div className="bg-[#0d0d11] border border-slate-700 px-4 py-10 text-center text-xs text-slate-500">
+          <div className="bg-[#0e0e12] border border-slate-700 px-4 py-10 text-center text-xs text-slate-500">
             Memuat kontak...
           </div>
         ) : rows.length === 0 ? (
-          <div className="bg-[#0d0d11] border border-slate-700 px-4 py-10 text-center text-xs text-slate-500">
+          <div className="bg-[#0e0e12] border border-slate-700 px-4 py-10 text-center text-xs text-slate-500">
             Belum ada kontak.
           </div>
         ) : (
           rows.map((c) => (
-            <div key={c.id} className="bg-[#0d0d11] border border-slate-700">
+            <div key={c.id} className="bg-[#0e0e12] border border-slate-700">
               <div className="flex items-center justify-between gap-2 px-3 py-3 border-b border-slate-800">
                 <div className="flex items-center gap-2.5 min-w-0">
-                  <div className="w-8 h-8 bg-[#15151a] border border-slate-700 flex items-center justify-center shrink-0 font-bold text-[10px] text-slate-300">
+                  <div className="w-8 h-8 bg-[#17171c] border border-slate-700 flex items-center justify-center shrink-0 font-bold text-[10px] text-slate-300">
                     {c.name.slice(0, 2).replace(/[^a-zA-Z0-9]/g, "").toUpperCase() || "?"}
                   </div>
                   <div className="min-w-0">
@@ -440,7 +440,7 @@ export default function CustomersPage() {
                 </div>
                 <button
                   onClick={() => openDetail(c)}
-                  className="px-2.5 py-1.5 bg-[#15151a] border border-slate-700 text-[10px] font-semibold uppercase tracking-wider text-slate-300 hover:border-amber-500 hover:text-amber-400 transition-colors shrink-0"
+                  className="px-2.5 py-1.5 bg-[#17171c] border border-slate-700 text-[10px] font-semibold uppercase tracking-wider text-slate-300 hover:border-amber-500 hover:text-amber-400 transition-colors shrink-0"
                 >
                   Kelola
                 </button>
@@ -453,10 +453,10 @@ export default function CustomersPage() {
                   c.numbers.map((n) => (
                     <div
                       key={n.id}
-                      className="flex items-center justify-between gap-2 bg-[#080810] border border-slate-800 px-2.5 py-2"
+                      className="flex items-center justify-between gap-2 bg-[#0b0b0f] border border-slate-800 px-2.5 py-2"
                     >
                       <div className="flex items-center gap-2 min-w-0">
-                        <span className="px-1.5 py-0.5 border border-slate-700 bg-[#15151a] text-[9px] font-mono font-semibold uppercase tracking-wider text-slate-400 shrink-0">
+                        <span className="px-1.5 py-0.5 border border-slate-700 bg-[#17171c] text-[9px] font-mono font-semibold uppercase tracking-wider text-slate-400 shrink-0">
                           {n.jenis}
                         </span>
                         <span className="font-mono font-bold text-amber-400 text-sm tracking-wide truncate">
@@ -506,15 +506,15 @@ export default function CustomersPage() {
 
       {/* Modal Detail Kontak */}
       {detail && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
           <div
             className="absolute inset-0"
             onClick={() => setDetail(null)}
           />
-          <div className="relative bg-[#0c1220] border border-slate-700 rounded-none w-full max-w-2xl max-h-[85vh] flex flex-col shadow-2xl">
+          <div className="relative bg-[#121216] border border-slate-700 rounded-none w-full max-w-2xl max-h-[85vh] flex flex-col shadow-2xl">
             <div className="px-5 py-4 border-b border-slate-700 flex items-center justify-between shrink-0">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 bg-[#15151a] border border-slate-600 flex items-center justify-center shrink-0 font-bold text-xs text-slate-300">
+                <div className="w-9 h-9 bg-[#17171c] border border-slate-600 flex items-center justify-center shrink-0 font-bold text-xs text-slate-300">
                   {detail.name.slice(0, 2).replace(/[^a-zA-Z0-9]/g, "").toUpperCase() || "?"}
                 </div>
                 <div>
@@ -552,7 +552,7 @@ export default function CustomersPage() {
                 </Button>
               </div>
               {detail.numbers.length === 0 ? (
-                <div className="bg-[#080810] border border-dashed border-slate-700 px-3 py-4 text-center">
+                <div className="bg-[#0b0b0f] border border-dashed border-slate-700 px-3 py-4 text-center">
                   <p className="text-slate-400 text-xs font-semibold">Belum ada nomor layanan</p>
                   <p className="text-slate-600 text-[10px] mt-1">
                     Klik tombol "+ Tambah Nomor" untuk menambah nomor PLN, PDAM, BPJS, dll.
@@ -563,10 +563,10 @@ export default function CustomersPage() {
                   {detail.numbers.map((n) => (
                     <div
                       key={n.id}
-                      className="flex items-center justify-between bg-[#080810] border border-slate-700 px-3 py-2.5"
+                      className="flex items-center justify-between bg-[#0b0b0f] border border-slate-700 px-3 py-2.5"
                     >
                       <div className="flex items-center gap-2.5 min-w-0">
-                        <span className="px-2 py-0.5 border border-slate-700 bg-[#15151a] text-slate-400 text-[10px] font-mono font-semibold uppercase tracking-wider shrink-0">
+                        <span className="px-2 py-0.5 border border-slate-700 bg-[#17171c] text-slate-400 text-[10px] font-mono font-semibold uppercase tracking-wider shrink-0">
                           {n.jenis}
                         </span>
                         <span className="font-mono font-bold text-amber-400 text-base tracking-wider truncate">
@@ -591,11 +591,11 @@ export default function CustomersPage() {
             </div>
 
             <div className="grid grid-cols-3 gap-3 p-4 border-b border-slate-800">
-              <div className="bg-[#080810] border border-slate-800 p-3">
+              <div className="bg-[#0b0b0f] border border-slate-800 p-3">
                 <p className="text-[9px] uppercase tracking-wider text-slate-500">Nilai Tagihan</p>
                 <p className="font-mono font-bold text-white text-lg">{formatRupiah(detail.tagihan.nilai)}</p>
               </div>
-              <div className="bg-[#080810] border border-slate-800 p-3">
+              <div className="bg-[#0b0b0f] border border-slate-800 p-3">
                 <p className="text-[9px] uppercase tracking-wider text-slate-500">Untung Sudah Cair</p>
                 <p className="font-mono font-bold text-emerald-400 text-lg">
                   {formatRupiah(detail.tagihan.admin + detail.transaksi.untung)}
@@ -606,7 +606,7 @@ export default function CustomersPage() {
                   </p>
                 )}
               </div>
-              <div className="bg-[#080810] border border-slate-800 p-3">
+              <div className="bg-[#0b0b0f] border border-slate-800 p-3">
                 <p className="text-[9px] uppercase tracking-wider text-slate-500">Talangan Hutang</p>
                 <p className="font-mono font-bold text-amber-400 text-lg">
                   {formatRupiah(detail.tagihan.outstanding)}
@@ -630,7 +630,7 @@ export default function CustomersPage() {
                         {detailBills.map((b) => (
                           <div
                             key={b.id}
-                            className="flex items-center justify-between bg-[#080810] border border-slate-800 px-3 py-2 text-[11px]"
+                            className="flex items-center justify-between bg-[#0b0b0f] border border-slate-800 px-3 py-2 text-[11px]"
                           >
                             <div>
                               <span className="text-white font-semibold">{b.jenis}</span>
@@ -655,7 +655,7 @@ export default function CustomersPage() {
 
                   <div>
                     <p className="text-[10px] uppercase tracking-wider text-slate-500 mb-2 flex items-center gap-1.5">
-                      <Receipt className="w-3 h-3 text-blue-400" /> Transaksi Kasir Terakhir
+                      <Receipt className="w-3 h-3 text-amber-400" /> Transaksi Kasir Terakhir
                     </p>
                     {detailTxs.length === 0 ? (
                       <p className="text-slate-600 text-[11px]">
@@ -666,7 +666,7 @@ export default function CustomersPage() {
                         {detailTxs.map((t) => (
                           <div
                             key={t.id}
-                            className="flex items-center justify-between bg-[#080810] border border-slate-800 px-3 py-2 text-[11px]"
+                            className="flex items-center justify-between bg-[#0b0b0f] border border-slate-800 px-3 py-2 text-[11px]"
                           >
                             <div>
                               <span className="text-slate-300">{t.txNumber}</span>
@@ -690,7 +690,7 @@ export default function CustomersPage() {
             </div>
 
             {/* Footer aksi modal detail */}
-            <div className="px-4 py-3 border-t border-slate-700 bg-[#0a0a0a]/40 flex items-center justify-between gap-3 shrink-0">
+            <div className="px-4 py-3 border-t border-slate-700 bg-[#0b0b0f]/40 flex items-center justify-between gap-3 shrink-0">
               <p className="text-[10px] text-slate-500 hidden sm:block">
                 Transaksi kasir akan otomatis terhubung ke kontak ini.
               </p>

@@ -60,7 +60,7 @@ export default function AppShell({ children, initialUser }: AppShellProps) {
   const isOwner = currentUser?.role === "OWNER";
 
   return (
-    <div className="min-h-screen w-full flex flex-col lg:flex-row bg-[#050507] text-white transition-colors">
+    <div className="min-h-screen w-full flex flex-col lg:flex-row bg-[#08080a] text-white transition-colors">
       {/* 1. Responsive Sidebar (Desktop Fixed + Mobile Slide Drawer) */}
       <Sidebar
         mobileOpen={mobileDrawerOpen}
@@ -69,16 +69,16 @@ export default function AppShell({ children, initialUser }: AppShellProps) {
       />
 
       {/* 2. Mobile Sticky Top Header (Only on < lg screens) */}
-      <header className="lg:hidden sticky top-0 z-30 w-full h-14 bg-[#0d0d11]/95 backdrop-blur-md border-b border-slate-700 px-3.5 flex items-center justify-between shrink-0">
+      <header className="lg:hidden sticky top-0 z-30 w-full h-14 bg-[#0e0e12]/95 backdrop-blur-md border-b border-slate-700 px-3.5 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-none bg-[#15151a] text-white flex items-center justify-center font-bold text-sm border border-slate-700">
+          <div className="w-8 h-8 rounded-none bg-[#17171c] text-white flex items-center justify-center font-bold text-sm border border-slate-700">
             KM
           </div>
           <div className="flex items-center gap-1.5">
             <span className="font-bold text-base tracking-tight text-white">
               KasMu
             </span>
-            <span className="text-[9px] bg-[#15151a] text-amber-500 font-semibold px-1.5 py-0.5 border border-amber-700/50">
+            <span className="text-[9px] bg-[#17171c] text-amber-500 font-semibold px-1.5 py-0.5 border border-amber-700/50">
               PRO
             </span>
           </div>
@@ -92,7 +92,7 @@ export default function AppShell({ children, initialUser }: AppShellProps) {
               className={`text-[11px] font-semibold px-2.5 py-0.5 border ${
                 isOwner
                   ? "bg-amber-900/20 text-amber-400 border border-amber-700/50"
-                  : "bg-[#15151a] text-slate-400 border border-slate-700"
+                  : "bg-[#17171c] text-slate-400 border border-slate-700"
               }`}
             >
               {isOwner ? "Owner" : "Kasir"}
@@ -103,7 +103,7 @@ export default function AppShell({ children, initialUser }: AppShellProps) {
           <button
             onClick={toggleTheme}
             aria-label="Ganti Tema"
-            className="w-9 h-9 flex items-center justify-center rounded-none bg-[#15151a] text-slate-500 border border-slate-700 active:scale-95 transition-transform cursor-pointer"
+            className="w-9 h-9 flex items-center justify-center rounded-none bg-[#17171c] text-slate-500 border border-slate-700 active:scale-95 transition-transform cursor-pointer"
           >
             {theme === "dark" ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-blue-600" />}
           </button>
@@ -112,7 +112,7 @@ export default function AppShell({ children, initialUser }: AppShellProps) {
           <button
             onClick={() => setMobileDrawerOpen(true)}
             aria-label="Buka Menu"
-            className="w-9 h-9 flex items-center justify-center rounded-none bg-[#15151a] text-slate-400 border border-slate-700 active:scale-95 transition-transform cursor-pointer"
+            className="w-9 h-9 flex items-center justify-center rounded-none bg-[#17171c] text-slate-400 border border-slate-700 active:scale-95 transition-transform cursor-pointer"
           >
             <Menu className="w-5 h-5" />
           </button>
@@ -125,13 +125,13 @@ export default function AppShell({ children, initialUser }: AppShellProps) {
       </main>
 
       {/* 4. Mobile Fixed Bottom Navigation Bar (Ultra-responsive thumb reach) */}
-      <nav className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-[#0d0d11]/95 backdrop-blur-md border-t border-slate-700/80 px-2 pt-1 pb-[max(env(safe-area-inset-bottom),0.35rem)] flex items-center justify-around select-none">
+      <nav className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-[#0e0e12]/95 backdrop-blur-md border-t border-slate-700/80 px-2 pt-1 pb-[max(env(safe-area-inset-bottom),0.35rem)] flex items-center justify-around select-none">
         {/* Beranda */}
         <Link
           href="/"
           className={`flex flex-col items-center justify-center flex-1 py-1 text-[10px] font-medium transition-colors ${
             pathname === "/"
-              ? "text-blue-500 font-bold"
+              ? "text-amber-400 font-bold"
               : "text-slate-600 hover:text-white"
           }`}
         >
@@ -144,7 +144,7 @@ export default function AppShell({ children, initialUser }: AppShellProps) {
           href="/transaksi"
           className={`flex flex-col items-center justify-center flex-1 py-1 text-[10px] font-medium transition-colors ${
             pathname === "/transaksi"
-              ? "text-blue-500 font-bold"
+              ? "text-amber-400 font-bold"
               : "text-slate-600 hover:text-white"
           }`}
         >
@@ -157,7 +157,7 @@ export default function AppShell({ children, initialUser }: AppShellProps) {
           <button
             onClick={() => setQuickTxOpen(true)}
             aria-label="Catat Transaksi Baru"
-            className="w-13 h-13 rounded-none bg-gradient-to-tr from-amber-600 to-orange-500 text-white flex items-center justify-center active:scale-95 transition-transform cursor-pointer shadow-amber-600/20"
+            className="w-13 h-13 rounded-none bg-amber-600 text-white flex items-center justify-center active:scale-95 transition-transform cursor-pointer shadow-amber-600/20"
           >
             <Plus className="w-6 h-6 stroke-[3]" />
           </button>
@@ -168,7 +168,7 @@ export default function AppShell({ children, initialUser }: AppShellProps) {
           href="/opname"
           className={`flex flex-col items-center justify-center flex-1 py-1 text-[10px] font-medium transition-colors ${
             pathname === "/opname"
-              ? "text-blue-500 font-bold"
+              ? "text-amber-400 font-bold"
               : "text-slate-600 hover:text-white"
           }`}
         >

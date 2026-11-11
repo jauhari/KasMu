@@ -168,7 +168,7 @@ export default function SaldoPage() {
           <div className="col-span-3 text-center py-10 text-slate-600 text-xs">Memuat akun...</div>
         ) : (
           accounts.map((acc) => (
-            <div key={acc.id} className="bg-[#0d0d11] border border-slate-700 rounded-none p-4 shadow-sm space-y-3 transition-colors">
+            <div key={acc.id} className="bg-[#0e0e12] border border-slate-700 rounded-none p-4 shadow-sm space-y-3 transition-colors">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
                   <div
@@ -220,8 +220,8 @@ export default function SaldoPage() {
     </div>
 
       {showAddModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-xl">
-          <div className="bg-[#0c1220] border border-slate-700 rounded-none w-full max-w-sm p-5 text-white shadow-xl space-y-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
+          <div className="bg-[#121216] border border-slate-700 rounded-none w-full max-w-sm p-5 text-white shadow-xl space-y-4">
             <h3 className="text-sm font-bold text-white uppercase tracking-tighter text-[10px] letter-spacing-[0.05em]">
               Tambah Akun Provider
             </h3>
@@ -289,8 +289,8 @@ export default function SaldoPage() {
       )}
 
       {editAcc && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-xl">
-          <div className="bg-[#0c1220] border border-slate-700 rounded-none w-full max-w-sm p-5 text-white shadow-xl space-y-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
+          <div className="bg-[#121216] border border-slate-700 rounded-none w-full max-w-sm p-5 text-white shadow-xl space-y-4">
             <h3 className="text-[10px] uppercase tracking-[0.05em] font-bold">
               Koreksi Saldo — {editAcc.name}
             </h3>
@@ -356,8 +356,8 @@ export default function SaldoPage() {
       )}
 
       {showTransferModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-xl">
-          <div className="bg-[#0c1220] border border-slate-700 rounded-none w-full max-w-sm p-5 text-white shadow-xl space-y-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
+          <div className="bg-[#121216] border border-slate-700 rounded-none w-full max-w-sm p-5 text-white shadow-xl space-y-4">
             <h3 className="text-[10px] uppercase tracking-[0.05em] font-bold">
               Transfer Antar Akun
             </h3>

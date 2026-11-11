@@ -37,14 +37,14 @@ export function Modal({
         // target-nya bukan kontainer ini → tidak pernah close.
         if (e.target === e.currentTarget) onClose();
       }}
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-xl animate-fade-in duration-150"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/70 backdrop-blur-md animate-fade-in duration-150"
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className={`km-modal-panel bg-[#0c1220] border border-slate-700 rounded-none shadow-2xl ${sizes[size]} w-full max-h-[90vh] flex flex-col overflow-hidden`}
+        className={`km-modal-panel bg-[#121216] border border-slate-700 rounded-none shadow-2xl ${sizes[size]} w-full max-h-[90vh] flex flex-col overflow-hidden`}
       >
         {title && (
-          <div className="px-5 py-4 border-b border-slate-700 bg-[#0a0a0a]/50 flex items-center justify-between shrink-0">
+          <div className="px-5 py-4 border-b border-slate-700 bg-[#0b0b0f]/50 flex items-center justify-between shrink-0">
             <h3 className="text-xs font-bold tracking-tighter text-white uppercase letter-spacing-[0.05em]">
               {title}
             </h3>

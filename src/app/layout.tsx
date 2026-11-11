@@ -32,7 +32,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: "#050507",
+  themeColor: "#08080a",
 };
 
 export default async function RootLayout({
@@ -56,7 +56,7 @@ export default async function RootLayout({
         <meta name="apple-mobile-web-app-title" content="KasMu" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
       </head>
-      <body className="min-h-screen bg-[#050507] text-white flex transition-colors duration-150">
+      <body className="min-h-screen bg-[#08080a] text-white flex transition-colors duration-150">
         <ThemeProvider>
           <AppShell initialUser={session}>{children}</AppShell>
           <ClientToaster />

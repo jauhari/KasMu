@@ -1,5 +1,25 @@
 # KasMu - Changelog
 
+## [2.9.2] - 2026-11-11
+
+### Penyatuan Sistem Warna (Color Harmonization)
+
+Sebelumnya aplikasi memakai tiga keluarga warna yang saling bertabrakan: latar netral hitam, border/teks **slate biru-abu**, aksen **amber**, plus panel modal **navy `#0c1220`** dan menu aktif **biru solid**. Sekarang semuanya satu bahasa warna.
+
+- **Ramp netral hangat**: palet `slate` Tailwind didefinisikan ulang di `tailwind.config.ts` menjadi abu netral (bukan biru-abu) agar senada dengan aksen amber. Berlaku otomatis ke seluruh border, teks, dan hover.
+- **Menu aktif sidebar**: dari biru solid → amber lembut (`bg-amber-500/10`, teks amber, garis kiri 2px amber).
+- **Panel modal & dropdown**: navy `#0c1220` → netral `#121216`.
+- **Permukaan**: `#050507` → `#08080a`, `#0d0d11` → `#0e0e12`, `#15151a` → `#17171c`, `#080810`/`#0a0a0a` → `#0b0b0f` (satu ramp, kontras panel lebih jelas).
+- **Tab aktif** (Struk Kasir / Tagihan) dan toggle 7/30 Hari: emerald/biru → amber.
+- **Aksen dekoratif biru** (link "Lihat Semua", total modal, angka target opname, badge Owner, status shift, ikon backup) → amber atau netral. Biru kini hanya dipakai untuk makna "info".
+- **Grafik**: palet donut pelangi → satu ramp amber hangat; garis tren tetap amber.
+- **Toast**: tidak lagi hijau terang — panel gelap `#121216`, sudut tajam, border sesuai jenis pesan.
+- **Tombol `ghost`/`outline`**: sebelumnya memakai warna tema terang (`text-amber-900`, `text-slate-900`) sehingga nyaris tak terlihat di mode gelap — diperbaiki.
+- **Keterbacaan**: `slate-500`/`slate-600` dinaikkan kontrasnya untuk teks meta.
+- **Konsistensi kotak**: sisa `rounded-xl/lg/2xl` pada struk & tombol dihapus; gradien amber→orange diganti amber solid.
+- **Backdrop modal** dilunakkan (`black/70` + `blur-md`) agar konteks halaman tetap terlihat.
+- **Fix**: donut chart tidak lagi kosong sesaat setelah ganti tema (remount `ResponsiveContainer` per tema).
+
 ## [2.9.1] - 2026-11-11
 
 ### Fitur Baru: Edit & Hapus Transaksi (khusus Owner)

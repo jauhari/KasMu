@@ -62,7 +62,7 @@ export default function PerubahanPage() {
         </div>
 
         {/* Status Server */}
-        <div className="border border-slate-700 bg-[#0d0d11] p-4">
+        <div className="border border-slate-700 bg-[#0e0e12] p-4">
           <div className="flex items-center gap-2 mb-3">
             <Server className="w-4 h-4 text-amber-500" />
             <h2 className="text-xs font-bold uppercase tracking-wide text-white">
@@ -91,11 +91,11 @@ export default function PerubahanPage() {
                 </p>
               )}
               <dl className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] font-mono text-slate-400">
-                <div className="p-2 border border-slate-800 bg-[#0a0a0a]/40">
+                <div className="p-2 border border-slate-800 bg-[#0b0b0f]/40">
                   <dt className="text-[9px] uppercase text-slate-500 tracking-wider">Waktu Build</dt>
                   <dd>{info.buildTime || "tidak terbaca"}</dd>
                 </div>
-                <div className="p-2 border border-slate-800 bg-[#0a0a0a]/40">
+                <div className="p-2 border border-slate-800 bg-[#0b0b0f]/40">
                   <dt className="text-[9px] uppercase text-slate-500 tracking-wider">CHANGELOG Disimpan</dt>
                   <dd>{info.changelogMtime || "tidak terbaca"}</dd>
                 </div>
@@ -114,7 +114,7 @@ export default function PerubahanPage() {
           {(info?.entries || []).map((e, i) => (
             <article
               key={e.version}
-              className={`border p-4 ${i === 0 ? "border-amber-700/50 bg-amber-900/5" : "border-slate-800 bg-[#0d0d11]"}`}
+              className={`border p-4 ${i === 0 ? "border-amber-700/50 bg-amber-900/5" : "border-slate-800 bg-[#0e0e12]"}`}
             >
               <header className="flex items-baseline gap-3 mb-2">
                 <h3 className="font-mono font-bold text-white text-sm">v{e.version}</h3>

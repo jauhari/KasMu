@@ -70,8 +70,8 @@ export default function BackupPage() {
         subtitle="100% Offline — Data tersimpan aman di komputer Anda sendiri"
       />
 
-      <div className="bg-[#0d0d11] border border-slate-700 rounded-none p-5 shadow-sm flex items-start gap-3.5 transition-colors">
-        <ShieldCheck className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
+      <div className="bg-[#0e0e12] border border-slate-700 rounded-none p-5 shadow-sm flex items-start gap-3.5 transition-colors">
+        <ShieldCheck className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
         <div className="text-xs">
           <h3 className="font-bold text-white text-sm">Privasi & Keamanan Data Lokal</h3>
           <p className="text-slate-500 mt-1 leading-relaxed">
@@ -83,7 +83,7 @@ export default function BackupPage() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="bg-[#0d0d11] border border-slate-700 rounded-none p-5 shadow-sm space-y-3 transition-colors">
+        <div className="bg-[#0e0e12] border border-slate-700 rounded-none p-5 shadow-sm space-y-3 transition-colors">
           <div className="flex items-center gap-2.5">
             <HardDriveDownload className="w-4 h-4 text-emerald-500" />
             <h4 className="font-bold text-white text-xs">Cadangkan Data (Backup)</h4>
@@ -102,9 +102,9 @@ export default function BackupPage() {
           </Button>
         </div>
 
-        <div className="bg-[#0d0d11] border border-slate-700 rounded-none p-5 shadow-sm space-y-3 transition-colors">
+        <div className="bg-[#0e0e12] border border-slate-700 rounded-none p-5 shadow-sm space-y-3 transition-colors">
           <div className="flex items-center gap-2.5">
-            <Upload className="w-4 h-4 text-blue-500" />
+            <Upload className="w-4 h-4 text-amber-500" />
             <h4 className="font-bold text-white text-xs">Pulihkan Data (Restore)</h4>
           </div>
           <p className="text-xs text-slate-500">
@@ -113,7 +113,7 @@ export default function BackupPage() {
           <Button
             variant="solid"
             size="sm"
-            className="w-full bg-blue-600 hover:bg-blue-500 text-white border-blue-600 shadow-blue-600/20 disabled:opacity-50"
+            className="w-full bg-amber-600 hover:bg-amber-500 text-white border-amber-600 shadow-amber-600/20 disabled:opacity-50"
             disabled={restoring}
             onClick={() => fileInputRef.current?.click()}
           >

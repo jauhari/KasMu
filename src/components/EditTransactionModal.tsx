@@ -150,7 +150,7 @@ export default function EditTransactionModal({
           />
         </div>
 
-        <div className="bg-[#0a0a0a]/30 border border-slate-700/50 p-3 rounded-none">
+        <div className="bg-[#0b0b0f]/30 border border-slate-700/50 p-3 rounded-none">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <Input
               label="Nominal Transaksi"

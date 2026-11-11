@@ -8,8 +8,10 @@ const base =
 
 const variants: Record<string, string> = {
   solid: "bg-amber-600 text-white hover:bg-amber-500 active:bg-amber-700 border-amber-600",
-  ghost: "bg-transparent text-amber-900 hover:bg-amber-50 active:bg-amber-100 border-transparent",
-  outline: "bg-transparent text-slate-900 border border-slate-300 hover:bg-slate-100 active:bg-slate-200",
+  ghost:
+    "bg-transparent text-slate-300 hover:bg-[#17171c] hover:text-white active:bg-[#1f1f26] border-transparent",
+  outline:
+    "bg-transparent text-slate-200 border border-slate-700 hover:bg-[#17171c] hover:border-slate-600 active:bg-[#1f1f26]",
   danger: "bg-rose-600 text-white hover:bg-rose-500 active:bg-rose-700 border-rose-600",
 };
 

@@ -15,6 +15,22 @@ const config: Config = {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        // Ramp netral hangat — diselaraskan dengan aksen amber.
+        // Mengganti slate bawaan Tailwind (biru-abu) agar tidak bertabrakan
+        // dengan latar netral dan aksen amber.
+        slate: {
+          50: "#f8f8f9",
+          100: "#efeff1",
+          200: "#e3e3e7",
+          300: "#cacad2",
+          400: "#a2a2ad",
+          500: "#8a8a96",
+          600: "#6b6b78",
+          700: "#3b3b45",
+          800: "#27272f",
+          900: "#18181d",
+          950: "#0e0e12",
+        },
         navy: {
           950: "#070c1a",
           900: "#0b1329",

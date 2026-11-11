@@ -36,9 +36,9 @@ export default function StaffPage() {
       />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="bg-[#0d0d11] border border-slate-700 rounded-none p-4 shadow-sm flex items-center justify-between transition-colors">
+        <div className="bg-[#0e0e12] border border-slate-700 rounded-none p-4 shadow-sm flex items-center justify-between transition-colors">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-none bg-[#15151a] text-blue-500 border border-slate-700 flex items-center justify-center font-bold text-xs">
+            <div className="w-9 h-9 rounded-none bg-[#17171c] text-amber-400 border border-slate-700 flex items-center justify-center font-bold text-xs">
               KB
             </div>
             <div>
@@ -51,9 +51,9 @@ export default function StaffPage() {
           </span>
         </div>
 
-        <div className="bg-[#0d0d11] border border-slate-700 rounded-none p-4 shadow-sm flex items-center justify-between transition-colors">
+        <div className="bg-[#0e0e12] border border-slate-700 rounded-none p-4 shadow-sm flex items-center justify-between transition-colors">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-none bg-[#15151a] text-slate-500 border border-slate-700 flex items-center justify-center font-bold text-xs">
+            <div className="w-9 h-9 rounded-none bg-[#17171c] text-slate-500 border border-slate-700 flex items-center justify-center font-bold text-xs">
               OA
             </div>
             <div>
@@ -61,20 +61,20 @@ export default function StaffPage() {
               <p className="text-[11px] text-slate-600 font-mono">PIN: •••••• | Superadmin</p>
             </div>
           </div>
-          <span className="px-2 py-0.5 rounded-none text-[10px] font-bold border border-blue-700/50 bg-blue-900/20 text-blue-400">
+          <span className="px-2 py-0.5 rounded-none text-[10px] font-bold border border-amber-700/50 bg-amber-900/20 text-amber-400">
             Owner
           </span>
         </div>
       </div>
 
-      <div className="bg-[#0d0d11] border border-slate-700 rounded-none shadow-sm overflow-hidden transition-colors">
+      <div className="bg-[#0e0e12] border border-slate-700 rounded-none shadow-sm overflow-hidden transition-colors">
         <div className="p-3.5 border-b border-slate-700 flex items-center gap-2">
           <History className="w-4 h-4 text-slate-500" />
           <h3 className="font-bold text-xs text-white">Log Audit & Rekonsiliasi Shift</h3>
         </div>
 
         <table className="w-full text-left text-xs">
-          <thead className="bg-[#15151a] text-slate-500 uppercase tracking-wider font-semibold border-b border-slate-700 text-[10px]">
+          <thead className="bg-[#17171c] text-slate-500 uppercase tracking-wider font-semibold border-b border-slate-700 text-[10px]">
             <tr>
               <th className="px-4 py-3">Kasir</th>
               <th className="px-4 py-3">Mulai Shift</th>
@@ -96,7 +96,7 @@ export default function StaffPage() {
               </tr>
             ) : (
               shifts.map((s) => (
-                <tr key={s.id} className="hover:bg-[#15151a]/50">
+                <tr key={s.id} className="hover:bg-[#17171c]/50">
                   <td className="px-4 py-3 font-semibold text-white">{s.user?.name}</td>
                   <td className="px-4 py-3 text-slate-600">
                     {new Date(s.startTime).toLocaleString("id-ID")}
@@ -115,7 +115,7 @@ export default function StaffPage() {
                           s.discrepancy === 0
                             ? "text-emerald-500"
                             : s.discrepancy > 0
-                            ? "text-blue-500"
+                            ? "text-emerald-400"
                             : "text-rose-500"
                         }
                       >
@@ -130,7 +130,7 @@ export default function StaffPage() {
                     <span
                       className={`px-1.5 py-0.5 rounded-none text-[9px] font-semibold border ${
                         s.status === "OPEN"
-                          ? "border-blue-700/50 bg-blue-900/20 text-blue-400"
+                          ? "border-amber-700/50 bg-amber-900/20 text-amber-400"
                           : "border-slate-700 bg-transparent text-slate-600"
                       }`}
                     >

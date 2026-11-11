@@ -77,9 +77,9 @@ export default function MutasiKasPage() {
         </Button>
       </div>
 
-      <div className="bg-[#0d0d11] border border-slate-700 rounded-none shadow-sm overflow-hidden transition-colors">
+      <div className="bg-[#0e0e12] border border-slate-700 rounded-none shadow-sm overflow-hidden transition-colors">
         <table className="w-full text-left text-xs">
-          <thead className="bg-[#15151a] text-slate-500 uppercase tracking-wider font-semibold border-b border-slate-700 text-[10px]">
+          <thead className="bg-[#17171c] text-slate-500 uppercase tracking-wider font-semibold border-b border-slate-700 text-[10px]">
             <tr>
               <th className="px-4 py-3">Waktu</th>
               <th className="px-4 py-3">Tipe</th>
@@ -99,7 +99,7 @@ export default function MutasiKasPage() {
               </tr>
             ) : (
               mutations.map((m) => (
-                <tr key={m.id} className="hover:bg-[#15151a]/50">
+                <tr key={m.id} className="hover:bg-[#17171c]/50">
                   <td className="px-4 py-3 text-slate-600">
                     {new Date(m.createdAt).toLocaleString("id-ID")}
                   </td>
@@ -140,8 +140,8 @@ export default function MutasiKasPage() {
       </div>
 
       {showAddModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-xl">
-          <div className="bg-[#0c1220] border border-slate-700 rounded-none w-full max-w-sm p-5 text-white shadow-xl space-y-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
+          <div className="bg-[#121216] border border-slate-700 rounded-none w-full max-w-sm p-5 text-white shadow-xl space-y-4">
             <h3 className="text-sm font-bold text-white uppercase tracking-tighter text-[10px] letter-spacing-[0.05em]">
               Catat Biaya / Kas Masuk
             </h3>

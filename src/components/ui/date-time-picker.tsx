@@ -128,7 +128,7 @@ export function DateTimePicker({
       </div>
 
       {open && (
-        <div className="absolute top-full left-0 z-50 mt-1 w-[19rem] max-w-[calc(100vw-2.5rem)] bg-white dark:bg-[#0c1220] border border-slate-400/60 shadow-lg select-none">
+        <div className="absolute top-full left-0 z-50 mt-1 w-[19rem] max-w-[calc(100vw-2.5rem)] bg-white dark:bg-[#121216] border border-slate-400/60 shadow-lg select-none">
           {/* Navigasi bulan */}
           <div className="flex items-center justify-between px-2 py-1.5 border-b border-slate-700/50">
             <button

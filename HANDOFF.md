@@ -94,6 +94,10 @@ Satu tagihan = 2 struk, dijaga flag `providerApplied`/`cashApplied` di Bill:
 
 ## 7. Commit Penting (terbaru dulu)
 
+### Sesi 11 Nov 2026 — rilis v2.9.2 (sudah di server)
+
+- `v2.9.2` penyatuan sistem warna: ramp netral hangat, sidebar amber, modal netral, toast gelap, grafik amber
+
 ### Sesi 11 Nov 2026 — rilis v2.9.1 (sudah di server)
 
 - `v2.9.1` fitur owner: edit & hapus transaksi kasir + koreksi saldo/hutang/cashback otomatis

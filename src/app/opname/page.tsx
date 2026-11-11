@@ -128,7 +128,7 @@ export default function OpnamePage() {
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-[#0d0d11] border border-slate-700 rounded-none p-5 shadow-sm space-y-4 transition-colors">
+        <div className="bg-[#0e0e12] border border-slate-700 rounded-none p-5 shadow-sm space-y-4 transition-colors">
           <div className="flex items-center justify-between pb-3 border-b border-slate-700">
             <div>
               <h3 className="font-bold text-white text-sm">Target Saldo & Brankas</h3>
@@ -165,20 +165,20 @@ export default function OpnamePage() {
             </div>
           </div>
 
-          <div className="p-3.5 bg-[#0a0a0a]/50 border border-slate-700/50 rounded-none flex items-center justify-between">
+          <div className="p-3.5 bg-[#0b0b0f]/50 border border-slate-700/50 rounded-none flex items-center justify-between">
             <div>
               <div className="text-[11px] text-slate-600 font-semibold uppercase tracking-wider">
                 Target Cash Fisik Laci
               </div>
               <div className="text-[11px] text-slate-600">Uang tunai wajib ada di laci</div>
             </div>
-            <div className="text-xl font-bold font-mono text-blue-500">
+            <div className="text-xl font-bold font-mono text-amber-400">
               {formatRupiah(targetCashFisik)}
             </div>
           </div>
         </div>
 
-        <div className="bg-[#0d0d11] border border-slate-700 rounded-none p-5 shadow-sm space-y-4 transition-colors">
+        <div className="bg-[#0e0e12] border border-slate-700 rounded-none p-5 shadow-sm space-y-4 transition-colors">
           <div className="flex items-center justify-between pb-3 border-b border-slate-700">
             <div>
               <h3 className="font-bold text-white text-sm">P&L (Shift Berjalan)</h3>
@@ -206,7 +206,7 @@ export default function OpnamePage() {
             </div>
           </div>
 
-          <div className="p-3.5 bg-[#0a0a0a]/50 border border-slate-700/50 rounded-none flex items-center justify-between">
+          <div className="p-3.5 bg-[#0b0b0f]/50 border border-slate-700/50 rounded-none flex items-center justify-between">
             <div className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
               Profit / Defisit Shift:
             </div>
@@ -222,7 +222,7 @@ export default function OpnamePage() {
         </div>
       </div>
 
-      <div className="bg-[#0d0d11] border border-slate-700 rounded-none p-5 shadow-sm space-y-5 transition-colors">
+      <div className="bg-[#0e0e12] border border-slate-700 rounded-none p-5 shadow-sm space-y-5 transition-colors">
         <div className="pb-3 border-b border-slate-700">
           <h3 className="text-sm font-bold text-white flex items-center gap-2">
             <Lock className="w-4 h-4 text-slate-500" />
@@ -240,7 +240,7 @@ export default function OpnamePage() {
             return (
               <div
                 key={denom}
-                className="bg-[#0a0a0a]/30 border border-slate-700/50 p-3 rounded-none space-y-1.5"
+                className="bg-[#0b0b0f]/30 border border-slate-700/50 p-3 rounded-none space-y-1.5"
               >
                 <div className="flex justify-between items-center text-xs">
                   <span className="font-semibold text-white">{formatRupiah(denom)}</span>
@@ -261,7 +261,7 @@ export default function OpnamePage() {
           })}
         </div>
 
-        <div className="p-4 bg-[#0a0a0a]/30 border border-slate-700/50 rounded-none flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="p-4 bg-[#0b0b0f]/30 border border-slate-700/50 rounded-none flex flex-col md:flex-row items-center justify-between gap-4">
           <div>
             <div className="text-[11px] text-slate-600 uppercase tracking-wide">
               Total Fisik Dihitung Kasir
@@ -271,7 +271,7 @@ export default function OpnamePage() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3 bg-[#050507] px-4 py-2.5 rounded-none border border-slate-700">
+          <div className="flex items-center gap-3 bg-[#08080a] px-4 py-2.5 rounded-none border border-slate-700">
             <div>
               <div className="text-[10px] text-slate-600 uppercase">Selisih dengan Target:</div>
               <div
@@ -279,7 +279,7 @@ export default function OpnamePage() {
                   selisih === 0
                     ? "text-emerald-500"
                     : selisih > 0
-                    ? "text-blue-500"
+                    ? "text-emerald-400"
                     : "text-rose-500"
                 }`}
               >
@@ -292,7 +292,7 @@ export default function OpnamePage() {
                 selisih === 0
                   ? "border-emerald-700/50 bg-emerald-900/20 text-emerald-400"
                   : selisih > 0
-                  ? "border-blue-700/50 bg-blue-900/20 text-blue-400"
+                  ? "border-emerald-700/50 bg-emerald-900/20 text-emerald-400"
                   : "border-rose-700/50 bg-rose-900/20 text-rose-400"
               }`}
             >

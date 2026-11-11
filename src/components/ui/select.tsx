@@ -62,7 +62,7 @@ export function Select({
           </span>
         </div>
         {open && (
-          <div className="km-select-list absolute z-50 min-w-full w-max max-w-[16rem] bg-white dark:bg-[#0c1220] border border-slate-400/60 mt-0.5 max-h-48 overflow-y-auto shadow-lg">
+          <div className="km-select-list absolute z-50 min-w-full w-max max-w-[16rem] bg-white dark:bg-[#121216] border border-slate-400/60 mt-0.5 max-h-48 overflow-y-auto shadow-lg">
             {options.map((opt: { value: string; label: string }) => (
               <div
                 key={opt.value}

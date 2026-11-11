@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useTheme } from "./ThemeProvider";
 
 const THEME_COLORS: Record<string, string> = {
-  dark: "#050507",
+  dark: "#08080a",
   light: "#fafafa",
 };
 

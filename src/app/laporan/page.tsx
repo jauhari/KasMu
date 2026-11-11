@@ -144,7 +144,7 @@ export default function LaporanPage() {
         </div>
       </div>
 
-      <div className="bg-[#0d0d11] border border-slate-700 rounded-none p-5 shadow-sm transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-[#0e0e12] border border-slate-700 rounded-none p-5 shadow-sm transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="text-[11px] text-slate-600 uppercase tracking-wider font-bold">
             Laba Bersih Periode Ini
@@ -175,7 +175,7 @@ export default function LaporanPage() {
         </div>
       </div>
 
-      <div className="bg-[#0d0d11] border border-slate-700 rounded-none p-5 shadow-sm transition-colors">
+      <div className="bg-[#0e0e12] border border-slate-700 rounded-none p-5 shadow-sm transition-colors">
         <h3 className="text-sm font-bold text-white mb-3 pb-2 border-b border-slate-700 flex items-center gap-2">
           <DollarSign className="w-4 h-4 text-emerald-500" />
           Rincian Laporan Laba Rugi
@@ -199,7 +199,7 @@ export default function LaporanPage() {
             <span className="font-mono text-white">{formatRupiah(r.otherIncome)}</span>
           </div>
 
-          <div className="flex justify-between py-2 font-semibold text-white bg-[#15151a] px-3 rounded-none border border-slate-700/50">
+          <div className="flex justify-between py-2 font-semibold text-white bg-[#17171c] px-3 rounded-none border border-slate-700/50">
             <span>Total Pendapatan</span>
             <span className="font-mono">{formatRupiah(r.totalPendapatan)}</span>
           </div>
@@ -209,7 +209,7 @@ export default function LaporanPage() {
             <span className="font-mono font-semibold">({formatRupiah(r.operationalExpenses)})</span>
           </div>
 
-          <div className="flex justify-between py-3 px-3 rounded-none bg-[#15151a] border border-slate-700/50 font-bold text-sm">
+          <div className="flex justify-between py-3 px-3 rounded-none bg-[#17171c] border border-slate-700/50 font-bold text-sm">
             <span className="text-white">LABA BERSIH OPERASIONAL</span>
             <span className="font-mono text-emerald-500">{formatRupiah(r.labaBersih)}</span>
           </div>
@@ -217,23 +217,23 @@ export default function LaporanPage() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-        <div className="bg-[#0d0d11] border border-slate-700 rounded-none p-3.5">
+        <div className="bg-[#0e0e12] border border-slate-700 rounded-none p-3.5">
           <span className="text-[11px] text-slate-600">Transaksi Sukses</span>
           <div className="text-lg font-bold font-mono text-white mt-0.5">{r.txCount}</div>
         </div>
-        <div className="bg-[#0d0d11] border border-slate-700 rounded-none p-3.5">
+        <div className="bg-[#0e0e12] border border-slate-700 rounded-none p-3.5">
           <span className="text-[11px] text-slate-600">Rata-rata Pendapatan</span>
-          <div className="text-lg font-bold font-mono text-blue-500 mt-0.5">
+          <div className="text-lg font-bold font-mono text-amber-400 mt-0.5">
             {formatRupiah(r.txCount > 0 ? r.totalPendapatan / r.txCount : 0)}
           </div>
         </div>
-        <div className="bg-[#0d0d11] border border-slate-700 rounded-none p-3.5">
+        <div className="bg-[#0e0e12] border border-slate-700 rounded-none p-3.5">
           <span className="text-[11px] text-slate-600">Total Pendapatan</span>
           <div className="text-lg font-bold font-mono text-white mt-0.5">
             {formatRupiah(r.totalPendapatan)}
           </div>
         </div>
-        <div className="bg-[#0d0d11] border border-slate-700 rounded-none p-3.5">
+        <div className="bg-[#0e0e12] border border-slate-700 rounded-none p-3.5">
           <span className="text-[11px] text-slate-600">Beban Operasional</span>
           <div className="text-lg font-bold font-mono text-rose-500 mt-0.5">
             {formatRupiah(r.operationalExpenses)}

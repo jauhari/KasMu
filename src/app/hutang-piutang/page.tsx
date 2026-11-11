@@ -117,9 +117,9 @@ export default function HutangPiutangPage() {
         </Button>
       </div>
 
-      <div className="bg-[#0d0d11] border border-slate-700 rounded-none shadow-sm overflow-hidden transition-colors">
+      <div className="bg-[#0e0e12] border border-slate-700 rounded-none shadow-sm overflow-hidden transition-colors">
         <table className="w-full text-left text-xs">
-          <thead className="bg-[#15151a] text-slate-500 uppercase tracking-wider font-semibold border-b border-slate-700 text-[10px]">
+          <thead className="bg-[#17171c] text-slate-500 uppercase tracking-wider font-semibold border-b border-slate-700 text-[10px]">
             <tr>
               <th className="px-4 py-3">Tanggal</th>
               <th className="px-4 py-3">Tipe</th>
@@ -141,7 +141,7 @@ export default function HutangPiutangPage() {
               </tr>
             ) : (
               records.map((r) => (
-                <tr key={r.id} className="hover:bg-[#15151a]/50">
+                <tr key={r.id} className="hover:bg-[#17171c]/50">
                   <td className="px-4 py-3 text-slate-600">
                     {new Date(r.createdAt).toLocaleDateString("id-ID")}
                   </td>
@@ -195,8 +195,8 @@ export default function HutangPiutangPage() {
       </div>
 
       {showAddModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-xl">
-          <div className="bg-[#0c1220] border border-slate-700 rounded-none w-full max-w-sm p-5 text-white shadow-xl space-y-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
+          <div className="bg-[#121216] border border-slate-700 rounded-none w-full max-w-sm p-5 text-white shadow-xl space-y-4">
             <h3 className="text-sm font-bold text-white uppercase tracking-tighter text-[10px] letter-spacing-[0.05em]">
               Tambah Catatan Hutang / Piutang
             </h3>
@@ -273,13 +273,13 @@ export default function HutangPiutangPage() {
       )}
 
       {payTarget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-xl">
-          <div className="bg-[#0c1220] border border-slate-700 rounded-none w-full max-w-sm p-5 text-white shadow-xl space-y-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
+          <div className="bg-[#121216] border border-slate-700 rounded-none w-full max-w-sm p-5 text-white shadow-xl space-y-4">
             <h3 className="text-[10px] uppercase tracking-[0.05em] font-bold">
               Pelunasan — {payTarget.partyName}
             </h3>
             <div className="space-y-4 text-xs">
-              <div className="p-3 border border-slate-700/60 bg-[#0a0a0a]/40 space-y-1">
+              <div className="p-3 border border-slate-700/60 bg-[#0b0b0f]/40 space-y-1">
                 <p className="text-[10px] text-slate-500 uppercase tracking-wide">Sisa tagihan</p>
                 <p className="font-mono text-base font-bold text-rose-400">
                   {formatRupiah(payTarget.remaining)}

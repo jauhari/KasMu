@@ -179,7 +179,7 @@ function TransaksiInner() {
       />
 
       {/* Tab */}
-      <div className="flex gap-0 border border-slate-700 bg-[#0d0d11] w-fit">
+      <div className="flex gap-0 border border-slate-700 bg-[#0e0e12] w-fit">
         {(
           [
             ["struk", "Struk Kasir"],
@@ -191,8 +191,8 @@ function TransaksiInner() {
             onClick={() => setTab(key)}
             className={`px-5 py-2 text-xs font-bold tracking-wide uppercase transition-colors ${
               tab === key
-                ? "bg-emerald-600 text-white"
-                : "bg-transparent text-slate-400 hover:text-white hover:bg-[#15151a]"
+                ? "bg-amber-600 text-white"
+                : "bg-transparent text-slate-400 hover:text-white hover:bg-[#17171c]"
             }`}
           >
             {label}
@@ -202,7 +202,7 @@ function TransaksiInner() {
 
       {tab === "struk" ? (
         <>
-          <div className="bg-[#0d0d11] border border-slate-700 rounded-none p-4 shadow-sm flex flex-col sm:flex-row gap-4 items-center justify-between transition-colors">
+          <div className="bg-[#0e0e12] border border-slate-700 rounded-none p-4 shadow-sm flex flex-col sm:flex-row gap-4 items-center justify-between transition-colors">
             <div className="relative w-full sm:w-80">
               <Search className="w-4 h-4 absolute left-3 top-2.5 text-slate-500" />
               <Input
@@ -268,10 +268,10 @@ function TransaksiInner() {
             </div>
           </div>
 
-          <div className="bg-[#0d0d11] border border-slate-700 rounded-none shadow-sm overflow-hidden transition-colors">
+          <div className="bg-[#0e0e12] border border-slate-700 rounded-none shadow-sm overflow-hidden transition-colors">
             <div className="overflow-x-auto">
               <table className="w-full min-w-[640px] text-left text-xs">
-                <thead className="bg-[#15151a] text-slate-500 uppercase tracking-wider font-semibold border-b border-slate-700 text-[10px]">
+                <thead className="bg-[#17171c] text-slate-500 uppercase tracking-wider font-semibold border-b border-slate-700 text-[10px]">
                   <tr>
                     <th className="px-4 py-3">No Transaksi / Waktu</th>
                     <th className="px-4 py-3">Layanan / Provider</th>
@@ -298,7 +298,7 @@ function TransaksiInner() {
                     </tr>
                   ) : (
                     displayTx.map((tx) => (
-                      <tr key={tx.id} className="hover:bg-[#15151a]/50 transition-colors">
+                      <tr key={tx.id} className="hover:bg-[#17171c]/50 transition-colors">
                         <td className="px-4 py-3">
                           <div className="font-mono font-bold text-slate-200 text-[11px]">{tx.txNumber}</div>
                           <div className="text-[10px] text-slate-600">
@@ -474,8 +474,8 @@ function TransaksiInner() {
           />
 
           {lunasTarget && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-xl">
-              <div className="bg-[#0c1220] border border-slate-700 rounded-none w-full max-w-sm p-5 text-white shadow-xl space-y-4">
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
+              <div className="bg-[#121216] border border-slate-700 rounded-none w-full max-w-sm p-5 text-white shadow-xl space-y-4">
                 <h3 className="text-[10px] uppercase tracking-[0.05em] font-bold">
                   Tandai Lunas — {lunasTarget.customerName}
                 </h3>
@@ -504,7 +504,7 @@ function TransaksiInner() {
                     <button
                       type="button"
                       onClick={() => handleLunasStruk(lunasTarget, new Date(lunasAt).toISOString())}
-                      className="px-4 py-1.5 rounded-none bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs transition-colors"
+                      className="px-4 py-1.5 rounded-none bg-amber-600 hover:bg-amber-500 text-white font-semibold text-xs transition-colors"
                     >
                       Simpan Lunas
                     </button>

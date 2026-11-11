@@ -339,7 +339,7 @@ export default function QuickTransactionModal({
         </div>
 
         {/* Baris 2: uang — nominal, admin, fee, total (fee otomatis) */}
-        <div className="bg-[#0a0a0a]/30 border border-slate-700/50 p-3 rounded-none">
+        <div className="bg-[#0b0b0f]/30 border border-slate-700/50 p-3 rounded-none">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <Input
               label="Nominal Transaksi"
@@ -440,7 +440,7 @@ export default function QuickTransactionModal({
                 .slice(0, 6);
               const isNew = !customerNames.some((n) => n.toLowerCase() === q);
               return sugg.length > 0 ? (
-                <div className="absolute top-full left-0 right-0 z-50 mt-0.5 bg-white dark:bg-[#0c1220] border border-slate-400/60 shadow-lg max-h-48 overflow-y-auto">
+                <div className="absolute top-full left-0 right-0 z-50 mt-0.5 bg-white dark:bg-[#121216] border border-slate-400/60 shadow-lg max-h-48 overflow-y-auto">
                   {sugg.map((n) => (
                     <div
                       key={n}
